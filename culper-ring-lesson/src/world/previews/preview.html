@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shadow War — asset preview (dev only)</title>
+<!-- Development page only. Loads the source modules directly so artists
+     can iterate without running the bundler. NEVER ship or link this to
+     students; the game itself only exposes the preview behind debug mode. -->
+</head>
+<body style="background:#10161f;margin:0">
+<script src="../art/palette.js"></script>
+<script src="../art/pixelUtils.js"></script>
+<script src="../art/spriteRegistry.js"></script>
+<script src="../art/illustrations/illusManifest.js"></script>
+<script src="../tiles/terrainTiles.js"></script>
+<script src="../tiles/natureTiles.js"></script>
+<script src="../tiles/structureTiles.js"></script>
+<script src="../tiles/propTiles.js"></script>
+<script src="../tiles/ambientProps.js"></script>
+<script src="../characters/figureKit.js"></script>
+<script src="../characters/annaSprites.js"></script>
+<script src="../characters/npcSprites.js"></script>
+<script src="../characters/guardSprites.js"></script>
+<script src="../ui/uiMarkers.js"></script>
+<script src="../effects/worldEffects.js"></script>
+<script src="../effects/sightCones.js"></script>
+<script src="../maps/mapLegend.js"></script>
+<script src="../maps/setauketMap.js"></script>
+<script src="../rendering/worldRenderer.js"></script>
+<script src="../rendering/entityRenderer.js"></script>
+<script src="../rendering/effectRenderer.js"></script>
+<script src="../rendering/compose.js"></script>
+<script src="../previews/assetPreview.js"></script>
+<script src="../init.js"></script>
+<script>
+SWART.init();
+SWART.preview.open();
+</script>
+</body>
+</html>

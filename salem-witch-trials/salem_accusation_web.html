@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Accusation Web — Salem, 1692</title>
+<style>
+  :root{
+    --bg:#f4f1ea;
+    --panel:#ffffff;
+    --ink:#22242b;
+    --ink-soft:#565a66;
+    --line:#d9d3c6;
+    --accent:#7a5230;
+    --edge:#b9b1a2;
+    --edge-hot:#22242b;
+    /* outcome colors */
+    --c-hanged:#c0392b;
+    --c-pressed:#7d3c98;
+    --c-custody:#7f8c8d;
+    --c-confessed:#2e9e57;
+    --c-acquitted:#2980b9;
+    --c-accuser:#e0a020;
+    --c-court:#34495e;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-text-size-adjust:100%;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;flex-wrap:wrap;
+    padding:10px 16px;
+    background:var(--ink);color:#f4f1ea;
+    border-bottom:3px solid var(--accent);
+  }
+  header h1{
+    font-size:1.15rem;margin:0;font-weight:700;letter-spacing:.3px;
+  }
+  header .sub{font-size:.78rem;color:#c9c3b6;margin-top:2px;font-weight:400;}
+  .lang-toggle{
+    display:flex;border:1.5px solid #f4f1ea;border-radius:6px;overflow:hidden;
+    font-weight:700;font-size:.82rem;flex-shrink:0;
+  }
+  .lang-toggle button{
+    background:transparent;color:#f4f1ea;border:none;padding:6px 12px;cursor:pointer;
+    font:inherit;font-weight:700;
+  }
+  .lang-toggle button.active{background:#f4f1ea;color:var(--ink);}
+
+  /* ---------- TASK STEPPER ---------- */
+  .stepper{
+    display:flex;gap:8px;flex-wrap:wrap;
+    padding:10px 16px;background:#eae4d7;border-bottom:1px solid var(--line);
+  }
+  .step-btn{
+    background:var(--panel);border:1.5px solid var(--line);border-radius:8px;
+    padding:8px 12px;cursor:pointer;font:inherit;font-size:.85rem;color:var(--ink);
+    display:flex;align-items:center;gap:7px;line-height:1.2;
+    transition:border-color .15s, background .15s;
+  }
+  .step-btn:hover{border-color:var(--accent);}
+  .step-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .step-btn .num{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;
+    font-size:.75rem;font-weight:700;flex-shrink:0;
+  }
+  .step-btn.active .num{background:#fff;color:var(--accent);}
+
+  /* instruction bar */
+  .instruction{
+    padding:9px 16px;background:#fff8e6;border-bottom:1px solid #ecdca6;
+    font-size:.92rem;color:#4a3d1c;
+  }
+  .instruction b{color:var(--accent);}
+
+  /* ---------- MAIN LAYOUT ---------- */
+  .main{display:flex;gap:0;align-items:stretch;min-height:60vh;}
+  .graph-wrap{flex:1 1 auto;position:relative;min-width:0;background:
+    repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(0,0,0,0.02) 40px),
+    var(--bg);}
+  svg#graph{display:block;width:100%;height:64vh;min-height:420px;touch-action:manipulation;}
+
+  /* nodes */
+  .node{cursor:pointer;}
+  .node circle,.node rect,.node polygon{transition:opacity .35s;}
+  .node .halo{fill:none;}
+  .node-label{
+    font-size:11px;fill:var(--ink);pointer-events:none;
+    font-weight:600;paint-order:stroke;stroke:var(--bg);stroke-width:3px;
+    stroke-linejoin:round;
+  }
+  .edge{stroke:var(--edge);stroke-width:1.6;fill:none;transition:opacity .35s,stroke .2s,stroke-width .2s;}
+  .edge.hot{stroke:var(--edge-hot);stroke-width:2.6;}
+  .dim{opacity:.12 !important;}
+  .revealing{opacity:0;}
+
+  /* ---------- SIDE PANEL ---------- */
+  .side{
+    flex:0 0 320px;max-width:340px;background:var(--panel);
+    border-left:1px solid var(--line);padding:16px;overflow-y:auto;
+    max-height:calc(64vh + 0px);
+  }
+  .side.empty .placeholder{display:block;}
+  .placeholder{color:var(--ink-soft);font-size:.92rem;}
+  .card-role{
+    display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;
+    letter-spacing:.5px;padding:3px 8px;border-radius:5px;color:#fff;margin-bottom:8px;
+  }
+  .card h2{margin:.1rem 0 .2rem;font-size:1.35rem;}
+  .card .real-tag{font-size:.75rem;color:var(--ink-soft);margin-bottom:10px;}
+  .card .field{margin:10px 0;}
+  .card .field .lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);font-weight:700;}
+  .card .field .val{font-size:.98rem;}
+  .card .bio{font-size:.98rem;margin-top:6px;}
+  .outcome-chip{
+    display:inline-flex;align-items:center;gap:7px;font-weight:700;font-size:.95rem;
+    padding:5px 10px;border-radius:6px;margin-top:4px;
+  }
+  .outcome-chip .dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;}
+
+  /* ---------- LEGEND ---------- */
+  .legend{
+    background:var(--panel);border-top:1px solid var(--line);
+    padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;
+  }
+  .legend .ltitle{font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-soft);margin-right:4px;}
+  .legend .item{display:flex;align-items:center;gap:6px;font-size:.85rem;}
+  .legend .sw{width:15px;height:15px;border-radius:50%;flex-shrink:0;border:1px solid rgba(0,0,0,.15);}
+  .legend .sw.square{border-radius:3px;}
+  .legend .sw.ring{box-shadow:0 0 0 2px #fff,0 0 0 3.5px var(--c-accuser);}
+  .legend .sw.dash{border:2px dashed var(--c-confessed);background:rgba(46,158,87,.25);}
+
+  /* ---------- TIMELINE ---------- */
+  .timeline{
+    background:#eae4d7;border-top:1px solid var(--line);padding:12px 16px 16px;
+  }
+  .tl-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px;}
+  .play-btn{
+    background:var(--accent);color:#fff;border:none;border-radius:8px;
+    padding:9px 16px;font:inherit;font-weight:700;font-size:.95rem;cursor:pointer;
+    display:flex;align-items:center;gap:8px;
+  }
+  .play-btn:hover{background:#5f3f24;}
+  .date-now{font-weight:700;font-size:1.05rem;min-width:130px;}
+  .counter{
+    margin-left:auto;text-align:right;
+  }
+  .counter .big{font-size:1.6rem;font-weight:800;color:var(--c-hanged);line-height:1;}
+  .counter .lbl{font-size:.78rem;color:var(--ink-soft);}
+  .slider-row{position:relative;padding-top:6px;}
+  input[type=range]#scrub{width:100%;margin:0;cursor:pointer;accent-color:var(--accent);height:26px;}
+  .ticks{position:relative;height:34px;margin-top:2px;}
+  .tick{position:absolute;transform:translateX(-50%);text-align:center;font-size:.68rem;color:var(--ink-soft);width:90px;}
+  .tick::before{content:"";display:block;width:1px;height:7px;background:var(--ink-soft);margin:0 auto 2px;}
+
+  /* filter buttons (task 3) */
+  .filters{display:none;gap:8px;flex-wrap:wrap;padding:10px 16px;background:#f1ebde;border-top:1px dashed var(--line);align-items:center;}
+  .filters.show{display:flex;}
+  .filters .flabel{font-weight:700;font-size:.85rem;color:var(--ink-soft);}
+  .filter-btn{
+    border:1.5px solid var(--line);background:#fff;border-radius:20px;padding:7px 14px;
+    font:inherit;font-size:.85rem;cursor:pointer;font-weight:600;
+  }
+  .filter-btn.on-conf{border-color:var(--c-confessed);}
+  .filter-btn.on-ref{border-color:var(--c-hanged);}
+  .filter-btn.active.on-conf{background:var(--c-confessed);color:#fff;}
+  .filter-btn.active.on-ref{background:var(--c-hanged);color:#fff;}
+  .filter-caption{font-size:.9rem;font-weight:600;flex-basis:100%;margin-top:2px;}
+
+  /* ---------- VOCAB TOOLTIP (ported from civil war engine) ---------- */
+  .vocab{
+    border-bottom:1.5px dotted var(--accent);cursor:help;position:relative;color:var(--ink);
+  }
+  .vocab:hover,.vocab:focus{background:rgba(122,82,48,.10);outline:none;}
+  .vocab .tooltip{
+    visibility:hidden;opacity:0;position:absolute;bottom:135%;left:50%;
+    transform:translateX(-50%);background:var(--ink);color:#f4f1ea;
+    padding:10px 13px;width:230px;font-size:.85rem;line-height:1.45;z-index:60;
+    border-radius:6px;transition:opacity .2s;text-align:left;font-weight:400;
+    box-shadow:0 6px 20px rgba(0,0,0,.3);
+  }
+  .vocab:hover .tooltip,.vocab:focus .tooltip{visibility:visible;opacity:1;}
+  .vocab .tooltip .es{
+    display:block;margin-top:7px;padding-top:7px;border-top:1px dashed rgba(224,160,32,.5);
+    color:#f4d28a;font-style:italic;font-size:.82rem;
+  }
+  .vocab .tooltip .es::before{content:"🌐 ";font-style:normal;}
+
+  /* ---------- MODAL ---------- */
+  .modal-back{
+    position:fixed;inset:0;background:rgba(20,20,25,.7);display:none;
+    align-items:center;justify-content:center;z-index:100;padding:18px;
+  }
+  .modal-back.show{display:flex;}
+  .modal{
+    background:var(--panel);max-width:640px;width:100%;max-height:88vh;overflow-y:auto;
+    border-radius:12px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.4);
+  }
+  .modal h2{margin-top:0;}
+  .modal .analogy{background:#fff8e6;border-left:4px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0;}
+  .modal .disclaimer{font-size:.82rem;color:var(--ink-soft);border-top:1px solid var(--line);margin-top:16px;padding-top:12px;}
+  .modal-btn{
+    background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 22px;
+    font:inherit;font-weight:700;font-size:1rem;cursor:pointer;margin-top:10px;
+  }
+  .modal-btn:hover{background:#5f3f24;}
+  .modal-close{float:right;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--ink-soft);line-height:1;}
+
+  /* reflection */
+  .reflect-q{margin:16px 0;}
+  .reflect-q .qtext{font-weight:600;margin-bottom:6px;}
+  .reflect-q textarea{width:100%;min-height:60px;border:1.5px solid var(--line);border-radius:8px;padding:9px;font:inherit;font-size:.95rem;resize:vertical;}
+  .reflect-q .choice{display:flex;gap:8px;flex-wrap:wrap;}
+  .reflect-q .choice label{border:1.5px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;font-size:.92rem;}
+  .reflect-q .choice input{margin-right:6px;}
+  .note-print{font-size:.8rem;color:var(--ink-soft);}
+
+  @media (max-width:820px){
+    .main{flex-direction:column;}
+    .side{flex-basis:auto;max-width:none;border-left:none;border-top:1px solid var(--line);max-height:none;}
+    svg#graph{height:56vh;}
+    .counter{margin-left:0;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1 id="app-title">The Accusation Web — Salem, 1692</h1>
+    <div class="sub" id="app-sub">Watch how the witch trial accusations spread from person to person.</div>
+  </div>
+  <div class="lang-toggle" role="group" aria-label="Language">
+    <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+    <button id="lang-es" onclick="setLang('es')">ES</button>
+  </div>
+</header>
+
+<div class="stepper" id="stepper"><!-- task buttons injected --></div>
+<div class="instruction" id="instruction"></div>
+
+<div class="main">
+  <div class="graph-wrap">
+    <svg id="graph" viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet" aria-label="Accusation network">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--edge)"/>
+        </marker>
+        <marker id="arrow-hot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--edge-hot)"/>
+        </marker>
+      </defs>
+      <g id="edges-layer"></g>
+      <g id="nodes-layer"></g>
+      <text id="court-label" x="30" y="595" font-size="12" fill="var(--ink-soft)" font-weight="700"></text>
+    </svg>
+  </div>
+
+  <aside class="side empty" id="side">
+    <div class="placeholder" id="side-placeholder"></div>
+    <div class="card" id="card" style="display:none;"></div>
+  </aside>
+</div>
+
+<div class="filters" id="filters">
+  <span class="flabel" id="filter-label"></span>
+  <button class="filter-btn on-conf" id="fb-conf" onclick="toggleFilter('confessed')"></button>
+  <button class="filter-btn on-ref" id="fb-ref" onclick="toggleFilter('refused')"></button>
+  <button class="filter-btn" id="fb-reset" onclick="toggleFilter('reset')"></button>
+  <div class="filter-caption" id="filter-caption"></div>
+</div>
+
+<div class="legend" id="legend"></div>
+
+<div class="timeline">
+  <div class="tl-top">
+    <button class="play-btn" id="playBtn" onclick="togglePlay()"><span id="play-icon">▶</span> <span id="play-text"></span></button>
+    <div class="date-now" id="dateNow"></div>
+    <div class="counter">
+      <div class="big" id="countNum">0</div>
+      <div class="lbl" id="countLbl"></div>
+    </div>
+  </div>
+  <div class="slider-row">
+    <input type="range" id="scrub" min="0" max="1000" value="0" step="1" oninput="onScrub(this.value)">
+    <div class="ticks" id="ticks"></div>
+  </div>
+</div>
+
+<!-- INTRO MODAL -->
+<div class="modal-back show" id="introModal">
+  <div class="modal" id="introContent"></div>
+</div>
+<!-- REFLECT MODAL -->
+<div class="modal-back" id="reflectModal">
+  <div class="modal" id="reflectContent"></div>
+</div>
+
+<script>
+/* ============================================================
+   THE ACCUSATION WEB — Salem, 1692
+   Single-file, no dependencies. Hand-rolled SVG network.
+   ============================================================ */
+
+var state = { language: 'en', t: 0, playing: false, filter: null, selected: null, mode: null };
+
+/* ---------- OUTCOME / ROLE STYLES ---------- */
+var OUTCOME = {
+  hanged:    { color:'var(--c-hanged)',    label:{en:'Hanged (executed)',      es:'Ahorcada/o (ejecutada/o)'} },
+  pressed:   { color:'var(--c-pressed)',   label:{en:'Pressed to death',       es:'Aplastado hasta morir'} },
+  custody:   { color:'var(--c-custody)',   label:{en:'Died in jail',           es:'Murió en la cárcel'} },
+  confessed: { color:'var(--c-confessed)', label:{en:'Confessed — lived',      es:'Confesó — sobrevivió'} },
+  acquitted: { color:'var(--c-acquitted)', label:{en:'Acquitted / released',   es:'Absuelta/o / liberada/o'} },
+  accuser:   { color:'var(--c-accuser)',   label:{en:'Accuser (afflicted girl)',es:'Acusadora (niña afligida)'} },
+  court:     { color:'var(--c-court)',     label:{en:'Magistrate / Judge',     es:'Magistrado / Juez'} }
+};
+var ROLE_LABEL = {
+  accuser: {en:'Accuser', es:'Acusadora'},
+  accused: {en:'Accused', es:'Acusada/o'},
+  court:   {en:'Magistrate / Judge', es:'Magistrado / Juez'},
+  cluster: {en:'Group of accused people', es:'Grupo de personas acusadas'}
+};
+
+/* ---------- PEOPLE (real historical figures) ----------
+   cx,cy = normalized layout position (time flows left->right)
+   appear = date the person entered the story (for the timeline reveal)
+   outcome = color category ; confession = 'confessed'|'refused'|'recanted'|'na'
+   represents = how many people this node stands for (Andover = 48)
+------------------------------------------------------------------ */
+var PEOPLE = [
+  { id:'betty', name:{en:'Betty Parris', es:'Betty Parris'}, role:'accuser', outcome:'accuser', confession:'na',
+    cx:0.05, cy:0.30, appear:'1692-02-01', represents:0,
+    bio:{ en:"Betty Parris was 9 years old. She was the daughter of the village minister. She was one of the first girls to have strange fits, and that started the panic.",
+          es:"Betty Parris tenía 9 años. Era hija del pastor del pueblo. Fue una de las primeras niñas en tener ataques extraños, y eso empezó el pánico." } },
+
+  { id:'abigail', name:{en:'Abigail Williams', es:'Abigail Williams'}, role:'accuser', outcome:'accuser', confession:'na',
+    cx:0.05, cy:0.56, appear:'1692-02-01', represents:0,
+    bio:{ en:"Abigail Williams was 11 years old and lived in the minister's house with Betty. She and Betty were the first to accuse people of hurting them with witchcraft. Soon other afflicted girls joined them, and the accusations grew fast.",
+          es:"Abigail Williams tenía 11 años y vivía en la casa del pastor con Betty. Ella y Betty fueron las primeras en acusar a personas de hacerles daño con brujería. Pronto otras niñas afligidas se les unieron, y las acusaciones crecieron rápido." } },
+
+  { id:'tituba', name:{en:'Tituba', es:'Tituba'}, role:'accused', outcome:'confessed', confession:'confessed',
+    cx:0.17, cy:0.40, appear:'1692-02-29', represents:1,
+    bio:{ en:"Tituba was an enslaved woman in the minister's house. She was one of the first three people accused. She confessed and said there were other witches too. Her confession made people believe the danger was real, so the accusations kept spreading. She was never put to death, and later a grand jury would not even indict her.",
+          es:"Tituba era una mujer esclavizada en la casa del pastor. Fue una de las primeras tres personas acusadas. Confesó y dijo que había otras brujas también. Su confesión hizo que la gente creyera que el peligro era real, así que las acusaciones siguieron creciendo. Nunca fue ejecutada, y más tarde un jurado ni siquiera la quiso acusar formalmente." } },
+
+  { id:'sarahGood', name:{en:'Sarah Good', es:'Sarah Good'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.17, cy:0.68, appear:'1692-02-29', represents:1,
+    bio:{ en:"Sarah Good was a poor woman who often had to beg for food. She was one of the first three accused. She refused to confess to something she did not do. She was hanged on July 19, 1692.",
+          es:"Sarah Good era una mujer pobre que a menudo tenía que pedir comida. Fue una de las primeras tres acusadas. Se negó a confesar algo que no hizo. Fue ahorcada el 19 de julio de 1692." } },
+
+  { id:'sarahOsborne', name:{en:'Sarah Osborne', es:'Sarah Osborne'}, role:'accused', outcome:'custody', confession:'refused',
+    cx:0.17, cy:0.12, appear:'1692-02-29', represents:1,
+    bio:{ en:"Sarah Osborne was an older, sick woman who rarely went to church. She was one of the first three accused. She never confessed. She grew ill in jail and died there before her trial.",
+          es:"Sarah Osborne era una mujer mayor y enferma que casi nunca iba a la iglesia. Fue una de las primeras tres acusadas. Nunca confesó. Se enfermó en la cárcel y murió allí antes de su juicio." } },
+
+  { id:'marthaCorey', name:{en:'Martha Corey', es:'Martha Corey'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.29, cy:0.66, appear:'1692-03-19', represents:1,
+    bio:{ en:"Martha Corey was a church member. She got into trouble because she openly doubted the girls' accusations. Because she doubted them, she was accused too. She refused to confess and was hanged on September 22, 1692.",
+          es:"Martha Corey era miembro de la iglesia. Se metió en problemas porque dudó abiertamente de las acusaciones de las niñas. Por dudar, también fue acusada. Se negó a confesar y fue ahorcada el 22 de septiembre de 1692." } },
+
+  { id:'rebeccaNurse', name:{en:'Rebecca Nurse', es:'Rebecca Nurse'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.29, cy:0.38, appear:'1692-03-23', represents:1,
+    bio:{ en:"Rebecca Nurse was 71 years old and a respected church member. 39 of her neighbors signed a petition to defend her. She still refused to confess to a lie, and she was hanged on July 19, 1692. Her story shows the hardest truth of Salem: being respected did not keep anyone safe.",
+          es:"Rebecca Nurse tenía 71 años y era una respetada miembro de la iglesia. 39 de sus vecinos firmaron una petición para defenderla. Aun así se negó a confesar una mentira, y fue ahorcada el 19 de julio de 1692. Su historia muestra la verdad más dura de Salem: ser respetada no mantuvo a nadie a salvo." } },
+
+  { id:'dorothyGood', name:{en:'Dorothy Good', es:'Dorothy Good'}, role:'accused', outcome:'acquitted', confession:'na',
+    cx:0.29, cy:0.10, appear:'1692-03-24', represents:1,
+    bio:{ en:"Dorothy Good was only 4 years old, the daughter of Sarah Good. Her scared answers to the magistrates were used against her mother. She was kept in jail for months but was never put on trial. She was finally set free.",
+          es:"Dorothy Good tenía solo 4 años, hija de Sarah Good. Sus respuestas asustadas ante los magistrados se usaron contra su madre. Estuvo en la cárcel por meses pero nunca fue llevada a juicio. Al final fue liberada." } },
+
+  { id:'bridgetBishop', name:{en:'Bridget Bishop', es:'Bridget Bishop'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.42, cy:0.12, appear:'1692-04-18', represents:1,
+    bio:{ en:"Bridget Bishop ran a tavern and was known for her red clothes. She was the very first person executed. She refused to confess and was hanged on June 10, 1692.",
+          es:"Bridget Bishop tenía una taberna y era conocida por su ropa roja. Fue la primerísima persona ejecutada. Se negó a confesar y fue ahorcada el 10 de junio de 1692." } },
+
+  { id:'sarahWildes', name:{en:'Sarah Wildes', es:'Sarah Wildes'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.42, cy:0.40, appear:'1692-04-21', represents:1,
+    bio:{ en:"Sarah Wildes was accused partly because of old arguments with her neighbors. She refused to confess and was hanged on July 19, 1692, the same day as Rebecca Nurse and Sarah Good.",
+          es:"Sarah Wildes fue acusada en parte por viejas peleas con sus vecinos. Se negó a confesar y fue ahorcada el 19 de julio de 1692, el mismo día que Rebecca Nurse y Sarah Good." } },
+
+  { id:'gilesCorey', name:{en:'Giles Corey', es:'Giles Corey'}, role:'accused', outcome:'pressed', confession:'refused',
+    cx:0.42, cy:0.70, appear:'1692-04-18', represents:1,
+    bio:{ en:"Giles Corey, the husband of Martha Corey, refused to answer the court at all. He would not say “guilty” or “not guilty.” Because he gave no plea, the court pressed him to death under heavy stones over two days.",
+          es:"Giles Corey, el esposo de Martha Corey, se negó por completo a responder al tribunal. No quiso decir “culpable” ni “inocente.” Como no dio ninguna respuesta, el tribunal lo aplastó hasta morir bajo piedras pesadas durante dos días." } },
+
+  { id:'burroughs', name:{en:'George Burroughs', es:'George Burroughs'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.55, cy:0.10, appear:'1692-05-04', represents:1,
+    bio:{ en:"George Burroughs had once been the minister of Salem Village. He had moved away to Maine, but he was brought back to stand trial. He refused to confess and was hanged on August 19, 1692.",
+          es:"George Burroughs había sido el pastor de Salem Village. Se había mudado a Maine, pero lo trajeron de vuelta para ser juzgado. Se negó a confesar y fue ahorcado el 19 de agosto de 1692." } },
+
+  { id:'susannahMartin', name:{en:'Susannah Martin', es:'Susannah Martin'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.55, cy:0.32, appear:'1692-05-02', represents:1,
+    bio:{ en:"Susannah Martin was a widow known for speaking her mind. She laughed at the charges against her. She refused to confess and was hanged on July 19, 1692.",
+          es:"Susannah Martin era una viuda conocida por decir lo que pensaba. Se rió de los cargos en su contra. Se negó a confesar y fue ahorcada el 19 de julio de 1692." } },
+
+  { id:'margaretJacobs', name:{en:'Margaret Jacobs', es:'Margaret Jacobs'}, role:'accused', outcome:'confessed', confession:'confessed',
+    cx:0.55, cy:0.55, appear:'1692-05-10', represents:1,
+    bio:{ en:"Margaret Jacobs was a teenager. She was accused, and under great pressure she confessed and named her own grandfather as a witch. Later she bravely took back her words — she chose to recant — and admitted she had lied. She was kept in jail but survived.",
+          es:"Margaret Jacobs era una adolescente. Fue acusada, y bajo mucha presión confesó y nombró a su propio abuelo como brujo. Más tarde, con valentía, se retractó de sus palabras — decidió retractarse — y admitió que había mentido. Estuvo en la cárcel pero sobrevivió." } },
+
+  { id:'georgeJacobs', name:{en:'George Jacobs Sr.', es:'George Jacobs (padre)'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.55, cy:0.76, appear:'1692-05-11', represents:1,
+    bio:{ en:"George Jacobs Sr. was about 72 years old and walked with two canes. He was accused partly by his own granddaughter, Margaret, who had been pressured to name him. He refused to confess and was hanged on August 19, 1692.",
+          es:"George Jacobs (padre) tenía unos 72 años y caminaba con dos bastones. Fue acusado en parte por su propia nieta, Margaret, a quien habían presionado para nombrarlo. Se negó a confesar y fue ahorcado el 19 de agosto de 1692." } },
+
+  { id:'johnAlden', name:{en:'John Alden', es:'John Alden'}, role:'accused', outcome:'acquitted', confession:'na',
+    cx:0.68, cy:0.09, appear:'1692-05-31', represents:1,
+    bio:{ en:"John Alden was a sea captain and soldier from Boston. The girls named him in court. He was jailed, but he later escaped and was finally acquitted — cleared of all charges.",
+          es:"John Alden era un capitán de barco y soldado de Boston. Las niñas lo nombraron en el tribunal. Fue encarcelado, pero luego escapó y al final fue absuelto — declarado libre de todos los cargos." } },
+
+  { id:'howe', name:{en:'Elizabeth Howe', es:'Elizabeth Howe'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.68, cy:0.29, appear:'1692-05-31', represents:1,
+    bio:{ en:"Elizabeth Howe was a farm wife. Some neighbors spoke well of her, but it did not matter. She refused to confess and was hanged on July 19, 1692.",
+          es:"Elizabeth Howe era la esposa de un granjero. Algunos vecinos hablaron bien de ella, pero no sirvió de nada. Se negó a confesar y fue ahorcada el 19 de julio de 1692." } },
+
+  { id:'parker', name:{en:'Alice Parker', es:'Alice Parker'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.68, cy:0.47, appear:'1692-05-12', represents:1,
+    bio:{ en:"Alice Parker was a Salem woman. She refused to confess and was hanged on September 22, 1692.",
+          es:"Alice Parker era una mujer de Salem. Se negó a confesar y fue ahorcada el 22 de septiembre de 1692." } },
+
+  { id:'pudeator', name:{en:'Ann Pudeator', es:'Ann Pudeator'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.68, cy:0.64, appear:'1692-05-12', represents:1,
+    bio:{ en:"Ann Pudeator was an older widow who helped care for the sick. She refused to confess and was hanged on September 22, 1692.",
+          es:"Ann Pudeator era una viuda mayor que ayudaba a cuidar a los enfermos. Se negó a confesar y fue ahorcada el 22 de septiembre de 1692." } },
+
+  { id:'redd', name:{en:'Wilmot Redd', es:'Wilmot Redd'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.68, cy:0.81, appear:'1692-05-31', represents:1,
+    bio:{ en:"Wilmot Redd was a fisherman's wife from the town of Marblehead. She refused to confess and was hanged on September 22, 1692.",
+          es:"Wilmot Redd era la esposa de un pescador del pueblo de Marblehead. Se negó a confesar y fue ahorcada el 22 de septiembre de 1692." } },
+
+  { id:'scott', name:{en:'Margaret Scott', es:'Margaret Scott'}, role:'accused', outcome:'hanged', confession:'refused',
+    cx:0.82, cy:0.16, appear:'1692-08-05', represents:1,
+    bio:{ en:"Margaret Scott was a poor widow from the nearby town of Rowley. Poor and alone, she was an easy target. She refused to confess and was hanged on September 22, 1692.",
+          es:"Margaret Scott era una viuda pobre del cercano pueblo de Rowley. Pobre y sola, fue un blanco fácil. Se negó a confesar y fue ahorcada el 22 de septiembre de 1692." } },
+
+  { id:'andover', name:{en:'Andover (48 people)', es:'Andover (48 personas)'}, role:'cluster', outcome:'confessed', confession:'confessed',
+    cx:0.82, cy:0.48, appear:'1692-07-15', represents:48, cluster:true,
+    bio:{ en:"In the nearby town of Andover, the panic exploded. About 48 people there were accused — even more than in Salem Village itself. Magistrates got confessions from many people in private questioning, including children as young as six. Most people who confessed were spared. This is where the web grew far past where it began.",
+          es:"En el cercano pueblo de Andover, el pánico explotó. Unas 48 personas allí fueron acusadas — incluso más que en el propio Salem Village. Los magistrados obtuvieron confesiones de mucha gente en interrogatorios privados, incluso de niños de tan solo seis años. La mayoría de los que confesaron se salvaron. Aquí es donde la red creció mucho más allá de donde empezó." } },
+
+  { id:'wardwell', name:{en:'Samuel Wardwell', es:'Samuel Wardwell'}, role:'accused', outcome:'hanged', confession:'recanted',
+    cx:0.82, cy:0.76, appear:'1692-09-01', represents:1,
+    bio:{ en:"Samuel Wardwell first confessed to save his life. But then he took his confession back, because it was a lie. Because he would not stand by a confession, he was hanged on September 22, 1692. His story shows that confessing only protected you as long as you kept saying it was true.",
+          es:"Samuel Wardwell primero confesó para salvar su vida. Pero luego se retractó de su confesión, porque era una mentira. Como no quiso sostener una confesión, fue ahorcado el 22 de septiembre de 1692. Su historia muestra que confesar solo te protegía mientras siguieras diciendo que era verdad." } },
+
+  /* --- the men who ran the court --- */
+  { id:'hathorne', name:{en:'John Hathorne', es:'John Hathorne'}, role:'court', outcome:'court', confession:'na',
+    cx:0.20, cy:0.93, appear:'1692-03-01', represents:0, court:true,
+    bio:{ en:"John Hathorne was a local magistrate who questioned the accused. He usually acted as if they were already guilty. He never doubted the trials and never apologized.",
+          es:"John Hathorne era un magistrado local que interrogaba a los acusados. Casi siempre actuaba como si ya fueran culpables. Nunca dudó de los juicios ni pidió perdón." } },
+
+  { id:'corwin', name:{en:'Jonathan Corwin', es:'Jonathan Corwin'}, role:'court', outcome:'court', confession:'na',
+    cx:0.31, cy:0.93, appear:'1692-03-01', represents:0, court:true,
+    bio:{ en:"Jonathan Corwin was a local magistrate who questioned the accused alongside Hathorne. Together they helped send many people to trial.",
+          es:"Jonathan Corwin era un magistrado local que interrogaba a los acusados junto a Hathorne. Juntos ayudaron a enviar a muchas personas a juicio." } },
+
+  { id:'sewall', name:{en:'Samuel Sewall', es:'Samuel Sewall'}, role:'court', outcome:'court', confession:'na',
+    cx:0.55, cy:0.93, appear:'1692-05-27', represents:0, court:true,
+    bio:{ en:"Samuel Sewall was one of the seven judges of the special witch trial court. Five years later, in 1697, he stood up in his own church and publicly apologized for his part in the deaths. He was the only judge to do so — but it came too late for the people who had already died.",
+          es:"Samuel Sewall fue uno de los siete jueces del tribunal especial de brujería. Cinco años después, en 1697, se puso de pie en su propia iglesia y pidió perdón públicamente por su papel en las muertes. Fue el único juez que lo hizo — pero llegó demasiado tarde para las personas que ya habían muerto." } }
+];
+
+/* accuser -> accused edges */
+var EDGES = [
+  ['betty','tituba'],['betty','sarahGood'],['betty','sarahOsborne'],
+  ['abigail','tituba'],['abigail','sarahGood'],['abigail','sarahOsborne'],
+  ['abigail','marthaCorey'],['abigail','rebeccaNurse'],['abigail','dorothyGood'],
+  ['abigail','bridgetBishop'],['abigail','sarahWildes'],['abigail','gilesCorey'],
+  ['abigail','burroughs'],['abigail','susannahMartin'],['abigail','margaretJacobs'],
+  ['margaretJacobs','georgeJacobs'],
+  ['abigail','johnAlden'],['abigail','howe'],['abigail','parker'],['abigail','pudeator'],['abigail','redd'],
+  ['abigail','scott'],['abigail','andover'],['abigail','wardwell']
+];
+
+/* ---------- VOCAB TOOLTIPS ---------- */
+var VOCAB = {
+  "spectral evidence":{en:"Claims that an invisible ghost or shape of a person attacked the victim. No one else could see it.",es:"Afirmaciones de que un fantasma o forma invisible de una persona atacó a la víctima. Nadie más podía verlo."},
+  "afflicted":{en:"The people (mostly young girls) who said they were being hurt by witches.",es:"Las personas (en su mayoría niñas) que decían que las brujas les hacían daño."},
+  "magistrate":{en:"A local official who questioned the accused and decided if they should go to trial.",es:"Un funcionario local que interrogaba a los acusados y decidía si debían ir a juicio."},
+  "magistrates":{en:"Local officials who questioned the accused and decided if they should go to trial.",es:"Funcionarios locales que interrogaban a los acusados y decidían si debían ir a juicio."},
+  "confess":{en:"To say you did something — here, to say you were a witch (even if it was a lie).",es:"Decir que hiciste algo — aquí, decir que eras bruja (aunque fuera mentira)."},
+  "confessed":{en:"Said they were a witch — often a lie told to stay alive.",es:"Dijeron que eran brujas — a menudo una mentira dicha para seguir con vida."},
+  "confession":{en:"Saying you were a witch. People who confessed were not executed — but they had to name others.",es:"Decir que eras bruja. Las personas que confesaban no eran ejecutadas — pero tenían que nombrar a otras."},
+  "recant":{en:"To take back something you said before, and admit it was not true.",es:"Retirar algo que dijiste antes y admitir que no era verdad."},
+  "petition":{en:"A letter signed by many people asking the leaders to do something.",es:"Una carta firmada por muchas personas que pide algo a los líderes."},
+  "acquitted":{en:"Found not guilty and set free.",es:"Declarado no culpable y puesto en libertad."},
+  "indict":{en:"To formally charge someone with a crime so they can be put on trial.",es:"Acusar formalmente a alguien de un delito para llevarlo a juicio."},
+  "hysteria":{en:"A wave of intense fear that spreads through a group of people.",es:"Una ola de miedo intenso que se contagia entre un grupo de personas."}
+};
+var VOCAB_ES = {
+  "evidencia espectral":{en:"Claims that an invisible ghost or shape of a person attacked the victim. No one else could see it.",es:"Afirmaciones de que un fantasma o forma invisible de una persona atacó a la víctima. Nadie más podía verlo."},
+  "afligidas":{en:"The people (mostly young girls) who said they were being hurt by witches.",es:"Las personas (en su mayoría niñas) que decían que las brujas les hacían daño."},
+  "magistrado":{en:"A local official who questioned the accused.",es:"Un funcionario local que interrogaba a los acusados y decidía si debían ir a juicio."},
+  "magistrados":{en:"Local officials who questioned the accused.",es:"Funcionarios locales que interrogaban a los acusados y decidían si debían ir a juicio."},
+  "confesar":{en:"To say you were a witch, even if it was a lie.",es:"Decir que eras bruja, aunque fuera mentira."},
+  "confesó":{en:"Said they were a witch — often a lie told to stay alive.",es:"Dijo que era bruja — a menudo una mentira dicha para seguir con vida."},
+  "confesión":{en:"Saying you were a witch. People who confessed were not executed.",es:"Decir que eras bruja. Las personas que confesaban no eran ejecutadas — pero tenían que nombrar a otras."},
+  "confesaron":{en:"Said they were witches — often a lie told to stay alive.",es:"Dijeron que eran brujas — a menudo una mentira dicha para seguir con vida."},
+  "retractarse":{en:"To take back something you said, and admit it was not true.",es:"Retirar algo que dijiste antes y admitir que no era verdad."},
+  "petición":{en:"A letter signed by many people asking the leaders to do something.",es:"Una carta firmada por muchas personas que pide algo a los líderes."},
+  "absuelto":{en:"Found not guilty and set free.",es:"Declarado no culpable y puesto en libertad."},
+  "histeria":{en:"A wave of intense fear that spreads through a group of people.",es:"Una ola de miedo intenso que se contagia entre un grupo de personas."}
+};
+
+function wrap(text){
+  var vocab = state.language === 'es' ? VOCAB_ES : VOCAB;
+  var sortedKeys = Object.keys(vocab).sort(function(a,b){return b.length - a.length;});
+  var result = text;
+  var placeholders = [];
+  sortedKeys.forEach(function(key, idx){
+    var flags = state.language === 'es' ? '' : 'i';
+    var re = new RegExp('\\b(' + key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')\\b', flags);
+    result = result.replace(re, function(m){ placeholders.push({idx:idx,match:m,key:key}); return '__V'+idx+'__'; });
+  });
+  placeholders.forEach(function(p){
+    var data = vocab[p.key];
+    var primary = state.language === 'es' ? data.es : data.en;
+    var secondary = state.language === 'es' ? data.en : data.es;
+    var html = '<span class="vocab" tabindex="0">'+p.match+'<span class="tooltip">'+primary+'<span class="es">'+secondary+'</span></span></span>';
+    result = result.replace('__V'+p.idx+'__', html);
+  });
+  return result;
+}
+
+/* ---------- UI STRINGS ---------- */
+var UI = {
+  title:{en:'The Accusation Web — Salem, 1692', es:'La Red de Acusaciones — Salem, 1692'},
+  sub:{en:'Watch how the witch trial accusations spread from person to person.', es:'Observa cómo las acusaciones de los juicios de brujas pasaron de persona a persona.'},
+  play:{en:'Play', es:'Reproducir'},
+  pause:{en:'Pause', es:'Pausa'},
+  countLbl:{en:'people accused (200+ in all)', es:'personas acusadas (200+ en total)'},
+  legendTitle:{en:'What the colors mean:', es:'Qué significan los colores:'},
+  courtLabel:{en:'The men who ran the court ↓', es:'Los hombres que dirigían el tribunal ↓'},
+  sidePlaceholder:{en:'👆 Tap any circle to learn about that real person — who they were, and what happened to them.', es:'👆 Toca cualquier círculo para conocer a esa persona real — quién era y qué le pasó.'},
+  realTag:{en:'Real historical person', es:'Persona histórica real'},
+  fieldRole:{en:'Role', es:'Papel'},
+  fieldOutcome:{en:'What happened', es:'Qué pasó'},
+  fieldAccusedBy:{en:'Accused by', es:'Acusada/o por'},
+  fieldDate:{en:'Entered the story', es:'Entró en la historia'},
+  filterLabel:{en:'Highlight:', es:'Resaltar:'},
+  fbConf:{en:'People who confessed', es:'Personas que confesaron'},
+  fbRef:{en:'People who refused to confess', es:'Personas que se negaron a confesar'},
+  fbReset:{en:'Show everyone', es:'Mostrar a todos'},
+  capConf:{en:'Everyone who confessed and stood by it — lived. Every one of them.', es:'Todos los que confesaron y lo mantuvieron — sobrevivieron. Todos y cada uno.'},
+  capRef:{en:'Everyone here who refused to confess and was convicted was put to death. There is not one exception.', es:'Todos los que se negaron a confesar y fueron condenados fueron ejecutados. No hay ni una excepción.'},
+  steps:[
+    {en:'Watch it grow', es:'Míralo crecer'},
+    {en:'Trace a chain', es:'Sigue una cadena'},
+    {en:'See the pattern', es:'Ve el patrón'},
+    {en:'Reflect', es:'Reflexiona'}
+  ],
+  stepInstr:[
+    {en:'<b>Step 1.</b> Press <b>Play</b> and watch the whole timeline. It starts with just 3 people accused. Watch how many it becomes.', es:'<b>Paso 1.</b> Presiona <b>Reproducir</b> y observa toda la línea de tiempo. Empieza con solo 3 personas acusadas. Observa en cuántas se convierte.'},
+    {en:'<b>Step 2.</b> These accusations were <b>not random</b>. Follow the arrows. Tap <b>Tituba</b> (she confessed first) then tap <b>Margaret Jacobs</b> and <b>George Jacobs Sr.</b> — see how one forced confession led to the next person being named. Tapping any person lights up the chain that led to them.', es:'<b>Paso 2.</b> Estas acusaciones <b>no fueron al azar</b>. Sigue las flechas. Toca a <b>Tituba</b> (ella confesó primero), luego toca a <b>Margaret Jacobs</b> y a <b>George Jacobs (padre)</b> — mira cómo una confesión forzada llevó a que nombraran a la siguiente persona. Al tocar a cualquier persona se ilumina la cadena que llevó a ella.'},
+    {en:'<b>Step 3.</b> Use the buttons below to highlight who <b>confessed</b> and who <b>refused</b>. Look at the colors. What pattern do you see?', es:'<b>Paso 3.</b> Usa los botones de abajo para resaltar quién <b>confesó</b> y quién <b>se negó</b>. Mira los colores. ¿Qué patrón ves?'},
+    {en:'<b>Step 4.</b> Answer the reflection questions.', es:'<b>Paso 4.</b> Responde las preguntas de reflexión.'}
+  ],
+  introTitle:{en:'One choice. Everyone is watching.', es:'Una decisión. Todos están mirando.'},
+  introBody:{en:"<p>Imagine this. Your class takes a test. The teacher says someone cheated. Then she makes an offer:</p><div class='analogy'><b>“Confess that you cheated, and <u>name three classmates</u> who cheated too — and you will be safe. Stay silent and say you are innocent, and the whole class fails.”</b></div><p>What would you do? What would happen to your class if a few scared people started naming names?</p><p>In 1692, in the village of Salem, this really happened — but the price was not a grade. It was people's lives. This is the true story of how the accusations spread, shown as a web of real people.</p><p><b>People who confessed were spared. People who said they were innocent could be hanged.</b> As you explore, watch what that did.</p>", es:"<p>Imagina esto. Tu clase hace un examen. La maestra dice que alguien copió. Luego hace una oferta:</p><div class='analogy'><b>“Confiesa que copiaste y <u>nombra a tres compañeros</u> que también copiaron — y estarás a salvo. Quédate callado y di que eres inocente, y toda la clase reprueba.”</b></div><p>¿Qué harías? ¿Qué le pasaría a tu clase si unas pocas personas asustadas empezaran a dar nombres?</p><p>En 1692, en el pueblo de Salem, esto de verdad ocurrió — pero el precio no fue una calificación. Fueron las vidas de las personas. Esta es la historia real de cómo se extendieron las acusaciones, mostrada como una red de personas reales.</p><p><b>Las personas que confesaban se salvaban. Las personas que decían que eran inocentes podían ser ahorcadas.</b> Mientras exploras, observa lo que eso provocó.</p>"},
+  introBtn:{en:'Start →', es:'Comenzar →'},
+  introDisclaimer:{en:'Every person shown here was a real human being who lived through the Salem witch trials of 1692. The bios stick to the facts. More than 200 people were accused in all; this web shows a selection so the pattern is easy to follow.', es:'Cada persona que se muestra aquí fue un ser humano real que vivió los juicios de brujas de Salem de 1692. Las biografías se apegan a los hechos. En total, más de 200 personas fueron acusadas; esta red muestra una selección para que el patrón sea fácil de seguir.'},
+  reflectTitle:{en:'Reflect', es:'Reflexiona'},
+  reflectIntro:{en:'Think back to the cheating-scandal offer at the start. Finish each sentence.', es:'Recuerda la oferta del examen del principio. Completa cada oración.'},
+  q1:{en:'The people who confessed to being witches were ___, and the people who refused to confess and were found guilty were ___.', es:'Las personas que confesaron ser brujas fueron ___, y las personas que se negaron a confesar y fueron declaradas culpables fueron ___.'},
+  q1a:{en:'spared / put to death', es:'perdonadas / ejecutadas'},
+  q1b:{en:'put to death / spared', es:'ejecutadas / perdonadas'},
+  q2:{en:'Finish: “This system was unfair because…”', es:'Completa: “Este sistema era injusto porque…”'},
+  q3:{en:'Finish: “The cheating example is like Salem because… but it is different because…”', es:'Completa: “El ejemplo del examen se parece a Salem porque… pero es diferente porque…”'},
+  q4:{en:'Finish: “If I had lived in Salem in 1692, the hardest part would have been…”', es:'Completa: “Si hubiera vivido en Salem en 1692, lo más difícil habría sido…”'},
+  reflectClose:{en:'Close', es:'Cerrar'},
+  printNote:{en:'Note: your answers are not saved. Write them on paper or type and copy them if your teacher asks.', es:'Nota: tus respuestas no se guardan. Escríbelas en papel o cópialas si tu maestra/o lo pide.'},
+  epilogue:{en:'<b>October 1692 – May 1693:</b> Ministers argued that spectral evidence — invisible ghosts no one else could see — was not enough to hang someone. The court agreed and was shut down. Everyone still in jail was set free. In 1711, the government cleared the names of the accused and paid money to their families. But 19 people had already been hanged, one was pressed to death, and at least 5 had died in jail. Nothing could bring them back.', es:'<b>Octubre 1692 – mayo 1693:</b> Los ministros argumentaron que la evidencia espectral — fantasmas invisibles que nadie más podía ver — no bastaba para ahorcar a alguien. El tribunal estuvo de acuerdo y fue cerrado. Todos los que seguían en la cárcel fueron liberados. En 1711, el gobierno limpió los nombres de los acusados y pagó dinero a sus familias. Pero 19 personas ya habían sido ahorcadas, una fue aplastada hasta morir y al menos 5 habían muerto en la cárcel. Nada podía traerlas de vuelta.'}
+};
+
+/* ---------- DATE HELPERS ---------- */
+var T_START = new Date('1692-02-01').getTime();
+var T_END   = new Date('1693-05-31').getTime();
+var X_START = new Date('1692-02-01').getTime();
+var X_END   = new Date('1692-10-01').getTime();
+var EPILOGUE_AT = new Date('1692-10-05').getTime();
+
+function tToDate(t){ return T_START + (T_END - T_START) * t; }
+function dateToT(ms){ return (ms - T_START) / (T_END - T_START); }
+var MONTHS = { en:['January','February','March','April','May','June','July','August','September','October','November','December'],
+               es:['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'] };
+function fmtDate(ms){
+  var d = new Date(ms);
+  var m = MONTHS[state.language][d.getUTCMonth()];
+  return (state.language==='es' ? (m.charAt(0).toUpperCase()+m.slice(1)) : m) + ' ' + d.getUTCFullYear();
+}
+
+/* ---------- LAYOUT ---------- */
+var VB_W = 1000, VB_H = 620;
+var PLOT = { x0:60, y0:24, x1:955, y1:560 }; // court band sits below y1
+function px(cx){ return PLOT.x0 + cx*(PLOT.x1-PLOT.x0); }
+function py(cy){ return PLOT.y0 + cy*(PLOT.y1-PLOT.y0); }
+
+var byId = {};
+PEOPLE.forEach(function(p){ p.appearMs = new Date(p.appear).getTime(); byId[p.id] = p; });
+// parent map (who accused this person)
+var parents = {};
+PEOPLE.forEach(function(p){ parents[p.id] = []; });
+EDGES.forEach(function(e){ parents[e[1]].push(e[0]); });
+
+/* ---------- RENDER GRAPH (static structure once) ---------- */
+var edgesLayer = document.getElementById('edges-layer');
+var nodesLayer = document.getElementById('nodes-layer');
+var edgeEls = [];
+var nodeEls = {};
+
+function buildGraph(){
+  edgesLayer.innerHTML = ''; nodesLayer.innerHTML = ''; edgeEls = []; nodeEls = {};
+  // edges
+  EDGES.forEach(function(e){
+    var s = byId[e[0]], t = byId[e[1]];
+    var x1 = px(s.cx), y1 = py(s.cy), x2 = px(t.cx), y2 = py(t.cy);
+    // shorten to node edge so arrow sits nicely
+    var line = document.createElementNS('http://www.w3.org/2000/svg','path');
+    var dx = x2-x1, dy=y2-y1, len=Math.sqrt(dx*dx+dy*dy)||1;
+    var rt = nodeRadius(t)+7;
+    var ex = x2 - dx/len*rt, ey = y2 - dy/len*rt;
+    var rs = nodeRadius(s)+3;
+    var sx = x1 + dx/len*rs, sy = y1 + dy/len*rs;
+    // gentle curve
+    var mx = (sx+ex)/2, my=(sy+ey)/2 - Math.min(40, len*0.12);
+    line.setAttribute('d','M'+sx+','+sy+' Q'+mx+','+my+' '+ex+','+ey);
+    line.setAttribute('class','edge');
+    line.setAttribute('marker-end','url(#arrow)');
+    line.dataset.s = e[0]; line.dataset.t = e[1];
+    edgesLayer.appendChild(line);
+    edgeEls.push(line);
+  });
+  // nodes
+  PEOPLE.forEach(function(p){
+    var g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','node');
+    g.setAttribute('transform','translate('+px(p.cx)+','+py(p.cy)+')');
+    g.setAttribute('tabindex','0');
+    g.setAttribute('role','button');
+    var color = OUTCOME[p.outcome].color;
+    var r = nodeRadius(p);
+    var shapeHtml = '';
+    if(p.role === 'court'){
+      shapeHtml = '<rect x="'+(-r)+'" y="'+(-r)+'" width="'+(2*r)+'" height="'+(2*r)+'" rx="3" fill="'+color+'" stroke="#fff" stroke-width="2"/>';
+    } else if(p.cluster){
+      shapeHtml = '<circle r="'+(r+5)+'" fill="rgba(46,158,87,.18)" stroke="'+color+'" stroke-width="2.5" stroke-dasharray="5 4"/>'+
+                  '<circle r="'+r+'" fill="'+color+'" stroke="#fff" stroke-width="2"/>';
+    } else if(p.role === 'accuser'){
+      shapeHtml = '<circle r="'+(r+3)+'" fill="none" stroke="'+color+'" stroke-width="2"/>'+
+                  '<circle r="'+r+'" fill="'+color+'" stroke="#fff" stroke-width="2"/>';
+    } else {
+      shapeHtml = '<circle r="'+r+'" fill="'+color+'" stroke="#fff" stroke-width="2"/>';
+    }
+    var labelY = r + 14;
+    g.innerHTML = shapeHtml +
+      '<text class="node-label" text-anchor="middle" y="'+labelY+'">'+shortName(p)+'</text>';
+    g.addEventListener('click', function(){ selectNode(p.id); });
+    g.addEventListener('keydown', function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); selectNode(p.id);} });
+    nodesLayer.appendChild(g);
+    nodeEls[p.id] = g;
+  });
+  document.getElementById('court-label').textContent = UI.courtLabel[state.language];
+  document.getElementById('court-label').setAttribute('x', px(0.20)-10);
+  document.getElementById('court-label').setAttribute('y', py(0.93)-nodeRadius(byId.hathorne)-9);
+}
+function nodeRadius(p){ if(p.cluster) return 26; if(p.role==='accuser') return 15; if(p.role==='court') return 12; return 14; }
+function shortName(p){
+  if(p.cluster) return state.language==='es' ? 'Andover (48)' : 'Andover (48)';
+  var n = p.name[state.language];
+  return n;
+}
+
+/* ---------- REVEAL / TIMELINE ---------- */
+function currentMs(){ return tToDate(state.t); }
+function isRevealed(p){ return p.appearMs <= currentMs(); }
+
+function updateReveal(){
+  var now = currentMs();
+  var count = 0;
+  PEOPLE.forEach(function(p){
+    var shown = p.appearMs <= now;
+    nodeEls[p.id].style.display = shown ? '' : 'none';
+    if(shown && p.represents) count += p.represents;
+  });
+  edgeEls.forEach(function(el){
+    var shown = byId[el.dataset.s].appearMs <= now && byId[el.dataset.t].appearMs <= now;
+    el.style.display = shown ? '' : 'none';
+  });
+  document.getElementById('countNum').textContent = count;
+  document.getElementById('dateNow').textContent = fmtDate(now);
+  document.getElementById('scrub').value = Math.round(state.t*1000);
+  // epilogue banner
+  if(now >= EPILOGUE_AT && !state.playing){ /* handled via side panel note if nothing selected */ }
+  applyHighlight(); // keep filter/selection styling consistent with what's visible
+}
+
+function onScrub(v){
+  stopPlay();
+  state.t = v/1000;
+  updateReveal();
+  showEpilogueIfEnd();
+}
+
+/* ---------- PLAY ---------- */
+var rafId = null, lastFrame = 0;
+var PLAY_SECONDS = 34; // full timeline duration
+function togglePlay(){ state.playing ? stopPlay() : startPlay(); }
+function startPlay(){
+  if(state.t >= 1) state.t = 0;
+  state.playing = true; setPlayBtn();
+  lastFrame = performance.now();
+  rafId = requestAnimationFrame(playStep);
+}
+function stopPlay(){
+  state.playing = false; setPlayBtn();
+  if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
+}
+function playStep(now){
+  if(!state.playing) return;
+  var dt = (now - lastFrame)/1000; lastFrame = now;
+  state.t += dt / PLAY_SECONDS;
+  if(state.t >= 1){ state.t = 1; updateReveal(); stopPlay(); showEpilogueIfEnd(); return; }
+  updateReveal();
+  rafId = requestAnimationFrame(playStep);
+}
+function setPlayBtn(){
+  document.getElementById('play-icon').textContent = state.playing ? '❚❚' : '▶';
+  document.getElementById('play-text').textContent = state.playing ? UI.pause[state.language] : UI.play[state.language];
+}
+
+/* ---------- SELECTION / HIGHLIGHT ---------- */
+function ancestorsOf(id){
+  var seen = {}, stack = [id];
+  while(stack.length){
+    var cur = stack.pop();
+    (parents[cur]||[]).forEach(function(pid){
+      if(!seen[pid]){ seen[pid]=true; stack.push(pid); }
+    });
+  }
+  return seen; // set of ancestor ids (not including id)
+}
+
+function selectNode(id){
+  state.selected = id;
+  state.mode = 'select';
+  renderCard(byId[id]);
+  applyHighlight();
+}
+
+function applyHighlight(){
+  var now = currentMs();
+  // reset
+  Object.keys(nodeEls).forEach(function(k){ nodeEls[k].classList.remove('dim'); });
+  edgeEls.forEach(function(e){ e.classList.remove('dim','hot'); e.setAttribute('marker-end','url(#arrow)'); });
+
+  if(state.filter){
+    // task 3: highlight by confession stance
+    PEOPLE.forEach(function(p){
+      if(p.appearMs > now) return;
+      var match;
+      if(state.filter === 'confessed') match = (p.confession === 'confessed');
+      else match = (p.confession === 'refused' || p.confession === 'recanted');
+      if(!match) nodeEls[p.id].classList.add('dim');
+    });
+    edgeEls.forEach(function(e){ e.classList.add('dim'); });
+    return;
+  }
+
+  if(state.selected){
+    var keep = {}; keep[state.selected] = true;
+    var anc = ancestorsOf(state.selected);
+    Object.keys(anc).forEach(function(k){ keep[k]=true; });
+    PEOPLE.forEach(function(p){
+      if(p.appearMs > now) return;
+      if(!keep[p.id]) nodeEls[p.id].classList.add('dim');
+    });
+    edgeEls.forEach(function(e){
+      var onChain = keep[e.dataset.s] && keep[e.dataset.t];
+      if(onChain){ e.classList.add('hot'); e.setAttribute('marker-end','url(#arrow-hot)'); }
+      else e.classList.add('dim');
+    });
+  }
+}
+
+function clearSelection(){
+  state.selected = null;
+  if(state.mode==='select') state.mode = null;
+  document.getElementById('side').classList.add('empty');
+  document.getElementById('card').style.display = 'none';
+  document.getElementById('side-placeholder').style.display = 'block';
+  applyHighlight();
+}
+
+/* click background to clear */
+document.getElementById('graph').addEventListener('click', function(ev){
+  if(ev.target.id === 'graph') clearSelection();
+});
+
+/* ---------- CARD ---------- */
+function renderCard(p){
+  var side = document.getElementById('side');
+  var card = document.getElementById('card');
+  side.classList.remove('empty');
+  document.getElementById('side-placeholder').style.display='none';
+  card.style.display='block';
+  var oc = OUTCOME[p.outcome];
+  var roleColor = oc.color;
+  var accByHtml = '';
+  if(parents[p.id] && parents[p.id].length){
+    var names = parents[p.id].map(function(pid){ return byId[pid].name[state.language]; }).join(', ');
+    accByHtml = '<div class="field"><div class="lbl">'+UI.fieldAccusedBy[state.language]+'</div><div class="val">'+names+'</div></div>';
+  }
+  card.innerHTML =
+    '<span class="card-role" style="background:'+roleColor+'">'+ROLE_LABEL[p.role][state.language]+'</span>'+
+    '<h2>'+p.name[state.language]+'</h2>'+
+    '<div class="real-tag">🕒 '+UI.realTag[state.language]+'</div>'+
+    '<div class="field"><div class="lbl">'+UI.fieldOutcome[state.language]+'</div>'+
+      '<div class="outcome-chip" style="background:'+hexA(oc.color)+'"><span class="dot" style="background:'+oc.color+'"></span>'+oc.label[state.language]+'</div></div>'+
+    accByHtml +
+    '<div class="bio">'+wrap(p.bio[state.language])+'</div>';
+}
+function hexA(v){ // light background tint for the chip
+  return 'rgba(0,0,0,0.05)';
+}
+
+/* ---------- LEGEND ---------- */
+function buildLegend(){
+  var order = [
+    {k:'accuser', cls:'ring'},
+    {k:'court', cls:'square'},
+    {k:'hanged', cls:''},
+    {k:'pressed', cls:''},
+    {k:'custody', cls:''},
+    {k:'confessed', cls:''},
+    {k:'acquitted', cls:''}
+  ];
+  var html = '<span class="ltitle">'+UI.legendTitle[state.language]+'</span>';
+  order.forEach(function(o){
+    var oc = OUTCOME[o.k];
+    var style = (o.cls==='ring'||o.cls==='square') ? '' : 'background:'+oc.color+';';
+    html += '<span class="item"><span class="sw '+o.cls+'" style="'+style+(o.cls==='square'?'background:'+oc.color+';':'')+'"></span>'+oc.label[state.language]+'</span>';
+  });
+  // Andover cluster note
+  html += '<span class="item"><span class="sw dash"></span>'+(state.language==='es'?'Andover: muchas personas a la vez':'Andover: many people at once')+'</span>';
+  document.getElementById('legend').innerHTML = html;
+}
+
+/* ---------- STEPPER / TASKS ---------- */
+function buildStepper(){
+  var el = document.getElementById('stepper');
+  el.innerHTML = '';
+  UI.steps.forEach(function(s, i){
+    var b = document.createElement('button');
+    b.className = 'step-btn';
+    b.id = 'step-'+i;
+    b.innerHTML = '<span class="num">'+(i+1)+'</span>'+s[state.language];
+    b.onclick = function(){ activateStep(i); };
+    el.appendChild(b);
+  });
+}
+function activateStep(i){
+  for(var k=0;k<UI.steps.length;k++){ document.getElementById('step-'+k).classList.toggle('active', k===i); }
+  document.getElementById('instruction').innerHTML = UI.stepInstr[i][state.language];
+  document.getElementById('filters').classList.toggle('show', i===2);
+  if(i!==2){ state.filter=null; setFilterButtons(); }
+  if(i===0){ // watch it grow
+    clearSelection(); stopPlay(); state.t=0; updateReveal(); startPlay();
+  }
+  if(i===1){ // trace a chain: show full graph and highlight the Jacobs chain
+    stopPlay(); state.t=1; state.filter=null; updateReveal(); selectNode('georgeJacobs');
+  }
+  if(i===2){ // pattern: show full graph
+    stopPlay(); state.t=1; state.selected=null; updateReveal();
+    document.getElementById('side').classList.add('empty');
+    document.getElementById('card').style.display='none';
+    document.getElementById('side-placeholder').style.display='block';
+    applyHighlight();
+  }
+  if(i===3){ openReflect(); }
+}
+
+/* ---------- FILTERS (task 3) ---------- */
+function toggleFilter(which){
+  if(which === 'reset'){ state.filter = null; }
+  else state.filter = (state.filter === which) ? null : which;
+  state.selected = null;
+  setFilterButtons();
+  applyHighlight();
+  var cap = document.getElementById('filter-caption');
+  if(state.filter === 'confessed') cap.innerHTML = '✅ '+UI.capConf[state.language];
+  else if(state.filter === 'refused') cap.innerHTML = '⚫ '+UI.capRef[state.language];
+  else cap.innerHTML = '';
+}
+function setFilterButtons(){
+  document.getElementById('fb-conf').classList.toggle('active', state.filter==='confessed');
+  document.getElementById('fb-ref').classList.toggle('active', state.filter==='refused');
+}
+
+/* ---------- REFLECT MODAL ---------- */
+function openReflect(){
+  var c = document.getElementById('reflectContent');
+  var L = state.language;
+  c.innerHTML =
+    '<button class="modal-close" onclick="closeReflect()">×</button>'+
+    '<h2>'+UI.reflectTitle[L]+'</h2>'+
+    '<p>'+UI.reflectIntro[L]+'</p>'+
+    '<div class="reflect-q"><div class="qtext">1. '+UI.q1[L]+'</div>'+
+      '<div class="choice">'+
+      '<label><input type="radio" name="q1">'+UI.q1a[L]+'</label>'+
+      '<label><input type="radio" name="q1">'+UI.q1b[L]+'</label>'+
+      '</div></div>'+
+    '<div class="reflect-q"><div class="qtext">2. '+UI.q2[L]+'</div><textarea></textarea></div>'+
+    '<div class="reflect-q"><div class="qtext">3. '+UI.q3[L]+'</div><textarea></textarea></div>'+
+    '<div class="reflect-q"><div class="qtext">4. '+UI.q4[L]+'</div><textarea></textarea></div>'+
+    '<p class="note-print">'+UI.printNote[L]+'</p>'+
+    '<button class="modal-btn" onclick="closeReflect()">'+UI.reflectClose[L]+'</button>';
+  document.getElementById('reflectModal').classList.add('show');
+}
+function closeReflect(){ document.getElementById('reflectModal').classList.remove('show'); }
+
+/* ---------- EPILOGUE ---------- */
+function showEpilogueIfEnd(){
+  if(currentMs() >= EPILOGUE_AT && !state.selected && !state.filter){
+    var side = document.getElementById('side');
+    side.classList.remove('empty');
+    document.getElementById('side-placeholder').style.display='none';
+    var card = document.getElementById('card');
+    card.style.display='block';
+    card.innerHTML = '<h2 style="font-size:1.15rem;">'+ (state.language==='es'?'Cómo terminó':'How it ended') +'</h2>'+
+      '<div class="bio">'+wrap(UI.epilogue[state.language])+'</div>';
+  }
+}
+
+/* ---------- TICKS ---------- */
+function buildTicks(){
+  var ticks = [
+    { ms:new Date('1692-02-29').getTime(), en:'Feb: first 3 accused', es:'Feb: primeras 3' },
+    { ms:new Date('1692-06-10').getTime(), en:'Jun 10: first hanging', es:'10 jun: 1er ahorcamiento' },
+    { ms:new Date('1692-07-19').getTime(), en:'Jul 19: 5 hanged', es:'19 jul: 5 ahorcadas' },
+    { ms:new Date('1692-09-22').getTime(), en:'Sep 22: last hangings', es:'22 sep: últimos' },
+    { ms:new Date('1693-05-01').getTime(), en:'May 1693: freed', es:'Mayo 1693: liberados' }
+  ];
+  var el = document.getElementById('ticks'); el.innerHTML='';
+  ticks.forEach(function(t){
+    var frac = dateToT(t.ms);
+    var d = document.createElement('div');
+    d.className='tick';
+    d.style.left = (frac*100)+'%';
+    d.textContent = t[state.language];
+    el.appendChild(d);
+  });
+}
+
+/* ---------- LANGUAGE ---------- */
+function setLang(lang){
+  state.language = lang;
+  localStorage.setItem('salemLang', lang);
+  document.getElementById('lang-en').classList.toggle('active', lang==='en');
+  document.getElementById('lang-es').classList.toggle('active', lang==='es');
+  document.documentElement.lang = lang;
+  renderAll();
+}
+function renderAll(){
+  document.getElementById('app-title').textContent = UI.title[state.language];
+  document.getElementById('app-sub').textContent = UI.sub[state.language];
+  document.getElementById('countLbl').textContent = UI.countLbl[state.language];
+  document.getElementById('filter-label').textContent = UI.filterLabel[state.language];
+  document.getElementById('fb-conf').textContent = UI.fbConf[state.language];
+  document.getElementById('fb-ref').textContent = UI.fbRef[state.language];
+  document.getElementById('fb-reset').textContent = UI.fbReset[state.language];
+  setPlayBtn();
+  buildStepper();
+  buildLegend();
+  buildTicks();
+  buildGraph();
+  buildIntro();
+  updateReveal();
+  // restore selection/card language
+  if(state.selected){ renderCard(byId[state.selected]); }
+  else if(currentMs() >= EPILOGUE_AT){ showEpilogueIfEnd(); }
+  else { document.getElementById('side-placeholder').innerHTML = UI.sidePlaceholder[state.language]; }
+  // re-highlight
+  setFilterButtons();
+  applyHighlight();
+  if(document.getElementById('reflectModal').classList.contains('show')) openReflect();
+}
+
+/* ---------- INTRO ---------- */
+function buildIntro(){
+  var c = document.getElementById('introContent');
+  c.innerHTML =
+    '<h2>'+UI.introTitle[state.language]+'</h2>'+
+    UI.introBody[state.language]+
+    '<button class="modal-btn" onclick="closeIntro()">'+UI.introBtn[state.language]+'</button>'+
+    '<div class="disclaimer">'+UI.introDisclaimer[state.language]+'</div>';
+}
+function closeIntro(){
+  document.getElementById('introModal').classList.remove('show');
+  // auto-begin Step 1
+  activateStep(0);
+}
+
+/* ---------- INIT ---------- */
+(function init(){
+  var saved = localStorage.getItem('salemLang');
+  if(saved === 'es' || saved === 'en') state.language = saved;
+  document.getElementById('lang-en').classList.toggle('active', state.language==='en');
+  document.getElementById('lang-es').classList.toggle('active', state.language==='es');
+  document.documentElement.lang = state.language;
+  document.getElementById('side-placeholder').innerHTML = UI.sidePlaceholder[state.language];
+  renderAll();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>History Lessons</title>
+<style>
+  :root{
+    --bg:#f5efe2; --ink:#2b2118; --ink2:#6b5d4d; --card:#fffaf0;
+    --line:#d8cbb4; --accent:#7a2e2e; --accent2:#2e4a7a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:Georgia,'Times New Roman',serif;
+    padding:24px 16px 48px; line-height:1.5;
+    -webkit-text-size-adjust:100%;
+  }
+  header{max-width:820px;margin:0 auto 28px;text-align:center}
+  h1{font-size:clamp(1.6rem,5vw,2.4rem);letter-spacing:.02em}
+  header p{color:var(--ink2);margin-top:6px;font-style:italic}
+  .unit{max-width:820px;margin:0 auto 30px}
+  .unit>h2{
+    font-size:1.05rem;text-transform:uppercase;letter-spacing:.12em;
+    color:var(--ink2);border-bottom:2px solid var(--line);
+    padding-bottom:6px;margin-bottom:14px;
+  }
+  .grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))}
+  a.card{
+    display:block;background:var(--card);border:1px solid var(--line);
+    border-radius:12px;padding:16px 18px;text-decoration:none;color:inherit;
+    box-shadow:0 1px 3px rgba(43,33,24,.12);
+    -webkit-tap-highlight-color:rgba(122,46,46,.15);
+  }
+  a.card:active{transform:scale(.985)}
+  a.card h3{font-size:1.12rem;color:var(--accent);margin-bottom:4px}
+  a.card p{font-size:.9rem;color:var(--ink2)}
+  a.card .tag{
+    display:inline-block;margin-top:10px;font-size:.72rem;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);
+    border:1px solid var(--accent2);border-radius:999px;padding:2px 10px;
+  }
+  footer{max-width:820px;margin:36px auto 0;text-align:center;color:var(--ink2);font-size:.85rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>History Lessons</h1>
+  <p>Tap a lesson to begin. Works on iPad, Chromebook, and desktop.</p>
+</header>
+
+<section class="unit">
+  <h2>Salem Witch Trials — 1692</h2>
+  <div class="grid">
+    <a class="card" href="salem-witch-trials/salem_witch_trials.html">
+      <h3>A Book of Accounts</h3>
+      <p>Step into 1692 Salem and record what you witness as the trials unfold.</p>
+      <span class="tag">Interactive journal</span>
+    </a>
+    <a class="card" href="salem-witch-trials/salem_time_detective.html">
+      <h3>The Salem Files: Time Detective</h3>
+      <p>Travel back to Salem Village and investigate what really happened.</p>
+      <span class="tag">Investigation</span>
+    </a>
+    <a class="card" href="salem-witch-trials/salem_you_be_the_judge.html">
+      <h3>You Be the Judge</h3>
+      <p>Weigh the real evidence from the trials and deliver your own verdict.</p>
+      <span class="tag">Primary sources</span>
+    </a>
+    <a class="card" href="salem-witch-trials/salem_accusation_web.html">
+      <h3>The Accusation Web</h3>
+      <p>Trace how accusations spread from neighbor to neighbor across Salem.</p>
+      <span class="tag">Mapping activity</span>
+    </a>
+  </div>
+</section>
+
+<section class="unit">
+  <h2>American Revolution — 1778</h2>
+  <div class="grid">
+    <a class="card" href="culper-ring-lesson/index.html">
+      <h3>Shadow War: The Culper Ring</h3>
+      <p>Play as a spy in occupied Setauket. Walk the town, pass secret messages, and evade the British.</p>
+      <span class="tag">Adventure game</span>
+    </a>
+  </div>
+</section>
+
+<section class="unit">
+  <h2>Civil War — 1861–1865</h2>
+  <div class="grid">
+    <a class="card" href="civil-war-lesson/civil_war_journal.html">
+      <h3>Voices of the Civil War</h3>
+      <p>Read the war through four journals — a soldier, a nurse, a freedman, and a child on the home front.</p>
+      <span class="tag">Interactive journal</span>
+    </a>
+  </div>
+</section>
+
+<footer>
+  Progress saves on this device. Don't clear Safari website data mid-lesson.
+</footer>
+</body>
+</html>

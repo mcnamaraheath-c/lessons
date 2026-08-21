@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl *)",
+      "Bash(command -v node)",
+      "Bash(awk 'NR>1114 && NR<5063' /mnt/c/Users/User/OneDrive/Desktop/civil-war-lesson/civil_war_journal.html)",
+      "Bash(node --check /tmp/cw_script.js)"
+    ]
+  }
+}
