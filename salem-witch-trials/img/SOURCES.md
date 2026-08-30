@@ -113,3 +113,58 @@ quality 72 (Python PIL, Lanczos resampling). Original dimensions are recorded ab
 - The Ezekiel Cheever version of Tituba's examination was not committed (the Corwin
   version was chosen because both of its pages are available as clean scans; the archive
   shows only a single image, ecca1011v, for the Cheever record).
+
+---
+
+# Later additions (fetched 2026-08-30, second batch)
+
+## 4. Portrait of Judge Samuel Sewall, by John Smibert, 1729
+
+### `sewall_portrait_1729.jpg`
+- What it is: Oil-on-canvas portrait of Samuel Sewall (1652–1730), painted from life by
+  John Smibert in 1729. Sewall sat as a judge on the Court of Oyer and Terminer in 1692
+  and publicly apologized for his role in 1697. Verified visually: period oil portrait
+  (visible craquelure) of an elderly man in black robe, white judicial bands, and black
+  skullcap, within a painted oval — matches the MFA's *Judge Samuel Sewall*, accession
+  58.358. (Not to be confused with Smibert's 1733 Sewall portrait at the Peabody Essex
+  Museum, also on Commons.)
+- Source (file page): https://commons.wikimedia.org/wiki/File:John_Smibert_-_Judge_Samuel_Sewall_-_58.358_-_Museum_of_Fine_Arts.jpg
+- Direct file: https://upload.wikimedia.org/wikipedia/commons/4/49/John_Smibert_-_Judge_Samuel_Sewall_-_58.358_-_Museum_of_Fine_Arts.jpg
+- License, verified via the Commons API (action=query, prop=imageinfo,
+  iiprop=extmetadata) on 2026-08-30: `LicenseShortName: "Public domain"`,
+  `UsageTerms: "Public domain"`, `License: "pd"`. The file page's license template is
+  `{{PD-Art|PD-old-auto-1923|deathyear=1751}}` (artist died 1751; a faithful photographic
+  reproduction of a public-domain 2-D artwork).
+- Holding institution, as stated on the file page: the page's source/credit field points
+  to the Museum of Fine Arts, Boston object page
+  https://www.mfa.org/collections/object/judge-samuel-sewall-33612 (accession 58.358),
+  and the page is categorized "Portrait paintings in the Museum of Fine Arts, Boston".
+- Date fetched: 2026-08-30
+- Original pixel dimensions: 1324 × 1600 (committed copy downscaled to 1158 × 1400,
+  JPEG quality 72, PIL Lanczos)
+
+## Not fetched (second batch)
+
+- **`act_reversal_1711.jpg` — SKIPPED: no genuine scan of the 1711 act found with clean
+  provenance.** The October 1711 Massachusetts act reversing the attainders of the Salem
+  convicted ("An Act to Reverse the Attainders of George Burroughs and others for
+  Witchcraft") was searched for on 2026-08-30 without success:
+  - **Wikimedia Commons:** file-namespace searches ("1711 attainder Salem",
+    `"reverse the attainders"`, etc.) returned only book PDFs *about* the act (e.g.
+    Goodell's 1884 *Reasons for concluding that the act of 1711 … became a law*), no
+    scan of the act itself.
+  - **Salem Witch Trials Documentary Archive (salem.lib.virginia.edu):** the
+    Massachusetts Archives Collection vol. 135 page (archives/ma135.html) holds a
+    closely related manuscript — doc 169, "Report of General Court on reversal of
+    attainders of accused Oct. 26, 1711" (the committee report listing the names to be
+    inserted in the reversal and their restitution amounts, accepted by the House and
+    Council in Oct. 1711; viewed and confirmed genuine) — but that is the committee
+    report underlying the act, **not the act itself**, so per the no-substitution rule
+    it was not committed under this filename. Its scan, should it ever be wanted as a
+    distinct item, is https://salem.lib.virginia.edu/archives/MA135/large/MA169r.jpg
+    (1819 × 2466; the verso large scan 404s).
+  - **digitalcommonwealth.org:** JSON search API queries ("act reverse attainders 1711",
+    "witchcraft attainder", "attainders", "Salem witchcraft act") returned no scan of
+    the act.
+  - **archive.org** (for the 1711 Boston printing of the session laws) is blocked by
+    this environment's network policy (proxy CONNECT rejected); no workaround attempted.
