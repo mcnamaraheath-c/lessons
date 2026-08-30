@@ -71,7 +71,9 @@ Do NOT reuse the journal visual style or stat/branching UI. The escape room has 
 
 There are **no authentic portraits of any of these people** — never fabricate faces. All images are genuinely licensed and **base64-embedded**.
 
-**The judge build (primary)** embeds 7 images, all Public Domain: two real 1692 documents (Bridget Bishop's death warrant; the Sarah Holton deposition against Rebecca Nurse) and five period artworks (Matteson's 1855 "Trial of George Jacobs" [`jacobs`], the 1870 Tituba illustration, the 1893 accused-woman-in-chains drawing, the 1892 Giles Corey pressing, and a woodcut of a condemned person carted to be hanged) — each captioned as later art, not a photo. **No Creative Commons material, so no attribution requirements and no share-alike concerns for TPT.**
+**The judge build (primary)** embeds 10 images. Five real 1692 documents: Bridget Bishop's death warrant; the Sarah Holton deposition against Rebecca Nurse; the warrant for Sarah Good's arrest (`good_warrant`, Feb 29, 1692, Massachusetts State Archives); the Nurse petition with 39 signatures (`nurse_petition`, Massachusetts Historical Society); and Tituba's examination record (`tituba_exam`, p.1 of the Corwin version, New York Public Library). Five period artworks: Matteson's 1855 "Trial of George Jacobs" [`jacobs`], the 1870 Tituba illustration, the 1893 accused-woman-in-chains drawing, the 1892 Giles Corey pressing, and a woodcut of a condemned person carted to be hanged — each captioned as later art, not a photo. Captions credit each document's holding archive.
+
+**Licensing status of the judge build:** the manuscripts and artworks are Public Domain by age; no Creative Commons material, so no attribution requirements or share-alike terms. One caveat: the three document scans added in Aug 2026 were sourced from the UVA Salem archive (salem.lib.virginia.edu), whose site terms permit free non-commercial educational use but assert a compilation copyright and require permission for other uses. Classroom use is clearly covered; **check before selling on TPT** — full provenance, source URLs, and the verbatim usage statement are in `img/SOURCES.md`. There is a historical nuance recorded there too: no single warrant names all three first accused; two same-day warrants exist (Good; Osborne + Tituba), and both scans are kept in `img/`.
 
 **The detective build (alternative)** additionally holds AI-generated backdrops and the four unused CC site photos noted above. In the original design, room backdrops were present-day photos of the real sites, sepia/darkened/vignetted to feel period and mute modern details.
 
@@ -82,7 +84,7 @@ There are **no authentic portraits of any of these people** — never fabricate 
 - Proctor's Ledge Memorial — Jangseung92, CC BY-SA 4.0
 Note the CC BY-SA "share-alike" terms if this is ever sold/redistributed (e.g., on TPT). If swapping images, keep them PD or properly attributed CC, verify licensing via the Commons API, and view each before using.
 
-Source JPEGs were downloaded to the scratchpad `img/` folder during the build; the base64 lives inline in the HTML. The raw source images are NOT saved in the project folder — re-download from Wikimedia Commons if you need them.
+For the judge build's three 2026-added documents, source JPEGs and provenance live in the project's `img/` folder (`SOURCES.md` there is authoritative); the embedded copies are downscaled (~1000px, JPEG q70). For everything else, the base64 lives inline only — re-download from Wikimedia Commons if raw files are needed.
 
 ## Vocabulary for tooltips
 
