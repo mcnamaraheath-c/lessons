@@ -35,6 +35,12 @@
     padding:8px 16px;background:#26231f;color:#efe4cf;border-bottom:2px solid var(--gold);
   }
   header .brand{font-family:ui-monospace,monospace;font-weight:700;letter-spacing:2px;font-size:.95rem;text-transform:uppercase;}
+  figure.exhibit img{cursor:zoom-in;}
+  #lightbox{position:fixed;inset:0;z-index:100;background:rgba(20,17,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;cursor:zoom-out;}
+  #lightbox[hidden]{display:none;}
+  #lightbox img{max-width:94vw;max-height:82vh;object-fit:contain;background:#fff;padding:6px;box-shadow:0 10px 40px rgba(0,0,0,.6);}
+  #lightbox-cap{max-width:70ch;margin-top:12px;color:#efe4cf;font-size:.95rem;font-style:italic;text-align:center;line-height:1.45;}
+  .lightbox-x{position:absolute;top:14px;right:18px;background:transparent;border:1.5px solid #efe4cf;color:#efe4cf;border-radius:6px;font-size:1.3rem;line-height:1;padding:6px 12px;cursor:pointer;font-family:ui-monospace,monospace;}
   .hdr-tools{display:flex;align-items:center;gap:10px;}
   .listen-btn{background:transparent;color:#efe4cf;border:1.5px solid #efe4cf;border-radius:5px;padding:5px 12px;cursor:pointer;font-family:ui-monospace,monospace;font-weight:700;font-size:.8rem;white-space:nowrap;}
   .listen-btn.speaking{background:#efe4cf;color:#26231f;}
@@ -216,6 +222,11 @@
 <div class="progress" id="progress"></div>
 
 <div class="stage" id="stage"><!-- screens injected here --></div>
+<div id="lightbox" hidden role="dialog" aria-modal="true">
+  <button class="lightbox-x" aria-label="Close">&times;</button>
+  <img id="lightbox-img" alt="">
+  <div id="lightbox-cap"></div>
+</div>
 
 <script>
 /* ===================================================================
@@ -384,6 +395,7 @@ var UI = {
   introLead:{en:'Salem Village, 1692', es:'Salem Village, 1692'},
   introBody:{en:"<p>In 1692, in a small town called Salem, people started accusing their neighbors of being witches. More than 200 people were accused. 19 were hanged. 1 was pressed to death. At least 5 died in jail.</p><p>You are going to look at <b>five real people</b> who were accused. For each one, you will see the <b>actual evidence</b> used against them in court — put into plain English. Then <b>you</b> will decide: guilty, or not guilty?</p><p>After you decide, you'll find out what really happened to them — and why.</p>", es:"<p>En 1692, en un pequeño pueblo llamado Salem, la gente empezó a acusar a sus vecinos de ser brujas. Más de 200 personas fueron acusadas. 19 fueron ahorcadas. 1 fue aplastada hasta morir. Al menos 5 murieron en la cárcel.</p><p>Vas a ver a <b>cinco personas reales</b> que fueron acusadas. Para cada una, verás la <b>evidencia real</b> que se usó contra ellas en el tribunal, puesta en español sencillo. Luego <b>tú</b> decidirás: ¿culpable o inocente?</p><p>Después de decidir, sabrás qué les pasó de verdad, y por qué.</p>"},
   listenLabel:{en:'Read aloud', es:'Leer en voz alta'},
+  enlargeLabel:{en:'Enlarge image', es:'Ampliar imagen'},
   listenStop:{en:'Stop reading', es:'Detener lectura'},
   briefTitle:{en:"Before you judge — what you need to know", es:"Antes de juzgar — lo que necesitas saber"},
   b1h:{en:"What people believed", es:"Lo que la gente creía"},
@@ -442,11 +454,13 @@ var stage = document.getElementById('stage');
 function render(){
   if(typeof speech !== 'undefined' && speech.on) stopSpeech();
   if(typeof setListenState === 'function') setListenState();
+  if(typeof closeLightbox === 'function' && typeof lightbox !== 'undefined' && !lightbox.hidden) closeLightbox();
   document.getElementById('brand-sub').textContent = UI.brandSub[state.language];
   renderProgress();
   if(state.screen === 0) renderIntro();
   else if(state.screen >= 1 && state.screen <= CASES.length) renderCase(state.screen-1);
   else renderConclusion();
+  if(typeof tagEnlargeableImages === 'function') tagEnlargeableImages();
   window.scrollTo(0,0);
 }
 
@@ -621,6 +635,45 @@ function setLang(lang){
   document.getElementById('lang-es').classList.toggle('active', lang==='es');
   document.documentElement.lang = lang;
   render();
+}
+
+/* ---------- LIGHTBOX (click an image to enlarge) ---------- */
+var lightbox = document.getElementById('lightbox');
+function openLightbox(img){
+  var fig = img.closest ? img.closest('figure') : null;
+  var cap = fig && fig.querySelector('figcaption') ? fig.querySelector('figcaption').textContent : '';
+  document.getElementById('lightbox-img').src = img.src;
+  document.getElementById('lightbox-cap').textContent = cap;
+  lightbox.hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(){
+  lightbox.hidden = true;
+  document.getElementById('lightbox-img').src = '';
+  document.body.style.overflow = '';
+}
+lightbox.addEventListener('click', closeLightbox);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && !lightbox.hidden) closeLightbox();
+});
+stage.addEventListener('click', function(e){
+  var t = e.target;
+  if(t && t.tagName === 'IMG' && t.closest && t.closest('figure.exhibit')) openLightbox(t);
+});
+stage.addEventListener('keydown', function(e){
+  var t = e.target;
+  if((e.key === 'Enter' || e.key === ' ') && t && t.tagName === 'IMG' && t.closest && t.closest('figure.exhibit')){
+    e.preventDefault();
+    openLightbox(t);
+  }
+});
+function tagEnlargeableImages(){
+  var imgs = stage.querySelectorAll('figure.exhibit img');
+  for(var i=0;i<imgs.length;i++){
+    imgs[i].setAttribute('tabindex','0');
+    imgs[i].setAttribute('role','button');
+    imgs[i].setAttribute('alt', UI.enlargeLabel[state.language]);
+  }
 }
 
 /* ---------- READ ALOUD (browser speech, best voice on device) ---------- */
