@@ -143,6 +143,37 @@ quality 72 (Python PIL, Lanczos resampling). Original dimensions are recorded ab
 - Original pixel dimensions: 1324 × 1600 (committed copy downscaled to 1158 × 1400,
   JPEG quality 72, PIL Lanczos)
 
+## 5. Report of the General Court committee on the reversal of attainders, 1710–1711
+
+### `reversal_report_1711.jpg`
+- What it is: The committee report underlying the October 1711 reversal-of-attainder act
+  — **not the act itself** (see the "Not fetched" note below; no clean scan of the act
+  was found, and this report is committed deliberately as a distinct item, to be labeled
+  honestly as the report). Manuscript headed "To the Hon'd Gen'll Court Sitting": the
+  committee, meeting at Salem in Sept. 1710 under the Court's act of May 1710, lists the
+  names of those condemned for witchcraft in 1692 to be inserted in the reversal of
+  their attainders — bracketed "Executed" (Elizabeth How, George Jacobs, Mary Easty,
+  Mary Parker, George Burroughs, Giles Corey and Martha his wife, Rebecca Nurse, John
+  Willard, Sarah Good, Martha Carrier, Samuel Wardwell, John Proctor, Sarah Wildes) and
+  "Condemned Not Executed" (Mary Bradbury, Abigail Faulkner, Abigail Hobbs, Ann Foster,
+  Rebecca Eames, Dorcas Hoar, Mary Post, Mary Lacey) — with the restitution amounts
+  awarded to each, "the whole amounting unto £578 12s". Endorsed "Octo. 1711. Read &
+  accepted in the House of Representatives … Sent up for Concurrence" (John Burrill,
+  Speaker) and "In Council Read and Concurred" (Addington). Verified visually: 1710–11
+  manuscript page (numbered 169) matching the archive's description "Report of General
+  Court on reversal of attainders of accused Oct. 26, 1711", with the name list and
+  amounts as above.
+- Source page: https://salem.lib.virginia.edu/archives/ma135.html (Massachusetts
+  Archives Collection vol. 135, doc 169)
+- Direct file: https://salem.lib.virginia.edu/archives/MA135/large/MA169r.jpg
+  (the verso large scan, MA169v, returns 404 — only the recto is available)
+- Holding archive: Massachusetts Archives Collection, vol. 135, Massachusetts State
+  Archives, Boston, MA (as presented by the UVA archive; usage per the site statement
+  quoted at the top of this file).
+- Date fetched: 2026-08-30
+- Original pixel dimensions: 1819 × 2466 (committed copy downscaled to 1033 × 1400,
+  JPEG quality 72, PIL Lanczos)
+
 ## Not fetched (second batch)
 
 - **`act_reversal_1711.jpg` — SKIPPED: no genuine scan of the 1711 act found with clean
@@ -153,16 +184,11 @@ quality 72 (Python PIL, Lanczos resampling). Original dimensions are recorded ab
     `"reverse the attainders"`, etc.) returned only book PDFs *about* the act (e.g.
     Goodell's 1884 *Reasons for concluding that the act of 1711 … became a law*), no
     scan of the act itself.
-  - **Salem Witch Trials Documentary Archive (salem.lib.virginia.edu):** the
-    Massachusetts Archives Collection vol. 135 page (archives/ma135.html) holds a
-    closely related manuscript — doc 169, "Report of General Court on reversal of
-    attainders of accused Oct. 26, 1711" (the committee report listing the names to be
-    inserted in the reversal and their restitution amounts, accepted by the House and
-    Council in Oct. 1711; viewed and confirmed genuine) — but that is the committee
-    report underlying the act, **not the act itself**, so per the no-substitution rule
-    it was not committed under this filename. Its scan, should it ever be wanted as a
-    distinct item, is https://salem.lib.virginia.edu/archives/MA135/large/MA169r.jpg
-    (1819 × 2466; the verso large scan 404s).
+  - **Salem Witch Trials Documentary Archive (salem.lib.virginia.edu):** holds the
+    committee report underlying the act (doc 169), which is the committee report,
+    **not the act itself**, so per the no-substitution rule it was not committed under
+    this filename. It was later committed as a distinct, honestly-labeled item — see
+    section 5, `reversal_report_1711.jpg`, above.
   - **digitalcommonwealth.org:** JSON search API queries ("act reverse attainders 1711",
     "witchcraft attainder", "attainders", "Salem witchcraft act") returned no scan of
     the act.
