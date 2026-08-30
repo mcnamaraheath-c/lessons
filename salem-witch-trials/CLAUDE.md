@@ -114,6 +114,10 @@ spectral evidence, afflicted, magistrate, confession, touch test, petition, gall
 - **Build process for embedded images:** the HTML is authored with a `"__IMG_JSON__"` placeholder; a small Node script reads the JPEGs, base64-encodes them into an `IMG` map, and replaces the placeholder to produce the final file. jsdom availability is via the scratchpad `node_modules` (installed with `npm install jsdom --no-save`).
 - Detective build only: the vault success uses a 700ms delay before advancing to the end screen — account for this in tests (wait >700ms).
 
+## Teacher materials
+
+`materials/` holds the student answer sheet in four files: `salem_judge_answer_sheet_en/es` as `.pdf` (print; authored via HTML → Chromium print, source of truth for layout) and `.docx` (upload to Google Drive → assign in Classroom as "make a copy for each student"). Design: page 1 is a verdict table students fill BEFORE each on-screen verdict (verdict, strongest evidence, would-it-count-today) and AFTER each reveal (executed/lived), so they reconstruct the confession pattern on paper, followed by word-bank fill-ins that land the pattern and the zero; page 2 mirrors the lesson's three Think-and-Write questions verbatim plus an exit ticket ("one thing a fair court needs that Salem's court did not have"). Keep the sheet's questions in sync with the lesson's `q1`–`q3` if those ever change. The deployed Pages site serves the PDFs at `/lessons/salem-witch-trials/materials/…` — linkable directly in Classroom.
+
 ## Suggested classroom use
 
 Single ~45-minute period: intro + hook (~5 min); the five case files, solo or in pairs (~25–30 min, about 5 minutes per case); the pattern screen + reflection + discussion (~10–15 min). No multi-day structure is hard-coded.
