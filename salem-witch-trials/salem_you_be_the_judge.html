@@ -35,6 +35,10 @@
     padding:8px 16px;background:#26231f;color:#efe4cf;border-bottom:2px solid var(--gold);
   }
   header .brand{font-family:ui-monospace,monospace;font-weight:700;letter-spacing:2px;font-size:.95rem;text-transform:uppercase;}
+  .hdr-tools{display:flex;align-items:center;gap:10px;}
+  .listen-btn{background:transparent;color:#efe4cf;border:1.5px solid #efe4cf;border-radius:5px;padding:5px 12px;cursor:pointer;font-family:ui-monospace,monospace;font-weight:700;font-size:.8rem;white-space:nowrap;}
+  .listen-btn.speaking{background:#efe4cf;color:#26231f;}
+  .listen-btn[hidden]{display:none;}
   header .brand small{display:block;letter-spacing:1px;font-size:.62rem;color:#b6a583;font-weight:400;margin-top:1px;}
   .lang-toggle{display:flex;border:1.5px solid #efe4cf;border-radius:5px;overflow:hidden;font-weight:700;font-size:.8rem;}
   .lang-toggle button{background:transparent;color:#efe4cf;border:none;padding:5px 11px;cursor:pointer;font-family:ui-monospace,monospace;font-weight:700;}
@@ -200,9 +204,12 @@
 
 <header>
   <div class="brand">Court of Oyer &amp; Terminer<small id="brand-sub">Salem, Massachusetts &middot; 1692</small></div>
-  <div class="lang-toggle" role="group" aria-label="Language">
-    <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
-    <button id="lang-es" onclick="setLang('es')">ES</button>
+  <div class="hdr-tools">
+    <button id="listen-btn" class="listen-btn" onclick="toggleSpeech()" hidden aria-pressed="false">🔊 <span id="listen-label"></span></button>
+    <div class="lang-toggle" role="group" aria-label="Language">
+      <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+      <button id="lang-es" onclick="setLang('es')">ES</button>
+    </div>
   </div>
 </header>
 
@@ -376,6 +383,8 @@ var UI = {
   introTitle:{en:'You Be the Judge', es:'Tú eres el juez'},
   introLead:{en:'Salem Village, 1692', es:'Salem Village, 1692'},
   introBody:{en:"<p>In 1692, in a small town called Salem, people started accusing their neighbors of being witches. More than 200 people were accused. 19 were hanged. 1 was pressed to death. At least 5 died in jail.</p><p>You are going to look at <b>five real people</b> who were accused. For each one, you will see the <b>actual evidence</b> used against them in court — put into plain English. Then <b>you</b> will decide: guilty, or not guilty?</p><p>After you decide, you'll find out what really happened to them — and why.</p>", es:"<p>En 1692, en un pequeño pueblo llamado Salem, la gente empezó a acusar a sus vecinos de ser brujas. Más de 200 personas fueron acusadas. 19 fueron ahorcadas. 1 fue aplastada hasta morir. Al menos 5 murieron en la cárcel.</p><p>Vas a ver a <b>cinco personas reales</b> que fueron acusadas. Para cada una, verás la <b>evidencia real</b> que se usó contra ellas en el tribunal, puesta en español sencillo. Luego <b>tú</b> decidirás: ¿culpable o inocente?</p><p>Después de decidir, sabrás qué les pasó de verdad, y por qué.</p>"},
+  listenLabel:{en:'Read aloud', es:'Leer en voz alta'},
+  listenStop:{en:'Stop reading', es:'Detener lectura'},
   briefTitle:{en:"Before you judge — what you need to know", es:"Antes de juzgar — lo que necesitas saber"},
   b1h:{en:"What people believed", es:"Lo que la gente creía"},
   b1p:{en:"In 1692, almost everyone believed the Devil was real — and that he gave some people magic powers to hurt others. A person with those powers was called a witch. Being a witch was a crime, and the punishment was death. So a witchcraft trial did not seem strange to them. It was as serious as a murder trial today.", es:"En 1692, casi todos creían que el Diablo era real, y que les daba a algunas personas poderes mágicos para dañar a otros. Una persona con esos poderes era una bruja. Ser bruja era un crimen, y el castigo era la muerte. Así que un juicio por brujería no les parecía extraño. Era tan serio como un juicio por asesinato hoy."},
@@ -431,6 +440,8 @@ var UI = {
 var stage = document.getElementById('stage');
 
 function render(){
+  if(typeof speech !== 'undefined' && speech.on) stopSpeech();
+  if(typeof setListenState === 'function') setListenState();
   document.getElementById('brand-sub').textContent = UI.brandSub[state.language];
   renderProgress();
   if(state.screen === 0) renderIntro();
@@ -612,6 +623,106 @@ function setLang(lang){
   render();
 }
 
+/* ---------- READ ALOUD (browser speech, best voice on device) ---------- */
+var speech = { on:false };
+function speechSupported(){
+  return typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+}
+function initSpeech(){
+  if(!speechSupported()) return;
+  document.getElementById('listen-btn').hidden = false;
+  setListenState();
+  try { window.speechSynthesis.getVoices(); } catch(e){}
+}
+function pickVoice(){
+  var lang = state.language==='es' ? 'es' : 'en';
+  var voices = [];
+  try { voices = window.speechSynthesis.getVoices() || []; } catch(e){ return null; }
+  var cands = voices.filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf(lang)===0; });
+  if(!cands.length) return null;
+  function score(v){
+    var n = (v.name||'').toLowerCase(), l = (v.lang||'').toLowerCase(), sc = 0;
+    if(n.indexOf('natural')>=0 || n.indexOf('neural')>=0 || n.indexOf('premium')>=0 || n.indexOf('enhanced')>=0) sc += 8;
+    if(n.indexOf('google')>=0) sc += 6;
+    if(n.indexOf('microsoft')>=0) sc += 3;
+    if(lang==='en' && l==='en-us') sc += 2;
+    if(lang==='es' && (l==='es-us' || l==='es-mx')) sc += 2;
+    if(v.default) sc += 1;
+    if(n.indexOf('espeak')>=0) sc -= 5;
+    return sc;
+  }
+  cands.sort(function(a,b){ return score(b)-score(a); });
+  return cands[0];
+}
+function collectSpeechText(){
+  var clone = stage.cloneNode(true);
+  ['.tooltip','button','textarea','.nav','select','input','.disclaimer'].forEach(function(sel){
+    var els = clone.querySelectorAll(sel);
+    for(var i=0;i<els.length;i++){ els[i].parentNode.removeChild(els[i]); }
+  });
+  var sels = 'h1,h2,h3,.case-no,.tagline,.section-label,figcaption,.brief-item,.analogy,.evidence-item,.pattern-callout,.verdict-box,.your-verdict,.outcome-stamp,.reveal p,.qtext,.summary tr,p';
+  var nodes = Array.prototype.slice.call(clone.querySelectorAll(sels));
+  var inSet = [];
+  nodes.forEach(function(el){ el.__spk = true; });
+  nodes.forEach(function(el){
+    var p = el.parentElement, nested = false;
+    while(p){ if(p.__spk){ nested = true; break; } p = p.parentElement; }
+    if(!nested) inSet.push(el);
+  });
+  var parts = [];
+  inSet.forEach(function(el){
+    var t;
+    if(el.tagName === 'TR'){
+      var cells = [];
+      for(var i=0;i<el.children.length;i++){ cells.push(el.children[i].textContent.replace(/\s+/g,' ').trim()); }
+      t = cells.join(', ');
+    } else {
+      t = el.textContent.replace(/\s+/g,' ').trim();
+    }
+    if(t) parts.push(t);
+  });
+  return parts;
+}
+function chunkSentences(t){
+  return t.match(/[^.!?…]+[.!?…]+["’”)]?|[^.!?…]+$/g) || [t];
+}
+function setListenState(){
+  var btn = document.getElementById('listen-btn');
+  var lbl = document.getElementById('listen-label');
+  if(!btn || !lbl) return;
+  lbl.textContent = speech.on ? UI.listenStop[state.language] : UI.listenLabel[state.language];
+  btn.classList.toggle('speaking', speech.on);
+  btn.setAttribute('aria-pressed', speech.on ? 'true' : 'false');
+}
+function stopSpeech(){
+  if(!speechSupported()) return;
+  var was = speech.on;
+  speech.on = false;
+  try { window.speechSynthesis.cancel(); } catch(e){}
+  if(was) setListenState(); else setListenState();
+}
+function toggleSpeech(){
+  if(!speechSupported()) return;
+  if(speech.on){ stopSpeech(); return; }
+  var parts = collectSpeechText();
+  if(!parts.length) return;
+  var voice = pickVoice();
+  var fallbackLang = state.language==='es' ? 'es-US' : 'en-US';
+  speech.on = true;
+  setListenState();
+  var chunks = [];
+  parts.forEach(function(p){ chunkSentences(p).forEach(function(c){ c = c.trim(); if(c) chunks.push(c); }); });
+  chunks.forEach(function(c, i){
+    var u = new SpeechSynthesisUtterance(c);
+    if(voice) u.voice = voice;
+    u.lang = voice ? voice.lang : fallbackLang;
+    u.rate = 0.95;
+    if(i === chunks.length-1) u.onend = function(){ if(speech.on) stopSpeech(); };
+    u.onerror = function(){ if(speech.on) stopSpeech(); };
+    try { window.speechSynthesis.speak(u); } catch(e){}
+  });
+}
+
 /* ---------- INIT ---------- */
 (function init(){
   var saved = localStorage.getItem('salemJudgeLang');
@@ -619,6 +730,7 @@ function setLang(lang){
   document.getElementById('lang-en').classList.toggle('active', state.language==='en');
   document.getElementById('lang-es').classList.toggle('active', state.language==='es');
   document.documentElement.lang = state.language;
+  initSpeech();
   render();
 })();
 </script>
