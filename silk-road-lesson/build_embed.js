@@ -17,8 +17,8 @@ const MAP = {
   sancai_camel:    ['img/sancai_camel_musicians.jpg'],
   zhang_qian:      ['img/zhang_qian_mural.jpg'],
   diamond_sutra:   ['img/diamond_sutra_868.jpg'],
-  afrasiab:        ['img/afrasiab_mural_dignitaries.jpg'],
-  baghdad_library: ['img/baghdad_library_1237.jpg'],
+  afrasiab:        ['img/afrasiab_mural_west_wall.jpg'],
+  baghdad_caravan: ['img/baghdad_caravan_1237.jpg'],
   quadriga_silk:   ['img/byzantine_quadriga_silk.jpg'],
   /* teacher-generated art (see IMAGE_PROMPTS.md) */
   cover:              ['img/generated/cover_caravan_dusk.png', 'img/generated/cover_caravan_dusk.jpg'],
