@@ -21,7 +21,7 @@ If work conflicts with the other builds, defer to `salem_you_be_the_judge.html`.
 
 ## The current build: "You Be the Judge"
 
-Framing: the Court of Oyer & Terminer, 1692 — the student is the judge. Flow: **Intro (with the classroom cheating-scandal hook as an analogy box) → five cases in fixed order (Sarah Good, Rebecca Nurse, Tituba, Bridget Bishop, Giles Corey) → conclusion.**
+Framing: the Court of Oyer & Terminer, 1692 — the student is the judge. Flow: **Intro (village image → overview → a four-block "Before you judge" briefing: what people believed / how it started / the afflicted girls / the judges — added Aug 2026 so students meet the afflicted girls and the belief system before Case 1 uses them → classroom image + the cheating-scandal hook) → five cases in fixed order (Sarah Good, Rebecca Nurse, Tituba, Bridget Bishop, Giles Corey) → conclusion.**
 
 Each case file has: a tagline, one or two images with honest captions, and typed evidence items (spectral / gossip / witness / touch / physical / legal / confession), and a **Guilty / Not guilty** verdict choice. Deciding triggers the reveal: an outcome stamp, "What really happened" in plain language, and a "Would this count as proof today?" box — the scaffolding the original worksheet lacked. The conclusion screen shows a table of the student's five verdicts against the real outcomes, the confession-pattern callout (confess → live; refuse → hang; not one exception), a short "And the evidence?" wrap-up, and Think-and-Write reflection questions.
 
