@@ -1,0 +1,1654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caravan: The Merchant's Road — The Silk Road, c. 800</title>
+<style>
+  :root{
+    --dusk:#2b2633;          /* page background: desert dusk */
+    --paper:#f4e9d3;         /* card parchment */
+    --paper-edge:#e2d3b4;
+    --paper-dark:#ece0c4;
+    --ink:#2b2520;
+    --ink-soft:#6f6353;
+    --line:#cfc0a0;
+    --terra:#b0512b;         /* terracotta accent (buttons, labels) */
+    --gold:#c69b41;          /* gold accent */
+    --jade:#2f6b57;          /* success green */
+    --indigo:#39496b;        /* secondary accent */
+    --coin:#a97e1f;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:Georgia,'Times New Roman',serif;
+    background:var(--dusk);
+    color:var(--ink);line-height:1.55;
+    -webkit-text-size-adjust:100%;
+  }
+  .mono{font-family:ui-monospace,'Courier New',monospace;}
+  button{font-family:inherit;}
+  button:focus-visible,[tabindex]:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:30;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    padding:8px 16px;background:#221e29;color:#f0e5cd;border-bottom:2px solid var(--gold);
+  }
+  header .brand{font-family:ui-monospace,monospace;font-weight:700;letter-spacing:2px;font-size:.92rem;text-transform:uppercase;}
+  header .brand small{display:block;letter-spacing:1px;font-size:.62rem;color:#b3a17c;font-weight:400;margin-top:1px;}
+  .hdr-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .hbtn{background:transparent;color:#f0e5cd;border:1.5px solid #f0e5cd;border-radius:5px;padding:6px 12px;cursor:pointer;font-family:ui-monospace,monospace;font-weight:700;font-size:.78rem;white-space:nowrap;min-height:34px;}
+  .hbtn.speaking{background:#f0e5cd;color:#221e29;}
+  .hbtn[hidden]{display:none;}
+  .lang-toggle{display:flex;border:1.5px solid #f0e5cd;border-radius:5px;overflow:hidden;font-weight:700;font-size:.8rem;}
+  .lang-toggle button{background:transparent;color:#f0e5cd;border:none;padding:6px 11px;cursor:pointer;font-family:ui-monospace,monospace;font-weight:700;min-height:34px;}
+  .lang-toggle button.active{background:#f0e5cd;color:#221e29;}
+
+  /* ---------- meters ---------- */
+  .meters{
+    position:sticky;top:0;z-index:29; /* header pushes it down visually; fine on scroll */
+    display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;
+    padding:8px 10px;background:#2e2937;border-bottom:1px solid #453d52;
+  }
+  .meters[hidden]{display:none;}
+  .meter{
+    display:flex;align-items:center;gap:7px;background:#3a3346;border:1px solid #56497a00;
+    border-radius:999px;padding:5px 14px;color:#f0e5cd;font-family:ui-monospace,monospace;font-size:.85rem;font-weight:700;
+  }
+  .meter .ico{font-size:1.05rem;}
+  .meter small{font-weight:400;color:#b3a17c;letter-spacing:.5px;}
+  .meter.flash{animation:meterflash .6s ease;}
+  @keyframes meterflash{0%{background:#c69b41;color:#221e29;}100%{background:#3a3346;}}
+
+  /* ---------- progress dots ---------- */
+  .progress{display:flex;gap:6px;align-items:center;justify-content:center;padding:8px;background:#282331;flex-wrap:wrap;}
+  .pdot{display:flex;align-items:center;gap:5px;font-family:ui-monospace,monospace;font-size:.7rem;color:#8a7d63;}
+  .pdot .b{width:11px;height:11px;border-radius:50%;background:#463e52;border:1px solid #5a5065;}
+  .pdot.done .b{background:var(--gold);border-color:var(--gold);}
+  .pdot.current .b{background:var(--terra);border-color:var(--terra);box-shadow:0 0 0 3px rgba(176,81,43,.35);}
+  .pdot.current{color:#f0e5cd;}
+  .pdot .sep{color:#5a5065;}
+
+  /* ---------- stage & cards ---------- */
+  .stage{max-width:840px;margin:0 auto;padding:22px 14px 60px;}
+  .card{
+    background:var(--paper);
+    border-radius:10px;
+    box-shadow:0 14px 40px rgba(0,0,0,.5);
+    border:1px solid var(--paper-edge);
+    padding:0 0 24px;position:relative;overflow:hidden;
+  }
+  .card::before{content:"";display:block;height:10px;background:linear-gradient(90deg,var(--terra),var(--gold));}
+  .card-head{padding:22px 28px 10px;border-bottom:2px solid var(--line);}
+  .card-body{padding:16px 28px 0;}
+  .kicker{font-family:ui-monospace,monospace;font-size:.72rem;color:var(--ink-soft);letter-spacing:2px;text-transform:uppercase;}
+  .card-head h1{font-size:1.85rem;margin:.15rem 0 .1rem;line-height:1.15;}
+  .tagline{color:var(--ink-soft);font-size:1.02rem;font-style:italic;}
+  .section-label{
+    font-family:ui-monospace,monospace;font-size:.74rem;letter-spacing:2px;text-transform:uppercase;
+    color:var(--terra);font-weight:700;margin:22px 0 10px;display:flex;align-items:center;gap:10px;
+  }
+  .section-label::after{content:"";flex:1;height:1px;background:var(--line);}
+  .scene{margin:0;position:relative;}
+  .scene img,.scene svg{display:block;width:100%;height:auto;border-radius:0;}
+  .scene figcaption{font-size:.8rem;color:var(--ink-soft);font-style:italic;padding:6px 28px 0;text-align:center;line-height:1.4;}
+
+  figure.exhibit{margin:16px 0;text-align:center;}
+  figure.exhibit img{max-width:100%;border:1px solid #b7a681;background:#fff;padding:5px;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:zoom-in;}
+  figure.exhibit img.half{max-width:min(100%,460px);}
+  figure.exhibit figcaption{font-size:.82rem;color:var(--ink-soft);margin-top:7px;font-style:italic;line-height:1.4;}
+
+  .prose p{font-size:1.05rem;margin:.7rem 0;}
+  .notebox{background:var(--paper-dark);border-left:5px solid var(--gold);padding:13px 17px;border-radius:0 8px 8px 0;margin:14px 0;font-size:1.02rem;}
+  .notebox.terra{border-left-color:var(--terra);}
+
+  /* ---------- NPC dialogue ---------- */
+  .npc{display:flex;gap:14px;align-items:flex-start;margin:14px 0;}
+  .npc .face{flex:0 0 84px;width:84px;height:84px;border-radius:10px;overflow:hidden;border:2px solid var(--gold);background:#ddd0b2;}
+  .npc .face img,.npc .face svg{width:100%;height:100%;object-fit:cover;display:block;}
+  .npc .bubble{
+    background:#fbf4e4;border:1px solid var(--line);border-radius:10px;padding:12px 16px;flex:1;position:relative;font-size:1.04rem;
+  }
+  .npc .bubble::before{content:"";position:absolute;left:-9px;top:26px;border:9px solid transparent;border-right-color:var(--line);border-left:0;}
+  .npc .who{font-family:ui-monospace,monospace;font-size:.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--terra);font-weight:700;margin-bottom:4px;}
+  .talk-next{margin:10px 0 4px;text-align:center;}
+
+  /* ---------- market ---------- */
+  .goodrow{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    background:#fbf4e4;border:1px solid var(--line);border-radius:9px;padding:10px 14px;margin:9px 0;
+  }
+  .goodrow .gico{font-size:1.5rem;flex:0 0 auto;}
+  .goodrow .gname{font-weight:700;min-width:110px;}
+  .goodrow .gname small{display:block;font-weight:400;color:var(--ink-soft);font-size:.78rem;font-style:italic;}
+  .goodrow .gprice{font-family:ui-monospace,monospace;font-weight:700;color:var(--coin);min-width:86px;}
+  .goodrow .ghave{font-family:ui-monospace,monospace;font-size:.8rem;color:var(--ink-soft);min-width:70px;}
+  .goodrow .gbtns{margin-left:auto;display:flex;gap:8px;}
+  .tbtn{
+    border:2px solid var(--indigo);background:#fff;color:var(--indigo);border-radius:7px;
+    padding:8px 14px;font-weight:700;cursor:pointer;font-size:.92rem;min-height:44px;min-width:74px;
+  }
+  .tbtn.buy{border-color:var(--jade);color:var(--jade);}
+  .tbtn.sell{border-color:var(--terra);color:var(--terra);}
+  .tbtn:disabled{opacity:.35;cursor:default;}
+  .tbtn:not(:disabled):active{transform:scale(.97);}
+  .market-log{
+    min-height:44px;background:var(--paper-dark);border:1px dashed var(--gold);border-radius:8px;
+    padding:10px 14px;margin:12px 0;font-size:1rem;
+  }
+  .market-log b{color:var(--terra);}
+  .pricenote{font-size:.85rem;color:var(--ink-soft);font-style:italic;margin:6px 0 0;}
+
+  /* ---------- decisions ---------- */
+  .decide-box{margin:20px 0 8px;background:#efe3c8;border:2px dashed var(--terra);border-radius:10px;padding:18px;}
+  .decide-box h3{margin:0 0 6px;font-family:ui-monospace,monospace;text-transform:uppercase;letter-spacing:1px;font-size:1rem;}
+  .decide-box .q{margin:.2rem 0 14px;color:var(--ink-soft);}
+  .choice{
+    display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--indigo);border-radius:9px;
+    padding:13px 16px;margin:9px 0;cursor:pointer;font-size:1rem;min-height:44px;
+  }
+  .choice b{display:block;margin-bottom:3px;color:var(--indigo);}
+  .choice small{color:var(--ink-soft);font-size:.9rem;}
+  .choice.chosen{border-color:var(--jade);background:#eef5ef;}
+  .choice:disabled{opacity:.55;cursor:default;}
+  .outcome{display:none;margin-top:14px;}
+  .outcome.show{display:block;animation:fadein .5s ease;}
+  .outcome .stamp2{
+    display:inline-block;font-family:ui-monospace,monospace;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+    border:3px solid var(--indigo);color:var(--indigo);border-radius:7px;padding:4px 12px;font-size:.75rem;transform:rotate(-2deg);margin-bottom:8px;
+  }
+  @keyframes fadein{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  /* ---------- quick check ---------- */
+  .qc{background:#fbf4e4;border:1px solid var(--line);border-left:5px solid var(--indigo);border-radius:0 8px 8px 0;padding:14px 17px;margin:13px 0;}
+  .qc .qq{font-weight:700;margin-bottom:9px;}
+  .qc .ans{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:8px;padding:11px 14px;margin:7px 0;cursor:pointer;font-size:.98rem;min-height:44px;}
+  .qc .ans.right{border-color:var(--jade);background:#eaf3ec;}
+  .qc .ans.wrong{border-color:#b06a2b;background:#f7ecdd;}
+  .qc .fb{display:none;margin-top:8px;font-size:.95rem;padding:9px 12px;border-radius:7px;}
+  .qc .fb.show{display:block;}
+  .qc .fb.good{background:#e3efe6;border:1px solid var(--jade);}
+  .qc .fb.try{background:#f6ead8;border:1px solid #b06a2b;}
+
+  /* ---------- price strip / ledger ---------- */
+  table.ledger{width:100%;border-collapse:collapse;margin:14px 0;font-size:.98rem;}
+  table.ledger th{font-family:ui-monospace,monospace;font-size:.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--ink-soft);border-bottom:2px solid var(--line);padding:7px 8px;text-align:left;}
+  table.ledger td{border-bottom:1px solid var(--line);padding:9px 8px;}
+  table.ledger td.n{font-family:ui-monospace,monospace;font-weight:700;}
+  table.ledger tr.total td{border-top:3px double var(--ink);font-weight:700;background:var(--paper-dark);}
+  .bigcoins{font-family:ui-monospace,monospace;font-size:1.5rem;font-weight:700;color:var(--coin);}
+  .pricestrip{display:flex;align-items:flex-end;gap:6px;margin:16px 0 4px;padding:0 4px;height:130px;}
+  .pricestrip .bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;justify-content:flex-end;height:100%;}
+  .pricestrip .bar .col{width:100%;max-width:64px;background:linear-gradient(180deg,var(--gold),var(--terra));border-radius:4px 4px 0 0;}
+  .pricestrip .bar .v{font-family:ui-monospace,monospace;font-weight:700;font-size:.85rem;}
+  .pricestrip .bar .c{font-size:.66rem;color:var(--ink-soft);text-align:center;line-height:1.2;font-family:ui-monospace,monospace;}
+
+  /* ---------- reflection ---------- */
+  .reflect-q{margin:14px 0;}
+  .reflect-q .qtext{font-weight:700;margin-bottom:6px;}
+  .reflect-q textarea{width:100%;min-height:84px;border:1.5px solid var(--line);border-radius:8px;padding:10px;font-family:Georgia,serif;font-size:1rem;background:#fffdf6;}
+  .disclaimer{font-size:.85rem;color:var(--ink-soft);font-style:italic;margin-top:14px;}
+
+  /* ---------- nav ---------- */
+  .nav{display:flex;justify-content:space-between;gap:10px;padding:20px 28px 0;}
+  .navbtn{
+    background:var(--terra);color:#fff;border:none;border-radius:8px;padding:13px 22px;
+    font-size:1.02rem;font-weight:700;cursor:pointer;min-height:48px;
+  }
+  .navbtn.ghost{background:transparent;color:var(--terra);border:2px solid var(--terra);}
+  .navbtn.locked{opacity:.45;cursor:not-allowed;}
+  .navbtn.big{font-size:1.15rem;padding:15px 30px;display:block;margin:18px auto 0;}
+
+  /* ---------- vocab tooltips ---------- */
+  .vocab{border-bottom:1.5px dotted var(--terra);cursor:help;position:relative;}
+  .vocab:hover,.vocab:focus{background:rgba(176,81,43,.10);outline:none;}
+  .vocab .tooltip{
+    visibility:hidden;opacity:0;position:absolute;bottom:135%;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:var(--paper);padding:10px 13px;width:230px;font-family:Georgia,serif;font-size:.85rem;
+    line-height:1.45;z-index:60;border-radius:6px;transition:opacity .2s;text-align:left;font-weight:400;font-style:normal;
+    box-shadow:0 6px 20px rgba(0,0,0,.35);
+  }
+  .vocab:hover .tooltip,.vocab:focus .tooltip{visibility:visible;opacity:1;}
+  .vocab .tooltip .es{display:block;margin-top:7px;padding-top:7px;border-top:1px dashed rgba(198,155,65,.5);color:#eecd8c;font-style:italic;font-size:.82rem;}
+  .vocab .tooltip .es::before{content:"🌐 ";font-style:normal;}
+
+  /* ---------- caravan code modal ---------- */
+  #codebox{position:fixed;inset:0;z-index:90;background:rgba(23,19,28,.9);display:flex;align-items:center;justify-content:center;padding:20px;}
+  #codebox[hidden]{display:none;}
+  .codecard{background:var(--paper);border-radius:12px;max-width:520px;width:100%;padding:24px 26px;position:relative;box-shadow:0 16px 50px rgba(0,0,0,.6);}
+  .codecard h3{margin:0 0 8px;}
+  .codeval{font-family:ui-monospace,monospace;font-weight:700;font-size:1.15rem;background:#fff;border:2px dashed var(--gold);border-radius:8px;padding:12px;word-break:break-all;text-align:center;margin:10px 0;user-select:all;}
+  .codecard input{width:100%;font-family:ui-monospace,monospace;font-size:1rem;padding:11px;border:2px solid var(--line);border-radius:8px;margin:8px 0;}
+  .codecard .err{color:var(--terra);font-weight:700;font-size:.9rem;min-height:1.2em;margin:2px 0;}
+  .codecard .x{position:absolute;top:10px;right:12px;background:transparent;border:none;font-size:1.4rem;cursor:pointer;color:var(--ink-soft);padding:6px;}
+
+  /* ---------- lightbox ---------- */
+  #lightbox{position:fixed;inset:0;z-index:100;background:rgba(20,17,12,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;cursor:zoom-out;}
+  #lightbox[hidden]{display:none;}
+  #lightbox img{max-width:94vw;max-height:82vh;object-fit:contain;background:#fff;padding:6px;box-shadow:0 10px 40px rgba(0,0,0,.6);}
+  #lightbox-cap{max-width:70ch;margin-top:12px;color:#f0e5cd;font-size:.95rem;font-style:italic;text-align:center;line-height:1.45;}
+  .lightbox-x{position:absolute;top:14px;right:18px;background:transparent;border:1.5px solid #f0e5cd;color:#f0e5cd;border-radius:6px;font-size:1.3rem;line-height:1;padding:6px 12px;cursor:pointer;font-family:ui-monospace,monospace;}
+
+  /* ---------- title screen ---------- */
+  .title-card{text-align:center;padding-bottom:30px;}
+  .title-card h1{font-size:clamp(1.9rem,6vw,3rem);margin:.4rem 0 .2rem;}
+  .title-card .sub{font-style:italic;color:var(--ink-soft);font-size:1.1rem;}
+
+  @media (max-width:640px){
+    .card-head,.card-body,.nav{padding-left:16px;padding-right:16px;}
+    .npc .face{flex-basis:64px;width:64px;height:64px;}
+    .goodrow .gbtns{margin-left:0;width:100%;justify-content:flex-end;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">CARAVAN<small id="brand-sub">The Merchant's Road — c. 800</small></div>
+  <div class="hdr-tools">
+    <button id="listen-btn" class="hbtn" hidden onclick="toggleSpeech()" aria-pressed="false">🔊 <span id="listen-label">Read aloud</span></button>
+    <button id="code-btn" class="hbtn" onclick="openCodeBox(false)">🐫 <span id="code-label">Caravan Code</span></button>
+    <div class="lang-toggle" role="group" aria-label="Language">
+      <button id="lang-en" onclick="setLang('en')">EN</button>
+      <button id="lang-es" onclick="setLang('es')">ES</button>
+    </div>
+  </div>
+</header>
+
+<div class="meters" id="meters" hidden>
+  <span class="meter" id="m-coins"><span class="ico">🪙</span><span id="m-coins-v">0</span>&nbsp;<small id="m-coins-l">coins</small></span>
+  <span class="meter" id="m-cargo"><span class="ico">📦</span><span id="m-cargo-v">0/6</span>&nbsp;<small id="m-cargo-l">cargo</small></span>
+  <span class="meter" id="m-supplies"><span class="ico">🫓</span><span id="m-supplies-v">0</span>&nbsp;<small id="m-supplies-l">supplies</small></span>
+</div>
+<div class="progress" id="progress" role="list" aria-label="Journey progress"></div>
+
+<main class="stage" id="stage"></main>
+
+<div id="codebox" hidden>
+  <div class="codecard" role="dialog" aria-modal="true" aria-labelledby="codebox-title">
+    <button class="x" onclick="closeCodeBox()" aria-label="Close">✕</button>
+    <h3 id="codebox-title"></h3>
+    <div id="codebox-body"></div>
+  </div>
+</div>
+
+<div id="lightbox" hidden>
+  <button class="lightbox-x" onclick="closeLightbox()" aria-label="Close">✕</button>
+  <img id="lightbox-img" src="" alt="">
+  <div id="lightbox-cap"></div>
+</div>
+
+<script>
+"use strict";
+/* Images are injected at build time (node build_embed.js). Missing keys fall back to drawn placeholder scenes. */
+var IMG = {};
+if (typeof IMG === 'string') { IMG = {}; }
+
+/* ---------- PLACEHOLDER SCENE ART (used until the teacher's generated images land in img/generated/) ---------- */
+function camelPath(x,y,s){
+  return "<g transform='translate("+x+","+y+") scale("+s+")'><path d='M0,18 l3,-10 l2,-8 l3,8 h4 l2,-6 l3,6 h6 l2,-14 l3,-2 l2,3 l-1,13 h2 l-1,18 h-3 l-1,-8 h-2 l-1,8 h-3 l-1,-8 h-8 l-1,8 h-3 l-1,-8 h-2 l-1,8 h-3 z' fill='#241d17' opacity='0.85'/></g>";
+}
+var SCENES = {
+  cover: function(){ return "<svg viewBox='0 0 900 600' role='img' aria-hidden='true'><defs><linearGradient id='sk0' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#3b2c4f'/><stop offset='.55' stop-color='#b0512b'/><stop offset='1' stop-color='#e8a04b'/></linearGradient></defs><rect width='900' height='600' fill='url(#sk0)'/><circle cx='640' cy='330' r='60' fill='#f5d791' opacity='.9'/><path d='M0,430 Q220,340 470,420 T900,400 V600 H0 Z' fill='#8a5a2b'/><path d='M0,500 Q300,430 560,500 T900,480 V600 H0 Z' fill='#6e441f'/>"+camelPath(300,430,2.2)+camelPath(390,436,2.2)+camelPath(480,430,2.2)+camelPath(570,438,2.2)+"</svg>"; },
+  changan: function(){ return "<svg viewBox='0 0 900 600' role='img' aria-hidden='true'><defs><linearGradient id='sk1' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#cfe0e8'/><stop offset='1' stop-color='#f2e3c0'/></linearGradient></defs><rect width='900' height='600' fill='url(#sk1)'/><rect y='470' width='900' height='130' fill='#b78d51'/><g fill='#5c3b22'><path d='M120,470 v-120 h200 v120 z'/><path d='M90,350 L220,290 L350,350 z'/><path d='M110,290 L220,240 L330,290 z' opacity='.9'/></g><g fill='#a33b25'><rect x='430' y='400' width='130' height='70'/><path d='M415,400 L495,360 L575,400 z'/></g><g fill='#39496b'><rect x='620' y='405' width='140' height='65'/><path d='M605,405 L690,368 L775,405 z'/></g><g stroke='#7a5a33' stroke-width='6'><line x1='440' y1='470' x2='440' y2='430'/><line x1='550' y1='470' x2='550' y2='430'/></g>"+camelPath(700,480,2.4)+camelPath(180,492,2)+"</svg>"; },
+  jadegate: function(){ return "<svg viewBox='0 0 900 600' role='img' aria-hidden='true'><defs><linearGradient id='sk2' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#eec98a'/><stop offset='1' stop-color='#dba55e'/></linearGradient></defs><rect width='900' height='600' fill='url(#sk2)'/><circle cx='170' cy='140' r='52' fill='#fff3d0' opacity='.85'/><rect y='460' width='900' height='140' fill='#c08c4b'/><path d='M0,470 Q450,430 900,470 v130 H0 Z' fill='#a9773b'/><g fill='#8a5f2f'><path d='M520,460 L540,250 h140 L720,460 z'/><rect x='548' y='210' width='124' height='48'/><rect x='500' y='430' width='260' height='30'/></g><rect x='0' y='440' width='430' height='22' fill='#8a5f2f' opacity='.8'/>"+camelPath(230,470,2.4)+camelPath(330,476,2.4)+"</svg>"; },
+  kashgar: function(){ return "<svg viewBox='0 0 900 600' role='img' aria-hidden='true'><defs><linearGradient id='sk3' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#bcd3de'/><stop offset='1' stop-color='#e9dcb8'/></linearGradient></defs><rect width='900' height='600' fill='url(#sk3)'/><g fill='#8fa3b5'><path d='M-20,420 L150,180 L320,420 z'/><path d='M240,420 L430,120 L620,420 z'/><path d='M540,420 L720,200 L920,420 z'/></g><g fill='#eef4f7'><path d='M120,222 L150,180 L180,222 z'/><path d='M395,175 L430,120 L465,175 z'/><path d='M690,237 L720,200 L750,237 z'/></g><rect y='420' width='900' height='180' fill='#b19a5c'/><g fill='#2f5d3a'><path d='M180,420 l14,-110 l14,110 z'/><path d='M230,420 l12,-90 l12,90 z'/><path d='M660,420 l14,-110 l14,110 z'/></g><g fill='#8a6b3a'><rect x='330' y='355' width='110' height='65'/><rect x='470' y='368' width='90' height='52'/></g><path d='M0,540 Q450,505 900,540 v60 H0 Z' fill='#4f7d94' opacity='.55'/>"+camelPath(560,455,2.2)+"</svg>"; },
+  samarkand: function(){ return "<svg viewBox='0 0 900 600' role='img' aria-hidden='true'><defs><linearGradient id='sk4' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#2c2a4d'/><stop offset='1' stop-color='#7a4a63'/></linearGradient></defs><rect width='900' height='600' fill='url(#sk4)'/><circle cx='730' cy='120' r='40' fill='#f4ead2' opacity='.9'/><rect y='430' width='900' height='170' fill='#4a3350'/><g fill='#8a5f2f'><rect x='60' y='260' width='780' height='180' rx='6'/></g><g fill='#2c2035'><path d='M110,440 v-100 a45,55 0 0 1 90,0 v100 z'/><path d='M250,440 v-100 a45,55 0 0 1 90,0 v100 z'/><path d='M390,440 v-100 a45,55 0 0 1 90,0 v100 z'/><path d='M530,440 v-100 a45,55 0 0 1 90,0 v100 z'/><path d='M670,440 v-100 a45,55 0 0 1 90,0 v100 z'/></g><g fill='#f5c76b'><circle cx='155' cy='390' r='7'/><circle cx='435' cy='390' r='7'/><circle cx='715' cy='390' r='7'/></g>"+camelPath(400,460,2.4)+camelPath(520,468,2.2)+"<g fill='#3d2b46'><rect x='120' y='470' width='70' height='34' rx='5'/><rect x='230' y='478' width='90' height='30' rx='5'/></g></svg>"; },
+  baghdad: function(){ return "<svg viewBox='0 0 900 600' role='img' aria-hidden='true'><defs><linearGradient id='sk5' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#dfe7dc'/><stop offset='1' stop-color='#efd9a8'/></linearGradient></defs><rect width='900' height='600' fill='url(#sk5)'/><g fill='#9a7440'><rect x='80' y='300' width='740' height='150' rx='10'/></g><g fill='#6d4e26'><circle cx='300' cy='300' r='55'/><rect x='245' y='300' width='110' height='150'/><rect x='560' y='190' width='26' height='260'/><circle cx='573' cy='182' r='16'/><circle cx='650' cy='310' r='40'/><rect x='610' y='310' width='80' height='140'/></g><path d='M0,450 h900 v150 H0 Z' fill='#4f7d94'/><g fill='#2f2418'><path d='M180,520 l40,-26 l40,26 z'/><path d='M420,540 l46,-30 l46,30 z'/><path d='M660,515 l36,-22 l36,22 z'/></g><g fill='#2f5d3a'><path d='M60,450 l12,-70 l12,70 z'/><path d='M840,450 l12,-70 l12,70 z'/></g></svg>"; },
+  constantinople: function(){ return "<svg viewBox='0 0 900 600' role='img' aria-hidden='true'><defs><linearGradient id='sk6' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#bfd6e4'/><stop offset='1' stop-color='#e8e4d0'/></linearGradient></defs><rect width='900' height='600' fill='url(#sk6)'/><g fill='#8f8676'><rect x='0' y='330' width='900' height='90'/><rect x='60' y='290' width='40' height='60'/><rect x='240' y='290' width='40' height='60'/><rect x='420' y='290' width='40' height='60'/></g><g fill='#6f6553'><circle cx='620' cy='265' r='70'/><rect x='550' y='265' width='140' height='85'/><circle cx='530' cy='300' r='30'/><circle cx='712' cy='300' r='30'/><rect x='755' y='240' width='16' height='110'/></g><path d='M0,420 h900 v180 H0 Z' fill='#39648a'/><g fill='#2f2418'><path d='M150,505 l14,-64 l6,64 h70 l-8,26 h-64 z'/><path d='M470,520 l16,-70 l7,70 h84 l-9,28 h-76 z'/></g><path d='M150,441 l14,0 l-2,-26 z' fill='#e8e4d0'/><path d='M470,450 l16,0 l-2,-30 z' fill='#e8e4d0'/><g stroke='#dfe7ec' stroke-width='3' fill='none'><path d='M90,120 q10,-12 20,0 q10,-12 20,0'/><path d='M180,90 q10,-12 20,0 q10,-12 20,0'/></g></svg>"; }
+};
+function faceSVG(initials, bg){
+  return "<svg viewBox='0 0 100 100' role='img' aria-hidden='true'><rect width='100' height='100' fill='"+bg+"'/><circle cx='50' cy='40' r='18' fill='#f0e5cd' opacity='.9'/><path d='M20,92 a30,26 0 0 1 60,0 z' fill='#f0e5cd' opacity='.9'/><text x='50' y='47' text-anchor='middle' font-family='Georgia' font-size='16' fill='"+bg+"' font-weight='bold'>"+initials+"</text></svg>";
+}
+function sceneHTML(key){
+  if (IMG[key]) return "<img src='"+IMG[key]+"' alt=''>";
+  var fallback = {cover:'cover', bg_changan:'changan', bg_jadegate:'jadegate', bg_kashgar:'kashgar', bg_samarkand:'samarkand', bg_baghdad:'baghdad', bg_constantinople:'constantinople'};
+  var fn = SCENES[fallback[key] || key];
+  return fn ? fn() : "";
+}
+function faceHTML(npc){
+  if (IMG[npc.img]) return "<img src='"+IMG[npc.img]+"' alt=''>";
+  return faceSVG(npc.initials, npc.hue);
+}
+
+/* ---------- UI STRINGS ---------- */
+var UI = {
+  brandSub:{en:"The Merchant's Road — c. 800", es:"El camino del mercader — c. 800"},
+  listenLabel:{en:"Read aloud", es:"Leer en voz alta"},
+  listenStop:{en:"Stop reading", es:"Detener lectura"},
+  enlargeLabel:{en:"Image. Press Enter to enlarge.", es:"Imagen. Pulsa Enter para ampliar."},
+  coins:{en:"coins", es:"monedas"},
+  cargo:{en:"cargo", es:"carga"},
+  supplies:{en:"supplies", es:"provisiones"},
+  stopWord:{en:"Stop", es:"Parada"},
+  ofWord:{en:"of", es:"de"},
+  next:{en:"Continue →", es:"Continuar →"},
+  back:{en:"← Back", es:"← Atrás"},
+  nextLocked:{en:"Finish this step first", es:"Primero termina este paso"},
+
+  /* title screen */
+  titleKicker:{en:"A journey along the Silk Road, around the year 800", es:"Un viaje por la Ruta de la Seda, hacia el año 800"},
+  gameTitle:{en:"Caravan: The Merchant's Road", es:"Caravana: El camino del mercader"},
+  titleSub:{en:"Can you take three camels and 60 coins across Asia — and come home rich?", es:"¿Puedes cruzar Asia con tres camellos y 60 monedas… y volver rico?"},
+  startBtn:{en:"▶ Begin your journey", es:"▶ Comienza tu viaje"},
+  continueBtn:{en:"Continue your saved journey", es:"Continúa tu viaje guardado"},
+  haveCode:{en:"I have a Caravan Code", es:"Tengo un Código de Caravana"},
+  coverCap:{en:"A caravan crosses the dunes — as our artist imagines it.", es:"Una caravana cruza las dunas — como lo imagina nuestro artista."},
+
+  /* intro */
+  introKicker:{en:"Your mission", es:"Tu misión"},
+  introTitle:{en:"Uncle Wei's Last Wish", es:"El último deseo del tío Wei"},
+  introP1:{en:"The year is about 800. You live in Chang'an, the capital of China under the Tang dynasty. It is the biggest city in the world. People from many lands walk its markets.", es:"Estamos hacia el año 800. Vives en Chang'an, la capital de China bajo la dinastía Tang. Es la ciudad más grande del mundo. Gente de muchas tierras camina por sus mercados."},
+  introP2:{en:"Your uncle Wei was a merchant all his life. Now he is old. He gives you his three camels, 60 coins, and one wish: take a caravan west, farther than he ever went — all the way to Constantinople.", es:"Tu tío Wei fue mercader toda su vida. Ahora es mayor. Te da sus tres camellos, 60 monedas y un deseo: lleva una caravana al oeste, más lejos de lo que él llegó — hasta Constantinopla."},
+  introP3:{en:"Merchants say silk that costs 8 coins here sells for 90 there. But the road is long: deserts, mountains, tolls, and bandits. Every choice will cost you or pay you.", es:"Los mercaderes dicen que la seda que aquí cuesta 8 monedas, allá se vende por 90. Pero el camino es largo: desiertos, montañas, peajes y bandidos. Cada decisión te costará o te pagará."},
+  howToTitle:{en:"How to play", es:"Cómo se juega"},
+  how1:{en:"🪙 Watch your three meters: coins, cargo, and supplies.", es:"🪙 Vigila tus tres medidores: monedas, carga y provisiones."},
+  how2:{en:"📦 Buy goods cheap. Carry them west. Sell them for more. The game does all the math for you and shows every trade.", es:"📦 Compra barato. Lleva la mercancía al oeste. Véndela por más. El juego hace todas las cuentas por ti y muestra cada trato."},
+  how3:{en:"🐫 Each camel carries 2 loads. Supplies are the food and water your caravan eats on each road.", es:"🐫 Cada camello lleva 2 cargas. Las provisiones son la comida y el agua que tu caravana consume en cada camino."},
+  how4:{en:"🗺 At each stop: look around, trade in the bazaar, answer one question, then choose your road.", es:"🗺 En cada parada: observa, comercia en el bazar, responde una pregunta y elige tu camino."},
+  introDisclaimer:{en:"The cities, goods, prices' story, and dangers in this game are real history. The people you will meet are imagined — they stand for the kinds of people who really worked this road. One more thing: no one in 800 said “Silk Road.” That name was invented in 1877. Travelers just called them “the roads.”", es:"Las ciudades, mercancías, precios y peligros de este juego son historia real. Las personas que conocerás son imaginadas — representan a la gente que de verdad trabajaba en este camino. Algo más: nadie en el año 800 decía “Ruta de la Seda.” Ese nombre se inventó en 1877. Los viajeros solo decían “los caminos.”"},
+  beginBtn:{en:"Load the camels →", es:"Carga los camellos →"},
+
+  /* market */
+  marketLabel:{en:"The bazaar — price board", es:"El bazar — tabla de precios"},
+  bazaarHint:{en:"Prices here are per load. Tap Buy or Sell. The game writes out every trade below.", es:"Los precios son por carga. Toca Comprar o Vender. El juego escribe cada trato abajo."},
+  buy1:{en:"Buy 1", es:"Comprar 1"},
+  sell1:{en:"Sell 1", es:"Vender 1"},
+  youHave:{en:"you have", es:"tienes"},
+  logStart:{en:"Your trades will show here.", es:"Tus tratos aparecerán aquí."},
+  youBought:{en:"You bought 1 load of {g} for {p} coins. You now have {c} coins.", es:"Compraste 1 carga de {g} por {p} monedas. Ahora tienes {c} monedas."},
+  youSold:{en:"You sold 1 load of {g} for {p} coins. You now have {c} coins.", es:"Vendiste 1 carga de {g} por {p} monedas. Ahora tienes {c} monedas."},
+  boughtSupply:{en:"You bought 1 supply for 1 coin. You now have {c} coins.", es:"Compraste 1 provisión por 1 moneda. Ahora tienes {c} monedas."},
+  boughtCamel:{en:"You bought a camel for {p} coins! It can carry 2 more loads. You now have {c} coins.", es:"¡Compraste un camello por {p} monedas! Puede llevar 2 cargas más. Ahora tienes {c} monedas."},
+  noCoins:{en:"Not enough coins for that.", es:"No te alcanzan las monedas."},
+  noRoom:{en:"Your camels are full! Sell something, or buy another camel if one is for sale.", es:"¡Tus camellos están llenos! Vende algo, o compra otro camello si hay uno en venta."},
+  noStock:{en:"You have none to sell.", es:"No tienes nada de eso para vender."},
+  notSoldHere:{en:"not traded here", es:"no se vende aquí"},
+  supplyName:{en:"Supplies (food & water)", es:"Provisiones (comida y agua)"},
+  supplyNote:{en:"1 coin each", es:"1 moneda cada una"},
+  camelName:{en:"A strong camel", es:"Un camello fuerte"},
+  camelNote:{en:"carries 2 more loads", es:"lleva 2 cargas más"},
+  maxCamels:{en:"Your caravan is big enough — five camels is the most one merchant can handle.", es:"Tu caravana ya es bastante grande — cinco camellos es lo máximo que un mercader puede manejar."},
+
+  /* road */
+  roadLabel:{en:"The road ahead", es:"El camino por delante"},
+  roadNeeds:{en:"This road will use {n} supplies.", es:"Este camino gastará {n} provisiones."},
+  youHaveSupplies:{en:"You have {n}.", es:"Tienes {n}."},
+  topUp:{en:"Buy 1 supply (1 coin)", es:"Comprar 1 provisión (1 moneda)"},
+  needMoreSupplies:{en:"You need more supplies before you can set out.", es:"Necesitas más provisiones antes de salir."},
+  chooseLabel:{en:"Your decision", es:"Tu decisión"},
+  decideFirst:{en:"Choose your road first", es:"Primero elige tu camino"},
+  whatHappened:{en:"What happened", es:"Qué pasó"},
+  setOut:{en:"Set out →", es:"Ponte en marcha →"},
+  emergencyTitle:{en:"A caravan master helps you", es:"Un jefe de caravana te ayuda"},
+  emergencyBody:{en:"You ran short, but the caravan master shares supplies and coins so no traveler is left behind. Merchants helped each other — alone, the road was death. You owe him a favor.", es:"Te quedaste corto, pero el jefe de la caravana comparte provisiones y monedas para no dejar a nadie atrás. Los mercaderes se ayudaban — solos, el camino era la muerte. Le debes un favor."},
+
+  /* quick check */
+  qcLabel:{en:"Merchant's question", es:"Pregunta del mercader"},
+  qcRight:{en:"✓ Right.", es:"✓ Correcto."},
+  qcTry:{en:"Not quite — try another answer.", es:"No exactamente — prueba otra respuesta."},
+
+  /* rest / caravan code */
+  restKicker:{en:"End of Day 1", es:"Fin del Día 1"},
+  restTitle:{en:"Rest at the caravanserai", es:"Descansa en el caravasar"},
+  restBody:{en:"Your camels kneel in the courtyard. Tomorrow, the hardest part begins: the mountains they call the Roof of the World. Write your Caravan Code on your ledger sheet so you can continue next class.", es:"Tus camellos se arrodillan en el patio. Mañana empieza lo más difícil: las montañas que llaman el Techo del Mundo. Escribe tu Código de Caravana en tu hoja para continuar la próxima clase."},
+  yourCode:{en:"Your Caravan Code", es:"Tu Código de Caravana"},
+  codeKeep:{en:"Write it exactly, letter by letter. It brings back your coins, cargo, and place on the road.", es:"Cópialo exacto, letra por letra. Recupera tus monedas, tu carga y tu lugar en el camino."},
+  keepGoing:{en:"Keep going today →", es:"Seguir hoy →"},
+  codeTitle:{en:"Caravan Code", es:"Código de Caravana"},
+  codeEnterLabel:{en:"Enter your code to continue your journey:", es:"Escribe tu código para continuar tu viaje:"},
+  codeLoad:{en:"Load my journey", es:"Cargar mi viaje"},
+  codeBad:{en:"That code does not work. Check every letter and try again.", es:"Ese código no funciona. Revisa cada letra e inténtalo de nuevo."},
+  codeCurrent:{en:"Your code right now:", es:"Tu código en este momento:"},
+  codeClose:{en:"Close", es:"Cerrar"},
+
+  /* finale */
+  finalSaleKicker:{en:"The last bazaar", es:"El último bazar"},
+  sellAllBtn:{en:"Sell everything that is left", es:"Vender todo lo que queda"},
+  mustSell:{en:"Anna will buy whatever you still carry — sell it all to close your ledger.", es:"Anna comprará todo lo que aún llevas — véndelo todo para cerrar tu libro de cuentas."},
+  ledgerKicker:{en:"Journey's end", es:"Fin del viaje"},
+  ledgerTitle:{en:"Your Merchant's Ledger", es:"Tu libro de cuentas"},
+  thGood:{en:"Good", es:"Mercancía"},
+  thSpent:{en:"Coins spent", es:"Monedas gastadas"},
+  thEarned:{en:"Coins earned", es:"Monedas ganadas"},
+  thStory:{en:"How it went", es:"Cómo te fue"},
+  rowProfit:{en:"You earned {d} more than you spent.", es:"Ganaste {d} más de lo que gastaste."},
+  rowLoss:{en:"You spent {d} more than you earned.", es:"Gastaste {d} más de lo que ganaste."},
+  rowEven:{en:"You broke even.", es:"Quedaste igual."},
+  rowNone:{en:"You never traded this.", es:"Nunca comerciaste con esto."},
+  totalRow:{en:"All trades together", es:"Todos los tratos juntos"},
+  startedWith:{en:"You started with 60 coins. You finished with {c}.", es:"Empezaste con 60 monedas. Terminaste con {c}."},
+  finalRich:{en:"Uncle Wei would be proud. You came home richer than you left.", es:"El tío Wei estaría orgulloso. Volviste más rico de lo que saliste."},
+  finalPoor:{en:"You came home with less than you left with. It happens — the road is expensive. Uncle Wei would say: now you know why so few merchants went all the way.", es:"Volviste con menos de lo que saliste. Pasa — el camino es caro. El tío Wei diría: ahora sabes por qué tan pocos mercaderes iban hasta el final."},
+  stripTitle:{en:"The price of one load of silk along the road", es:"El precio de una carga de seda a lo largo del camino"},
+  stripQ:{en:"Same silk. Six prices. Every stop adds distance, danger, tolls, and more hands that want a share. That is why silk from China was treasure in Constantinople.", es:"La misma seda. Seis precios. Cada parada suma distancia, peligro, peajes y más manos que quieren su parte. Por eso la seda de China era un tesoro en Constantinopla."},
+
+  relayKicker:{en:"The secret of the road", es:"El secreto del camino"},
+  relayTitle:{en:"You did something almost no real merchant did", es:"Hiciste algo que casi ningún mercader real hizo"},
+  relayBody1:{en:"You crossed the whole road, from Chang'an to Constantinople. Real merchants almost never did that. Most goods traveled like a relay race: a Chinese merchant sold silk in Dunhuang. A merchant from Kashgar carried it over the mountains. A Sogdian took it to Persia. Another trader took it to Constantinople.", es:"Cruzaste todo el camino, de Chang'an a Constantinopla. Los mercaderes reales casi nunca lo hacían. La mayoría de las mercancías viajaban como una carrera de relevos: un mercader chino vendía la seda en Dunhuang. Un mercader de Kashgar la cruzaba por las montañas. Un sogdiano la llevaba a Persia. Otro comerciante la llevaba a Constantinopla."},
+  relayBody2:{en:"Each merchant knew one piece of the road and made a living from it. That is relay trade — and it is how a thing made in China could reach Rome or Constantinople without any one person carrying it there.", es:"Cada mercader conocía un tramo del camino y vivía de él. Eso es el comercio de relevos — y así algo hecho en China podía llegar a Roma o Constantinopla sin que una sola persona lo llevara hasta allá."},
+
+  ideasKicker:{en:"More than goods", es:"Más que mercancías"},
+  ideasTitle:{en:"What else traveled this road?", es:"¿Qué más viajó por este camino?"},
+  idea1h:{en:"Buddhism moved east", es:"El budismo viajó al este"},
+  idea1p:{en:"Monks and pilgrims carried Buddhist teachings from India into China along these same roads. That is why you found cave temples at Dunhuang, painted by travelers who stopped there.", es:"Monjes y peregrinos llevaron las enseñanzas budistas de la India a China por estos mismos caminos. Por eso encontraste templos en cuevas en Dunhuang, pintados por viajeros que paraban allí."},
+  idea2h:{en:"Paper moved west", es:"El papel viajó al oeste"},
+  idea2p:{en:"Papermaking was a Chinese invention. After the battle of Talas in 751, the skill reached Samarkand, then Baghdad. Books got cheaper. Learning spread. You watched it change prices with your own coins.", es:"El papel fue un invento chino. Después de la batalla de Talas en 751, la técnica llegó a Samarcanda y luego a Bagdad. Los libros se volvieron más baratos. El saber se extendió. Tú viste cómo cambiaba los precios con tus propias monedas."},
+  idea3h:{en:"And sickness traveled too", es:"Y la enfermedad también viajó"},
+  idea3p:{en:"Everything that moves with people moves with caravans — including disease. Sickness sometimes traveled these roads from city to city. It is a sober fact about connecting the world: everything travels.", es:"Todo lo que se mueve con la gente se mueve con las caravanas — incluida la enfermedad. A veces las enfermedades viajaban por estos caminos de ciudad en ciudad. Es un hecho serio sobre conectar el mundo: todo viaja."},
+
+  reflectKicker:{en:"Think and write", es:"Piensa y escribe"},
+  reflectTitle:{en:"Your merchant's report", es:"Tu informe de mercader"},
+  q1:{en:"Silk cost 8 coins in Chang'an and 90 in Constantinople. In your own words, why did the price grow at every stop?", es:"La seda costaba 8 monedas en Chang'an y 90 en Constantinopla. Con tus palabras, ¿por qué subía el precio en cada parada?"},
+  q2:{en:"Vandak said: “I have never seen China. My silk has.” What did he mean?", es:"Vandak dijo: “Nunca he visto China. Mi seda sí.” ¿Qué quiso decir?"},
+  q3:{en:"Would you rather be a merchant who runs one leg of the road, or the whole road like you just did? Why?", es:"¿Preferirías ser un mercader que recorre un solo tramo del camino, o todo el camino como acabas de hacer? ¿Por qué?"},
+  printNote:{en:"Your answers are not saved. Write them on your ledger sheet or copy them if your teacher asks.", es:"Tus respuestas no se guardan. Escríbelas en tu hoja o cópialas si tu maestra/o lo pide."},
+  restart:{en:"↺ Start a new journey", es:"↺ Empezar un viaje nuevo"},
+  doneKicker:{en:"The journey is complete", es:"El viaje está completo"}
+};
+
+/* ---------- VOCAB TOOLTIPS ---------- */
+var VOCAB = {
+  "caravan":{en:"A group of merchants and pack animals traveling together for safety.",es:"Un grupo de mercaderes y animales de carga que viajan juntos por seguridad."},
+  "caravanserai":{en:"A roadside inn with a walled courtyard where caravans slept safely.",es:"Una posada del camino con patio amurallado donde las caravanas dormían seguras."},
+  "oasis":{en:"A green place in the desert with water from a spring or river.",es:"Un lugar verde en el desierto con agua de un manantial o río."},
+  "bazaar":{en:"A market with many small shops and stalls.",es:"Un mercado con muchos puestos y tiendas pequeñas."},
+  "merchant":{en:"A person who buys and sells goods to make a living.",es:"Una persona que compra y vende mercancías para ganarse la vida."},
+  "merchants":{en:"People who buy and sell goods to make a living.",es:"Personas que compran y venden mercancías para ganarse la vida."},
+  "toll":{en:"Money you must pay to use a road, bridge, or gate.",es:"Dinero que debes pagar por usar un camino, puente o puerta."},
+  "profit":{en:"The money you have left after selling something for more than it cost you.",es:"El dinero que te queda después de vender algo por más de lo que te costó."},
+  "supply and demand":{en:"When many people want something that is hard to get, its price goes up.",es:"Cuando mucha gente quiere algo difícil de conseguir, su precio sube."},
+  "dynasty":{en:"A family that rules a country for a long time. The Tang dynasty ruled China from 618 to 907.",es:"Una familia que gobierna un país por mucho tiempo. La dinastía Tang gobernó China del 618 al 907."},
+  "empire":{en:"Many lands and peoples ruled by one government.",es:"Muchas tierras y pueblos bajo un solo gobierno."},
+  "monk":{en:"A man who gives his life to religion, often living simply in a temple or monastery.",es:"Un hombre que dedica su vida a la religión, viviendo de forma sencilla en un templo o monasterio."},
+  "porcelain":{en:"Fine, hard, white pottery invented in China. Beautiful — and easy to break.",es:"Cerámica fina, dura y blanca inventada en China. Hermosa — y fácil de romper."},
+  "customs":{en:"The place at a border where officials check goods and collect a tax on them.",es:"El lugar en la frontera donde los oficiales revisan mercancías y cobran un impuesto."},
+  "relay trade":{en:"Trade where goods pass from merchant to merchant, each carrying them one part of the way.",es:"Comercio donde las mercancías pasan de mercader en mercader, cada uno llevándolas un tramo del camino."},
+  "Sogdian":{en:"A people from the cities around Samarkand, famous as the great traders of the Silk Road.",es:"Un pueblo de las ciudades cerca de Samarcanda, famosos como los grandes comerciantes de la Ruta de la Seda."}
+};
+var VOCAB_ES = {
+  "caravana":{en:"A group of merchants and pack animals traveling together for safety.",es:"Un grupo de mercaderes y animales de carga que viajan juntos por seguridad."},
+  "caravasar":{en:"A roadside inn with a walled courtyard where caravans slept safely.",es:"Una posada del camino con patio amurallado donde las caravanas dormían seguras."},
+  "oasis":{en:"A green place in the desert with water.",es:"Un lugar verde en el desierto con agua de un manantial o río."},
+  "bazar":{en:"A market with many small shops and stalls.",es:"Un mercado con muchos puestos y tiendas pequeñas."},
+  "mercader":{en:"A person who buys and sells goods.",es:"Una persona que compra y vende mercancías para ganarse la vida."},
+  "mercaderes":{en:"People who buy and sell goods.",es:"Personas que compran y venden mercancías para ganarse la vida."},
+  "peaje":{en:"Money you must pay to use a road, bridge, or gate.",es:"Dinero que debes pagar por usar un camino, puente o puerta."},
+  "ganancia":{en:"The money left after selling something for more than it cost.",es:"El dinero que te queda después de vender algo por más de lo que te costó."},
+  "oferta y demanda":{en:"When many people want something that is hard to get, its price goes up.",es:"Cuando mucha gente quiere algo difícil de conseguir, su precio sube."},
+  "dinastía":{en:"A family that rules a country for a long time.",es:"Una familia que gobierna un país por mucho tiempo. La dinastía Tang gobernó China del 618 al 907."},
+  "imperio":{en:"Many lands and peoples ruled by one government.",es:"Muchas tierras y pueblos bajo un solo gobierno."},
+  "monje":{en:"A man who gives his life to religion.",es:"Un hombre que dedica su vida a la religión, viviendo de forma sencilla en un templo o monasterio."},
+  "porcelana":{en:"Fine, hard, white pottery invented in China.",es:"Cerámica fina, dura y blanca inventada en China. Hermosa — y fácil de romper."},
+  "aduana":{en:"The border post where officials check goods and tax them.",es:"El lugar en la frontera donde los oficiales revisan mercancías y cobran un impuesto."},
+  "comercio de relevos":{en:"Goods passing from merchant to merchant along the way.",es:"Comercio donde las mercancías pasan de mercader en mercader, cada uno llevándolas un tramo del camino."},
+  "sogdiano":{en:"A people from the cities around Samarkand, the great traders of the road.",es:"Un pueblo de las ciudades cerca de Samarcanda, famosos como los grandes comerciantes de la Ruta de la Seda."}
+};
+function wrap(text){
+  var vocab = state.language==='es' ? VOCAB_ES : VOCAB;
+  var keys = Object.keys(vocab).sort(function(a,b){return b.length-a.length;});
+  var result=text, ph=[];
+  keys.forEach(function(key,idx){
+    var flags = state.language==='es' ? '' : 'i';
+    var re = new RegExp('\\b('+key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')\\b',flags);
+    result = result.replace(re,function(m){ ph.push({idx:idx,match:m,key:key}); return '__V'+idx+'__'; });
+  });
+  ph.forEach(function(p){
+    var d=vocab[p.key];
+    var primary = state.language==='es'?d.es:d.en, secondary = state.language==='es'?d.en:d.es;
+    result = result.replace('__V'+p.idx+'__','<span class="vocab" tabindex="0">'+p.match+'<span class="tooltip">'+primary+'<span class="es">'+secondary+'</span></span></span>');
+  });
+  return result;
+}
+function fmt(tpl, map){
+  var out = tpl;
+  Object.keys(map).forEach(function(k){ out = out.split('{'+k+'}').join(map[k]); });
+  return out;
+}
+
+/* ---------- GOODS & PRICES ----------
+   Prices are per load, fixed by design (the price table IS the lesson).
+   Columns: Chang'an, Dunhuang, Kashgar, Samarkand, Baghdad, Constantinople. */
+var GOODS = {
+  silk:      {ico:"🧵", name:{en:"Silk", es:"Seda"},       note:{en:"light and precious", es:"ligera y preciosa"},          prices:[8,14,20,34,55,90]},
+  porcelain: {ico:"🏺", name:{en:"Porcelain", es:"Porcelana"}, note:{en:"beautiful — and breakable", es:"hermosa — y frágil"}, prices:[6,10,15,24,40,70]},
+  tea:       {ico:"🍵", name:{en:"Tea bricks", es:"Ladrillos de té"}, note:{en:"loved in Central Asia", es:"muy querido en Asia Central"}, prices:[4,9,14,12,8,6]},
+  paper:     {ico:"📜", name:{en:"Paper", es:"Papel"},      note:{en:"a Chinese invention", es:"un invento chino"},          prices:[5,8,12,6,5,15]},
+  spices:    {ico:"🌶", name:{en:"Spices", es:"Especias"},  note:{en:"from India, by mountain roads", es:"de la India, por caminos de montaña"}, prices:[null,null,30,18,15,45]},
+  jade:      {ico:"🟩", name:{en:"Jade", es:"Jade"},        note:{en:"stone of kings — in China", es:"piedra de reyes — en China"}, prices:[null,null,25,20,15,10]}
+};
+var GOOD_KEYS = ["silk","porcelain","tea","paper","spices","jade"];
+var START_COINS = 60, START_CAMELS = 3, START_SUPPLIES = 4, LOADS_PER_CAMEL = 2, MAX_CAMELS = 5, CAMEL_PRICE = 15;
+
+/* ---------- THE SIX CITIES ---------- */
+var CITIES = [
+/* ============ 0. CHANG'AN ============ */
+{
+  id:"changan",
+  name:{en:"Chang'an", es:"Chang'an"},
+  where:{en:"Capital of Tang China — the biggest city in the world", es:"Capital de la China Tang — la ciudad más grande del mundo"},
+  scene:"bg_changan",
+  sceneCap:{en:"The West Market of Chang'an — as our artist imagines it.", es:"El Mercado del Oeste de Chang'an — como lo imagina nuestro artista."},
+  arrive:[
+    {en:"One million people live in Chang'an. In the West Market you hear ten languages at once. Camels kneel between stalls of silk, tea, paper, and porcelain.", es:"Un millón de personas viven en Chang'an. En el Mercado del Oeste se oyen diez idiomas a la vez. Los camellos se arrodillan entre puestos de seda, té, papel y porcelana."},
+    {en:"Everything China makes is cheap here, because this is where it is made. The farther west you carry it, the more it will be worth. That is your whole plan.", es:"Todo lo que China fabrica es barato aquí, porque aquí se fabrica. Cuanto más al oeste lo lleves, más valdrá. Ese es todo tu plan."}
+  ],
+  exhibits:[{key:"sancai_camel", half:true, cap:{en:"A camel with musicians, made of glazed pottery in China in 723 — about the time of your journey. Tang families loved these figures of the caravan camels that made them rich. Photo: John Hill, CC BY-SA 4.0.", es:"Un camello con músicos, hecho de cerámica vidriada en China en 723 — cerca del tiempo de tu viaje. A las familias Tang les encantaban estas figuras de los camellos que las hacían ricas. Foto: John Hill, CC BY-SA 4.0."}}],
+  npcs:[{
+    name:{en:"Uncle Wei", es:"Tío Wei"}, img:"npc_uncle_wei", initials:"WEI", hue:"#7a3b1e",
+    lines:[
+      {en:"Listen well. Silk costs 8 coins here. In Constantinople they say it sells for 90. The road eats the difference — unless you are clever.", es:"Escucha bien. La seda cuesta 8 monedas aquí. En Constantinopla dicen que se vende a 90. El camino se come la diferencia — a menos que seas listo."},
+      {en:"Fill your camels. Buy what is cheap here and wanted there. And never, never run out of supplies in the desert.", es:"Llena tus camellos. Compra lo que aquí es barato y allá se desea. Y nunca, nunca te quedes sin provisiones en el desierto."},
+      {en:"One warning: porcelain pays well, but it breaks. Mountains and porcelain are enemies. Now go — the caravan forms at dawn.", es:"Una advertencia: la porcelana paga bien, pero se rompe. Las montañas y la porcelana son enemigas. Ahora ve — la caravana sale al amanecer."}
+    ]
+  }],
+  check:[{
+    q:{en:"Why is silk cheaper in Chang'an than anywhere else on the road?", es:"¿Por qué la seda es más barata en Chang'an que en cualquier otro lugar del camino?"},
+    answers:[
+      {t:{en:"Because it is made here, so there is a lot of it", es:"Porque se hace aquí, así que hay mucha"}, ok:true},
+      {t:{en:"Because people in China do not like silk", es:"Porque a la gente de China no le gusta la seda"}, ok:false},
+      {t:{en:"Because coins are worth more in China", es:"Porque las monedas valen más en China"}, ok:false}
+    ],
+    good:{en:"Where something is made, there is plenty of it — big supply, lower price. Every step away from the source, it gets rarer and dearer.", es:"Donde algo se fabrica, hay mucho — mucha oferta, precio bajo. Con cada paso lejos de la fuente, se vuelve más raro y más caro."},
+    trymsg:{en:"Think about supply: where silk is made, is it rare or common?", es:"Piensa en la oferta: donde se hace la seda, ¿es rara o común?"}
+  }],
+  road:{
+    needs:3,
+    intro:{en:"West of Chang'an the farms end and the dry lands begin. After many days you reach the Jade Gate — the last door of China. Tang soldiers check every traveler's permit.", es:"Al oeste de Chang'an terminan los campos y empiezan las tierras secas. Tras muchos días llegas a la Puerta de Jade — la última puerta de China. Los soldados Tang revisan el permiso de cada viajero."},
+    q:{en:"At the Jade Gate, the officials ask for a road tax of 5 coins.", es:"En la Puerta de Jade, los oficiales piden un impuesto de camino de 5 monedas."},
+    options:[
+      {title:{en:"Pay the 5 coins and pass the gate", es:"Paga las 5 monedas y cruza la puerta"},
+       detail:{en:"Legal, safe, stamped papers.", es:"Legal, seguro, papeles sellados."},
+       stamp:{en:"Papers stamped", es:"Papeles sellados"},
+       fx:{coins:-5},
+       out:{en:"The officials stamp your travel permit. It feels expensive — but that tax pays the soldiers who keep this road safe from bandits, and the beacon towers that guide travelers. On the Tang empire's roads, order was worth paying for.", es:"Los oficiales sellan tu permiso de viaje. Parece caro — pero ese impuesto paga a los soldados que protegen este camino de los bandidos, y las torres de señales que guían a los viajeros. En los caminos del imperio Tang, el orden valía lo que costaba."}},
+      {title:{en:"Slip around the gate on a smugglers' path", es:"Escápate por un sendero de contrabandistas"},
+       detail:{en:"Free — if no one sees you.", es:"Gratis — si nadie te ve."},
+       stamp:{en:"Caught!", es:"¡Atrapado!"},
+       fx:{coins:-10, orLoad:true},
+       out:{en:"A patrol catches your caravan in the hills. In Tang China every traveler needed a permit, and the fine for sneaking past is double the tax — 10 coins. You pay it and are lucky: smugglers could lose everything they carried.", es:"Una patrulla atrapa tu caravana en las colinas. En la China Tang todo viajero necesitaba un permiso, y la multa por esconderse es el doble del impuesto — 10 monedas. La pagas y tienes suerte: los contrabandistas podían perder todo lo que llevaban."}}
+    ]
+  }
+},
+/* ============ 1. DUNHUANG ============ */
+{
+  id:"dunhuang",
+  name:{en:"Dunhuang", es:"Dunhuang"},
+  where:{en:"Oasis town at the edge of the great desert", es:"Pueblo oasis al borde del gran desierto"},
+  scene:"bg_jadegate",
+  sceneCap:{en:"The last watchtower before the desert — as our artist imagines it.", es:"La última torre antes del desierto — como lo imagina nuestro artista."},
+  arrive:[
+    {en:"Dunhuang is a green island in an ocean of sand and stone. Every caravan going west or east stops here to rest and fill its water bags.", es:"Dunhuang es una isla verde en un océano de arena y piedra. Toda caravana que va al oeste o al este para aquí a descansar y llenar sus bolsas de agua."},
+    {en:"In the cliffs outside town, travelers have carved hundreds of cave temples full of paintings. Merchants pay for the paintings to give thanks for surviving the desert — or to ask for luck before crossing it.", es:"En los acantilados fuera del pueblo, los viajeros han tallado cientos de templos en cuevas llenos de pinturas. Los mercaderes pagan las pinturas para dar gracias por sobrevivir el desierto — o para pedir suerte antes de cruzarlo."}
+  ],
+  exhibits:[
+    {key:"zhang_qian", cap:{en:"A painting on a cave wall near Dunhuang, made in Tang times: the emperor sends the explorer Zhang Qian west, almost 900 years before your journey. His travels helped open these roads. The mural is still there, in Mogao Cave 323.", es:"Una pintura en la pared de una cueva cerca de Dunhuang, hecha en tiempos Tang: el emperador envía al explorador Zhang Qian al oeste, casi 900 años antes de tu viaje. Sus viajes ayudaron a abrir estos caminos. El mural sigue allí, en la Cueva 323 de Mogao."}},
+    {key:"diamond_sutra", cap:{en:"The Diamond Sutra, a Buddhist holy text printed on paper near here in 868 — the oldest dated printed book in the world. It was found in a sealed cave at Dunhuang and is kept today at the British Library.", es:"El Sutra del Diamante, un texto sagrado budista impreso en papel cerca de aquí en 868 — el libro impreso con fecha más antiguo del mundo. Se encontró en una cueva sellada de Dunhuang y hoy se guarda en la Biblioteca Británica."}}
+  ],
+  npcs:[{
+    name:{en:"Brother Kong", es:"Hermano Kong"}, img:"npc_brother_kong", initials:"KONG", hue:"#8a6a1f",
+    lines:[
+      {en:"Welcome, merchant. I copy holy texts here. The teachings of the Buddha came from India to China on these very roads — carried in saddlebags, like your silk.", es:"Bienvenido, mercader. Aquí copio textos sagrados. Las enseñanzas del Buda vinieron de la India a China por estos mismos caminos — en alforjas, como tu seda."},
+      {en:"A monk named Xuanzang passed here long before you were born, walking to India for books. Seventeen years he traveled. You only go to Constantinople — you have it easy!", es:"Un monje llamado Xuanzang pasó por aquí mucho antes de que nacieras, caminando a la India por libros. Diecisiete años viajó. Tú solo vas a Constantinopla — ¡lo tuyo es fácil!"},
+      {en:"Buy your supplies before the desert, friend. The sand does not forgive the unprepared.", es:"Compra tus provisiones antes del desierto, amigo. La arena no perdona a los desprevenidos."}
+    ]
+  }],
+  check:[{
+    q:{en:"The cave temples here are Buddhist — but Buddhism began far away in India. What does that show?", es:"Los templos de las cuevas son budistas — pero el budismo nació lejos, en la India. ¿Qué muestra eso?"},
+    answers:[
+      {t:{en:"Ideas and religions traveled the roads, not just goods", es:"Las ideas y religiones viajaban por los caminos, no solo las mercancías"}, ok:true},
+      {t:{en:"The monks built the caves to sell them", es:"Los monjes construyeron las cuevas para venderlas"}, ok:false},
+      {t:{en:"Buddhism was invented in Dunhuang", es:"El budismo se inventó en Dunhuang"}, ok:false}
+    ],
+    good:{en:"Exactly. Everything travels with caravans: goods, stories, inventions, and beliefs. Buddhism rode east along the Silk Road for centuries.", es:"Exacto. Todo viaja con las caravanas: mercancías, historias, inventos y creencias. El budismo viajó al este por la Ruta de la Seda durante siglos."},
+    trymsg:{en:"Who carried Buddhist teachings along these roads? Think about what else rides in a saddlebag.", es:"¿Quién llevó las enseñanzas budistas por estos caminos? Piensa en qué más viaja en una alforja."}
+  }],
+  road:{
+    needs:4,
+    intro:{en:"Ahead lies the Taklamakan desert — a sea of dunes larger than many kingdoms. No caravan crosses its middle. You must go around it.", es:"Frente a ti está el desierto de Taklamakán — un mar de dunas más grande que muchos reinos. Ninguna caravana cruza su centro. Debes rodearlo."},
+    q:{en:"Two roads go around the desert. Which do you take?", es:"Dos caminos rodean el desierto. ¿Cuál tomas?"},
+    options:[
+      {title:{en:"The northern road, oasis to oasis", es:"El camino del norte, de oasis en oasis"},
+       detail:{en:"Longer — it will use 2 extra supplies — but there is water each night.", es:"Más largo — gastará 2 provisiones extra — pero hay agua cada noche."},
+       stamp:{en:"Safe crossing", es:"Cruce seguro"},
+       fx:{supplies:-2},
+       out:{en:"Day after day you walk from one oasis town to the next. It is slow and you eat through your supplies — but there is water every night, and other caravans to share news with. This is how most merchants crossed: the boring road is the road that gets you there.", es:"Día tras día caminas de un pueblo oasis al siguiente. Es lento y gastas provisiones — pero hay agua cada noche, y otras caravanas con quienes compartir noticias. Así cruzaba la mayoría de los mercaderes: el camino aburrido es el que te lleva."}},
+      {title:{en:"The southern shortcut, near the dunes", es:"El atajo del sur, junto a las dunas"},
+       detail:{en:"Shorter — but the old camel men look at the sky and frown.", es:"Más corto — pero los viejos camelleros miran el cielo y fruncen el ceño."},
+       stamp:{en:"Sandstorm!", es:"¡Tormenta de arena!"},
+       fx:{supplies:-4},
+       out:{en:"On the third day the sky turns yellow, then black. A sandstorm buries the trail. Your caravan huddles for two days, eating through 4 extra supplies, and wanders another day to find the road. Merchants told stories that the desert's name meant «you go in and you don't come out.» Now you understand the stories.", es:"Al tercer día el cielo se vuelve amarillo, luego negro. Una tormenta de arena entierra el sendero. Tu caravana se refugia dos días, gastando 4 provisiones extra, y vaga un día más para hallar el camino. Los mercaderes contaban que el nombre del desierto significaba «entras y no sales.» Ahora entiendes esas historias."}}
+    ]
+  }
+},
+/* ============ 2. KASHGAR ============ */
+{
+  id:"kashgar",
+  name:{en:"Kashgar", es:"Kashgar"},
+  where:{en:"Oasis crossroads at the foot of the Pamir mountains", es:"Cruce de caminos al pie de las montañas del Pamir"},
+  scene:"bg_kashgar",
+  sceneCap:{en:"Kashgar's bazaar under the mountains — as our artist imagines it.", es:"El bazar de Kashgar bajo las montañas — como lo imagina nuestro artista."},
+  arrive:[
+    {en:"Every road around the great desert meets again at Kashgar. In its bazaar you see faces from China, India, Persia, and the steppes — all at the same melon stall.", es:"Todos los caminos que rodean el gran desierto se juntan otra vez en Kashgar. En su bazar ves rostros de China, India, Persia y las estepas — todos en el mismo puesto de melones."},
+    {en:"To the west, a wall of snow mountains blocks the sky: the Pamirs. Travelers call them the Roof of the World. Your camels will hate them.", es:"Al oeste, una muralla de montañas nevadas tapa el cielo: los Pamir. Los viajeros las llaman el Techo del Mundo. Tus camellos las van a odiar."}
+  ],
+  exhibits:[],
+  npcs:[{
+    name:{en:"Old Yusuf", es:"Viejo Yusuf"}, img:"npc_old_yusuf", initials:"YSF", hue:"#3d5a45",
+    lines:[
+      {en:"Forty years I have led camels over those mountains. Rule one: what is heavy and breakable stays here. Rule two: hire help, or pay in broken pots.", es:"Cuarenta años llevando camellos por esas montañas. Regla uno: lo pesado y frágil se queda aquí. Regla dos: contrata ayuda, o paga en ollas rotas."},
+      {en:"You eye that jade? Ha! Jade is dug near here. Carry it EAST to Chang'an and emperors pay fortunes. Carry it west and every city pays you less. Wrong direction, friend.", es:"¿Miras ese jade? ¡Ja! El jade se saca cerca de aquí. Llévalo al ESTE, a Chang'an, y los emperadores pagan fortunas. Llévalo al oeste y cada ciudad te paga menos. Dirección equivocada, amigo."},
+      {en:"Tea, though — the horse lords of the steppe drink rivers of it. Tea sells high here and hereabouts. Farther west? They shrug at it.", es:"El té, en cambio — los señores de los caballos de la estepa beben ríos de té. El té se vende caro aquí y por estas tierras. ¿Más al oeste? Se encogen de hombros."}
+    ]
+  }],
+  check:[{
+    q:{en:"Yusuf says jade sells best far to the EAST, in Chang'an. Why?", es:"Yusuf dice que el jade se vende mejor lejos, al ESTE, en Chang'an. ¿Por qué?"},
+    answers:[
+      {t:{en:"Jade is found near Kashgar, and the people who prize it most live in China", es:"El jade se encuentra cerca de Kashgar, y quienes más lo valoran viven en China"}, ok:true},
+      {t:{en:"Jade gets heavier when you carry it west", es:"El jade se vuelve más pesado si lo llevas al oeste"}, ok:false},
+      {t:{en:"It is against the law to sell jade in the west", es:"Es ilegal vender jade en el oeste"}, ok:false}
+    ],
+    good:{en:"Right. Goods flow toward the people who want them and cannot get them nearby. Silk flows west. Jade flows east. A smart merchant learns which way each good 'wants' to travel.", es:"Correcto. Las mercancías fluyen hacia la gente que las desea y no las tiene cerca. La seda fluye al oeste. El jade fluye al este. Un buen mercader aprende hacia dónde 'quiere' viajar cada mercancía."},
+    trymsg:{en:"Where is jade dug up? Where do the people who love it most live?", es:"¿Dónde se saca el jade? ¿Dónde vive la gente que más lo ama?"}
+  }],
+  road:{
+    needs:4,
+    intro:{en:"The trail west climbs into thin, freezing air. Passes higher than the clouds. Ice on the stones. This is the hardest leg of the whole road.", es:"El sendero al oeste sube a un aire helado y delgado. Pasos más altos que las nubes. Hielo en las piedras. Este es el tramo más duro de todo el camino."},
+    q:{en:"How will you take your caravan over the Roof of the World?", es:"¿Cómo llevarás tu caravana por el Techo del Mundo?"},
+    options:[
+      {title:{en:"Hire Yusuf's yak porters — 6 coins", es:"Contrata a los porteadores con yaks de Yusuf — 6 monedas"},
+       detail:{en:"Yaks are sure-footed on ice. Your cargo rides safe.", es:"Los yaks pisan firme en el hielo. Tu carga viaja segura."},
+       stamp:{en:"Cargo safe", es:"Carga a salvo"},
+       fx:{coins:-6},
+       out:{en:"The yaks plod up the ice like it is a garden path. Yusuf's porters know every stone. Six coins felt expensive in Kashgar — on the highest pass, watching a yak carry your porcelain over a frozen ledge, it feels cheap. Local experts were worth their price on every leg of the Silk Road.", es:"Los yaks suben por el hielo como si fuera un jardín. Los porteadores de Yusuf conocen cada piedra. Seis monedas parecían caras en Kashgar — en el paso más alto, viendo a un yak llevar tu porcelana sobre una cornisa helada, parecen baratas. Los expertos locales valían su precio en cada tramo de la Ruta de la Seda."}},
+      {title:{en:"Push your own camels over the passes", es:"Sube con tus propios camellos"},
+       detail:{en:"Free — but camels slip on ice, and cargo falls.", es:"Gratis — pero los camellos resbalan en el hielo, y la carga cae."},
+       stamp:{en:"A load is lost", es:"Se pierde una carga"},
+       fx:{loseLoad:"porcelain", elseCoins:-4},
+       out:{en:"On the second pass, a camel slips on black ice. If you carried porcelain, you hear it — a crunch inside the pack, a full load in pieces. If not, the camel goes lame and mountain herders charge 4 coins to treat and re-shoe your animals. The Pamirs always take their toll; merchants planned for it.", es:"En el segundo paso, un camello resbala en el hielo. Si llevabas porcelana, lo oyes — un crujido dentro del fardo, una carga entera en pedazos. Si no, el camello queda cojo y los pastores de la montaña cobran 4 monedas por curar y herrar a tus animales. Los Pamir siempre cobran su parte; los mercaderes contaban con ello."}}
+    ]
+  }
+},
+/* ============ 3. SAMARKAND ============ */
+{
+  id:"samarkand",
+  name:{en:"Samarkand", es:"Samarcanda"},
+  where:{en:"City of the Sogdians — the master traders of the road", es:"Ciudad de los sogdianos — los maestros del comercio del camino"},
+  scene:"bg_samarkand",
+  sceneCap:{en:"Evening in a Samarkand caravanserai — as our artist imagines it.", es:"Atardecer en un caravasar de Samarcanda — como lo imagina nuestro artista."},
+  arrive:[
+    {en:"Down from the mountains, into gardens and canals: Samarkand. This is the home city of the Sogdians, a people famous from China to Persia for one skill — trade.", es:"Bajas de las montañas a jardines y canales: Samarcanda. Es la ciudad de los sogdianos, un pueblo famoso de China a Persia por una sola habilidad — el comercio."},
+    {en:"Sogdian merchants run caravanserais and trading posts along the whole road. Their letters travel thousands of miles between family businesses. Many children in Chang'an learn Sogdian words for 'price' before Chinese ones.", es:"Los mercaderes sogdianos manejan caravasares y puestos de comercio por todo el camino. Sus cartas viajan miles de kilómetros entre negocios familiares. Muchos niños en Chang'an aprenden palabras sogdianas para 'precio' antes que las chinas."}
+  ],
+  exhibits:[{key:"afrasiab", cap:{en:"A wall painting from a rich Samarkand house, made in the 600s: visitors from distant lands arrive with gifts. It was found in the old city, Afrasiab, and can be seen in Samarkand today.", es:"Una pintura mural de una casa rica de Samarcanda, hecha en el siglo VII: visitantes de tierras lejanas llegan con regalos. Se encontró en la ciudad vieja, Afrasiab, y hoy puede verse en Samarcanda."}}],
+  npcs:[
+    {name:{en:"Vandak the Sogdian", es:"Vandak el sogdiano"}, img:"npc_vandak", initials:"VDK", hue:"#5a3a6b",
+     lines:[
+      {en:"Chinese silk! Straight from Chang'an? Merchant, you amaze me. I have sold Chinese silk for twenty years — and I have never seen China. My silk has. I have not.", es:"¡Seda china! ¿Directa de Chang'an? Mercader, me asombras. Llevo veinte años vendiendo seda china — y nunca he visto China. Mi seda sí. Yo no."},
+      {en:"My grandfather bought from a man in Kashgar, who bought from a man in Dunhuang, who bought in Chang'an. Each of us runs one piece of the road. The goods run all of it.", es:"Mi abuelo compraba a un hombre en Kashgar, que compraba a un hombre en Dunhuang, que compraba en Chang'an. Cada uno de nosotros recorre un tramo del camino. Las mercancías lo recorren todo."},
+      {en:"You carry it yourself the whole way? Brave. Expensive, too — you will see. Every toll and every mountain comes out of YOUR purse alone.", es:"¿Tú lo llevas todo el camino? Valiente. Y caro — ya verás. Cada peaje y cada montaña sale solo de TU bolsa."}
+     ]},
+    {name:{en:"Roshan the paper-maker", es:"Roshan la papelera"}, img:"npc_roshan", initials:"RSH", hue:"#2f6b57",
+     lines:[
+      {en:"You brought paper to sell? Oh, merchant. Fifty years ago, after a great battle at Talas, Chinese papermakers settled here and taught us the craft. Samarkand makes its own paper now — good paper, cheap paper.", es:"¿Trajiste papel para vender? Ay, mercader. Hace cincuenta años, tras una gran batalla en Talas, papeleros chinos se establecieron aquí y nos enseñaron el oficio. Samarcanda ya hace su propio papel — bueno y barato."},
+      {en:"That is the road for you: goods travel, but so do the SKILLS to make them. Then the price falls. Sell your paper further west — or better, in lands the mills have not reached.", es:"Así es el camino: viajan las mercancías, pero también las TÉCNICAS para hacerlas. Y entonces el precio baja. Vende tu papel más al oeste — o mejor, donde los molinos aún no llegan."}
+     ]}
+  ],
+  check:[
+    {q:{en:"Vandak sells Chinese silk, but he has never been to China. How is that possible?", es:"Vandak vende seda china, pero nunca ha estado en China. ¿Cómo es posible?"},
+     answers:[
+      {t:{en:"Goods passed from merchant to merchant, each carrying them one stretch — like a relay race", es:"Las mercancías pasaban de mercader en mercader, cada uno un tramo — como una carrera de relevos"}, ok:true},
+      {t:{en:"He is lying — all silk merchants had to visit China", es:"Miente — todos los vendedores de seda tenían que visitar China"}, ok:false},
+      {t:{en:"Silk walked by itself along the road", es:"La seda caminaba sola por el camino"}, ok:false}
+     ],
+     good:{en:"That is relay trade — the great secret of the Silk Road. Almost nobody traveled the whole road. The goods did, passing through many hands, each hand adding to the price.", es:"Eso es el comercio de relevos — el gran secreto de la Ruta de la Seda. Casi nadie recorría todo el camino. Las mercancías sí, pasando por muchas manos, y cada mano subía el precio."},
+     trymsg:{en:"Think of a relay race: does one runner run the whole race?", es:"Piensa en una carrera de relevos: ¿un solo corredor corre toda la carrera?"}},
+    {q:{en:"Paper sells for LESS here than in Kashgar. Why?", es:"El papel se vende por MENOS aquí que en Kashgar. ¿Por qué?"},
+     answers:[
+      {t:{en:"Samarkand learned to make its own paper, so it is no longer rare here", es:"Samarcanda aprendió a hacer su propio papel, así que ya no es raro aquí"}, ok:true},
+      {t:{en:"People in Samarkand cannot read or write", es:"La gente de Samarcanda no sabe leer ni escribir"}, ok:false},
+      {t:{en:"Paper spoils in the mountain air", es:"El papel se echa a perder en el aire de montaña"}, ok:false}
+     ],
+     good:{en:"Yes. When the skill to make something travels, the thing stops being rare — and its price drops. Technology traveled the road just like cargo.", es:"Sí. Cuando viaja la técnica para hacer algo, ese algo deja de ser raro — y su precio baja. La tecnología viajaba por el camino igual que la carga."},
+     trymsg:{en:"Remember what Roshan told you about the battle of Talas.", es:"Recuerda lo que Roshan te contó sobre la batalla de Talas."}}
+  ],
+  road:{
+    needs:4,
+    intro:{en:"West of Samarkand the road runs through dry hills and long empty stretches — perfect country for bandits who watch the passes for small, rich caravans.", es:"Al oeste de Samarcanda el camino cruza colinas secas y largos tramos vacíos — tierra perfecta para bandidos que vigilan los pasos buscando caravanas pequeñas y ricas."},
+    q:{en:"A great caravan of eighty camels leaves for Baghdad tonight. Its master will guard your goods — for a fee of 5 coins.", es:"Una gran caravana de ochenta camellos sale hacia Bagdad esta noche. Su jefe protegerá tus mercancías — por una cuota de 5 monedas."},
+    options:[
+      {title:{en:"Pay 5 coins and join the great caravan", es:"Paga 5 monedas y únete a la gran caravana"},
+       detail:{en:"Eighty camels, armed guards, safety in numbers.", es:"Ochenta camellos, guardias armados, seguridad en grupo."},
+       stamp:{en:"Safe passage", es:"Paso seguro"},
+       fx:{coins:-5},
+       out:{en:"Bandits watch your caravan from the hills — and stay in the hills. Nobody attacks eighty camels and their guards. At night you sleep in caravanserais, one day's walk apart, built so that traders always have walls around them. Safety was something merchants bought, and it was the best bargain on the road.", es:"Los bandidos miran tu caravana desde las colinas — y se quedan en las colinas. Nadie ataca a ochenta camellos y sus guardias. De noche duermes en caravasares, a un día de camino uno de otro, construidos para que los mercaderes siempre tuvieran murallas alrededor. La seguridad se compraba, y era la mejor ganga del camino."}},
+      {title:{en:"Travel alone and move fast", es:"Viaja solo y muévete rápido"},
+       detail:{en:"Keep your coins. Small caravans are quick — and tempting.", es:"Guarda tus monedas. Las caravanas pequeñas son rápidas — y tentadoras."},
+       stamp:{en:"Bandits!", es:"¡Bandidos!"},
+       fx:{coins:-12, orLoad:true},
+       out:{en:"On the fourth night, riders come out of the dark. They are quick, quiet, and very practiced: they take 12 coins and ride off. It could have been far worse — lone caravans sometimes lost everything. This is exactly why the caravanserai system existed, and why merchants paid to travel together.", es:"La cuarta noche, jinetes salen de la oscuridad. Son rápidos, silenciosos y con mucha práctica: toman 12 monedas y se van. Pudo ser mucho peor — las caravanas solitarias a veces lo perdían todo. Justo para esto existía el sistema de caravasares, y por eso los mercaderes pagaban por viajar juntos."}}
+    ]
+  }
+},
+/* ============ 4. BAGHDAD ============ */
+{
+  id:"baghdad",
+  name:{en:"Baghdad", es:"Bagdad"},
+  where:{en:"The round city of the caliphs, heart of the Islamic world", es:"La ciudad redonda de los califas, corazón del mundo islámico"},
+  scene:"bg_baghdad",
+  sceneCap:{en:"Baghdad on the Tigris — as our artist imagines it.", es:"Bagdad junto al Tigris — como lo imagina nuestro artista."},
+  arrive:[
+    {en:"Baghdad is not even fifty years old, and it may already be the richest city west of China. The caliph built it as a perfect circle where the land roads meet the river roads to the sea.", es:"Bagdad no tiene ni cincuenta años, y quizá ya es la ciudad más rica al oeste de China. El califa la construyó como un círculo perfecto donde los caminos de tierra se cruzan con los caminos del río hacia el mar."},
+    {en:"Ships from India unload at the docks. Caravans from Samarkand unload at the gates. Everything meets here — goods, and something else: books, scholars, and ideas from every land.", es:"Barcos de la India descargan en los muelles. Caravanas de Samarcanda descargan en las puertas. Todo se encuentra aquí — mercancías, y algo más: libros, sabios e ideas de todas las tierras."}
+  ],
+  exhibits:[{key:"baghdad_library", half:true, cap:{en:"Scholars in a library, painted by al-Wasiti in 1237 — four centuries after your journey, but showing the world Baghdad built: a city where learning was treasure. Kept today at the National Library of France.", es:"Sabios en una biblioteca, pintados por al-Wasiti en 1237 — cuatro siglos después de tu viaje, pero muestra el mundo que Bagdad construyó: una ciudad donde el saber era un tesoro. Hoy se guarda en la Biblioteca Nacional de Francia."}}],
+  npcs:[{
+    name:{en:"Scholar Salim", es:"El sabio Salim"}, img:"npc_scholar_salim", initials:"SLM", hue:"#39496b",
+    lines:[
+      {en:"You come from Chang'an? Then you have seen the paper mills' mother country! Our House of Wisdom fills with books because paper is cheap now. We translate the Greeks, the Persians, the Indians — everything.", es:"¿Vienes de Chang'an? ¡Entonces has visto la patria de los molinos de papel! Nuestra Casa de la Sabiduría se llena de libros porque el papel ya es barato. Traducimos a los griegos, los persas, los indios — todo."},
+      {en:"Merchants think they carry cloth and spice. They also carry numbers, star charts, and medicine. A caravan is a school that walks.", es:"Los mercaderes creen que llevan tela y especias. También llevan números, mapas de estrellas y medicina. Una caravana es una escuela que camina."},
+      {en:"One warning for the road west: the Byzantines tax every load at their border. Every merchant grumbles. Every merchant pays. Almost every merchant, anyway…", es:"Un aviso para el camino al oeste: los bizantinos cobran impuesto por cada carga en su frontera. Todo mercader se queja. Todo mercader paga. Bueno, casi todos…"}
+    ]
+  }],
+  check:[{
+    q:{en:"Why did Baghdad grow so rich, so fast?", es:"¿Por qué Bagdad se hizo tan rica, tan rápido?"},
+    answers:[
+      {t:{en:"It sits where the great land routes and river-to-sea routes meet", es:"Está donde se cruzan las grandes rutas de tierra y las rutas del río al mar"}, ok:true},
+      {t:{en:"Gold was discovered under the city", es:"Se descubrió oro debajo de la ciudad"}, ok:false},
+      {t:{en:"It never had to pay for anything", es:"Nunca tuvo que pagar por nada"}, ok:false}
+    ],
+    good:{en:"Location, location, location. Cities grow rich where trade routes cross — every caravan and every ship pays, buys, sells, and rests there. Chang'an, Samarkand, Baghdad, Constantinople: all crossroads cities.", es:"Ubicación, ubicación, ubicación. Las ciudades se enriquecen donde se cruzan las rutas — cada caravana y cada barco paga, compra, vende y descansa allí. Chang'an, Samarcanda, Bagdad, Constantinopla: todas ciudades de cruce."},
+    trymsg:{en:"Look at where the caliph chose to build it. What meets there?", es:"Mira dónde decidió construirla el califa. ¿Qué se cruza allí?"}
+  }],
+  road:{
+    needs:3,
+    intro:{en:"The last leg. The road climbs northwest toward the border of the Byzantine empire. At the frontier post, imperial officials weigh and record every single load.", es:"El último tramo. El camino sube al noroeste hacia la frontera del imperio bizantino. En el puesto fronterizo, los oficiales imperiales pesan y anotan cada carga."},
+    q:{en:"The customs officers demand the emperor's tax: 6 coins on your cargo.", es:"Los oficiales de aduana exigen el impuesto del emperador: 6 monedas por tu carga."},
+    options:[
+      {title:{en:"Declare everything and pay the 6 coins", es:"Declara todo y paga las 6 monedas"},
+       detail:{en:"Legal entry, sealed papers, no fear at every checkpoint.", es:"Entrada legal, papeles sellados, sin miedo en cada control."},
+       stamp:{en:"Sealed and legal", es:"Sellado y legal"},
+       fx:{coins:-6},
+       out:{en:"The officials list your goods, take 6 coins, and give you a sealed permit. The Byzantines taxed everything that crossed their border — it paid for their armies and roads. From here to the capital, no guard can touch you: your papers are in order.", es:"Los oficiales anotan tus mercancías, toman 6 monedas y te dan un permiso sellado. Los bizantinos cobraban impuestos por todo lo que cruzaba su frontera — pagaba sus ejércitos y caminos. De aquí a la capital, ningún guardia puede tocarte: tus papeles están en orden."}},
+      {title:{en:"Hide a silk load inside the tea bales", es:"Esconde una carga de seda entre los fardos de té"},
+       detail:{en:"Pay tax on less. Risky — Byzantine inspectors are famous for finding things.", es:"Paga impuesto por menos. Arriesgado — los inspectores bizantinos son famosos por encontrar cosas."},
+       stamp:{en:"Found it", es:"La encontraron"},
+       fx:{coins:-14, orLoad:true},
+       out:{en:"An inspector slides a rod into your tea bale — thock — silk. He does not even look surprised. The fine is 14 coins, more than double the tax, and they check the rest of your cargo twice. Smuggling silk past Byzantine customs was common, and so was getting caught.", es:"Un inspector mete una vara en tu fardo de té — toc — seda. Ni siquiera parece sorprendido. La multa es de 14 monedas, más del doble del impuesto, y revisan el resto de tu carga dos veces. Contrabandear seda por la aduana bizantina era común, y ser atrapado también."}}
+    ]
+  }
+},
+/* ============ 5. CONSTANTINOPLE ============ */
+{
+  id:"constantinople",
+  name:{en:"Constantinople", es:"Constantinopla"},
+  where:{en:"Capital of the Byzantine empire — the end of the road", es:"Capital del imperio bizantino — el fin del camino"},
+  scene:"bg_constantinople",
+  sceneCap:{en:"The harbor of Constantinople — as our artist imagines it.", es:"El puerto de Constantinopla — como lo imagina nuestro artista."},
+  arrive:[
+    {en:"Golden domes. Sea walls. Ships from every port of the Mediterranean. You walk your tired camels through the gates of Constantinople — the city your uncle only heard about in stories.", es:"Cúpulas doradas. Murallas junto al mar. Barcos de todos los puertos del Mediterráneo. Cruzas con tus camellos cansados las puertas de Constantinopla — la ciudad que tu tío solo conocía por historias."},
+    {en:"Here, Chinese silk is treasure. Nobles pay fortunes for it. Your last job is simple: sell everything, count your coins, and learn what this road really taught you.", es:"Aquí, la seda china es un tesoro. Los nobles pagan fortunas por ella. Tu último trabajo es simple: véndelo todo, cuenta tus monedas y descubre qué te enseñó de verdad este camino."}
+  ],
+  exhibits:[{key:"quadriga_silk", half:true, cap:{en:"A piece of Byzantine silk woven in Constantinople around the year 800 — the very years of your journey. It shows a four-horse chariot from the city's races. Silk this fine wrapped kings; a piece of it later wrapped the emperor Charlemagne's bones. Kept today in Paris.", es:"Un trozo de seda bizantina tejida en Constantinopla hacia el año 800 — los mismos años de tu viaje. Muestra un carro de cuatro caballos de las carreras de la ciudad. Sedas así envolvían reyes; un trozo envolvió después los huesos del emperador Carlomagno. Hoy se guarda en París."}}],
+  npcs:[{
+    name:{en:"Anna the silk buyer", es:"Anna la compradora de seda"}, img:"npc_anna", initials:"ANA", hue:"#7a2e4a",
+    lines:[
+      {en:"Chinese silk, carried by the merchant who bought it in Chang'an himself? In twenty years at this market I have never met one. Everyone here buys from middlemen who bought from middlemen.", es:"¿Seda china, traída por el mercader que la compró él mismo en Chang'an? En veinte años en este mercado nunca conocí a uno. Aquí todos compran a intermediarios que compraron a intermediarios."},
+      {en:"You know we weave our own silk now? Two hundred years ago, they say, monks smuggled silkworm eggs out of the East inside a hollow cane. The emperor's workshops guard the secret jealously. And still — still! — everyone wants the silk of China. The real thing, from the source.", es:"¿Sabes que ya tejemos nuestra propia seda? Hace doscientos años, dicen, unos monjes sacaron huevos de gusano de seda del Oriente dentro de una caña hueca. Los talleres del emperador guardan el secreto con celo. Y aun así — ¡aun así! — todos quieren la seda de China. La auténtica, de la fuente."},
+      {en:"Come. Show me everything you carry. I pay the best prices on this dock — and I will tell you honestly: you have done a thing few merchants ever did.", es:"Ven. Muéstrame todo lo que traes. Pago los mejores precios de este muelle — y te lo digo con honestidad: has hecho algo que pocos mercaderes hicieron jamás."}
+    ]
+  }],
+  check:[{
+    q:{en:"Silk cost 8 coins in Chang'an and sells for 90 here. What made the price grow and grow?", es:"La seda costaba 8 monedas en Chang'an y aquí se vende a 90. ¿Qué hizo crecer y crecer el precio?"},
+    answers:[
+      {t:{en:"Every stop added distance, danger, tolls, and another merchant's share", es:"Cada parada sumaba distancia, peligro, peajes y la parte de otro mercader"}, ok:true},
+      {t:{en:"The silk got better as it traveled", es:"La seda mejoraba mientras viajaba"}, ok:false},
+      {t:{en:"Coins were worth less in Constantinople", es:"Las monedas valían menos en Constantinopla"}, ok:false}
+    ],
+    good:{en:"You lived it: tolls, supplies, guards, taxes, mountains, and every middleman's profit — all of it piled onto the price. Far from its source, a common thing becomes a treasure.", es:"Lo viviste: peajes, provisiones, guardias, impuestos, montañas y la ganancia de cada intermediario — todo se sumaba al precio. Lejos de su fuente, algo común se vuelve un tesoro."},
+    trymsg:{en:"Think about your own purse. What did YOU spend between here and Chang'an?", es:"Piensa en tu propia bolsa. ¿Qué gastaste TÚ entre Chang'an y aquí?"}
+  }],
+  road:null
+}
+];
+
+/* ---------- STATE ---------- */
+function freshState(){
+  var cargo={}, buys={}, sells={};
+  GOOD_KEYS.forEach(function(g){ cargo[g]=0; buys[g]={q:0,c:0}; sells[g]={q:0,c:0}; });
+  return {
+    language: state && state.language ? state.language : 'en',
+    pos: 0,
+    coins: START_COINS, camels: START_CAMELS, supplies: START_SUPPLIES,
+    cargo: cargo, buys: buys, sells: sells,
+    decisions: {},           /* cityIdx -> option index chosen */
+    checks: {},              /* cityIdx -> {qIdx:true} once answered correctly */
+    finalSold: false
+  };
+}
+var state = { language:'en' };
+state = freshState();
+
+/* ---------- SCREEN SEQUENCE ---------- */
+var SEQ = [{t:'title'},{t:'intro'}];
+CITIES.forEach(function(city, i){
+  SEQ.push({t:'city', c:i});
+  SEQ.push({t:'market', c:i});
+  SEQ.push({t:'check', c:i});
+  if (i === 2) SEQ.push({t:'rest', c:i});
+  if (city.road) SEQ.push({t:'road', c:i});
+});
+SEQ.push({t:'ledger'},{t:'relay'},{t:'ideas'},{t:'reflect'});
+
+function cur(){ return SEQ[state.pos]; }
+function cityOf(scr){ return (scr && typeof scr.c === 'number') ? CITIES[scr.c] : null; }
+function cargoCount(){ var n=0; GOOD_KEYS.forEach(function(g){ n+=state.cargo[g]; }); return n; }
+function cargoCap(){ return state.camels * LOADS_PER_CAMEL; }
+function priceOf(g, cityIdx){ return GOODS[g].prices[cityIdx]; }
+
+/* ---------- PERSISTENCE ---------- */
+function saveLocal(){
+  try { localStorage.setItem('caravanState', JSON.stringify(state)); } catch(e){}
+}
+function loadLocal(){
+  try {
+    var raw = localStorage.getItem('caravanState');
+    if(!raw) return null;
+    var s = JSON.parse(raw);
+    if(s && typeof s.pos === 'number' && s.cargo) return s;
+  } catch(e){}
+  return null;
+}
+
+/* ---------- CARAVAN CODE ---------- */
+function encodeCode(){
+  var a = [1, state.pos, state.coins, state.camels, state.supplies];
+  GOOD_KEYS.forEach(function(g){ a.push(state.cargo[g]); });
+  for(var i=0;i<5;i++){ a.push(state.decisions[i]===undefined ? 0 : state.decisions[i]+1); }
+  var bits=0;
+  CITIES.forEach(function(c,i){ if(state.checks[i] && Object.keys(state.checks[i]).length >= c.check.length) bits |= (1<<i); });
+  a.push(bits);
+  GOOD_KEYS.forEach(function(g){ a.push(state.buys[g].q, state.buys[g].c, state.sells[g].q, state.sells[g].c); });
+  a.push(state.finalSold ? 1 : 0);
+  var sum=0; a.forEach(function(n){ sum=(sum + (n||0)*7) % 89; });
+  a.push(sum);
+  var b64 = btoa(a.join(','));
+  return b64.replace(/=+$/,'');
+}
+function decodeCode(code){
+  try {
+    var clean = String(code).replace(/\s+/g,'');
+    while(clean.length % 4){ clean += '='; }
+    var raw = atob(clean);
+    var a = raw.split(',').map(function(x){ return parseInt(x,10); });
+    if(a.some(function(n){ return isNaN(n); })) return null;
+    var chk = a.pop();
+    var sum=0; a.forEach(function(n){ sum=(sum + n*7) % 89; });
+    if(sum !== chk) return null;
+    if(a[0] !== 1) return null;
+    var s = freshState();
+    var i = 1;
+    s.pos = Math.max(0, Math.min(SEQ.length-1, a[i++]));
+    s.coins = a[i++]; s.camels = a[i++]; s.supplies = a[i++];
+    GOOD_KEYS.forEach(function(g){ s.cargo[g] = a[i++]; });
+    for(var d=0; d<5; d++){ var v=a[i++]; if(v>0) s.decisions[d]=v-1; }
+    var bits = a[i++];
+    CITIES.forEach(function(c,ci){
+      if(bits & (1<<ci)){ s.checks[ci]={}; c.check.forEach(function(q,qi){ s.checks[ci][qi]=true; }); }
+    });
+    GOOD_KEYS.forEach(function(g){ s.buys[g].q=a[i++]; s.buys[g].c=a[i++]; s.sells[g].q=a[i++]; s.sells[g].c=a[i++]; });
+    s.finalSold = a[i++] === 1;
+    return s;
+  } catch(e){ return null; }
+}
+
+/* ---------- METERS & PROGRESS ---------- */
+function T(key){ return UI[key][state.language]; }
+function updateMeters(flashId){
+  var scr = cur();
+  var show = scr.t !== 'title' && scr.t !== 'intro';
+  document.getElementById('meters').hidden = !show;
+  document.getElementById('m-coins-v').textContent = state.coins;
+  document.getElementById('m-cargo-v').textContent = cargoCount() + '/' + cargoCap();
+  document.getElementById('m-supplies-v').textContent = state.supplies;
+  document.getElementById('m-coins-l').textContent = T('coins');
+  document.getElementById('m-cargo-l').textContent = T('cargo');
+  document.getElementById('m-supplies-l').textContent = T('supplies');
+  if(flashId){
+    var el = document.getElementById(flashId);
+    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  }
+}
+function renderProgress(){
+  var scr = cur();
+  var p = document.getElementById('progress');
+  if(scr.t === 'title' || scr.t === 'intro'){ p.style.display='none'; return; }
+  p.style.display='flex';
+  var curCity = (typeof scr.c === 'number') ? scr.c : CITIES.length;
+  var html='';
+  CITIES.forEach(function(c,i){
+    var cls='pdot';
+    if(i===curCity) cls+=' current';
+    else if(i<curCity) cls+=' done';
+    html += '<span class="'+cls+'" role="listitem"><span class="b"></span>'+c.name[state.language]+'</span>';
+    if(i<CITIES.length-1) html += '<span class="pdot sep">→</span>';
+  });
+  p.innerHTML = html;
+}
+
+/* ---------- RENDER ---------- */
+var stage = document.getElementById('stage');
+function render(){
+  if(typeof speech !== 'undefined' && speech.on) stopSpeech();
+  if(typeof setListenState === 'function') setListenState();
+  var lb = document.getElementById('lightbox');
+  if(lb && !lb.hidden) closeLightbox();
+  document.getElementById('brand-sub').textContent = T('brandSub');
+  document.getElementById('code-label').textContent = T('codeTitle');
+  var scr = cur();
+  if(scr.t==='title') renderTitle();
+  else if(scr.t==='intro') renderIntro();
+  else if(scr.t==='city') renderCity(scr.c);
+  else if(scr.t==='market') renderMarket(scr.c);
+  else if(scr.t==='check') renderCheck(scr.c);
+  else if(scr.t==='rest') renderRest();
+  else if(scr.t==='road') renderRoad(scr.c);
+  else if(scr.t==='ledger') renderLedger();
+  else if(scr.t==='relay') renderRelay();
+  else if(scr.t==='ideas') renderIdeas();
+  else if(scr.t==='reflect') renderReflect();
+  renderProgress();
+  updateMeters();
+  tagEnlargeableImages();
+  saveLocal();
+  window.scrollTo(0,0);
+}
+function go(n){ state.pos = Math.max(0, Math.min(SEQ.length-1, n)); render(); }
+function backLimit(){
+  /* Back never crosses a completed road/rest boundary */
+  for(var i=state.pos-1; i>=0; i--){
+    var s = SEQ[i];
+    if(s.t==='road' || s.t==='rest' || s.t==='intro' || s.t==='title') return i+1;
+  }
+  return 0;
+}
+function navHTML(nextLocked, nextLabel, lockMsg){
+  var L = state.language;
+  var minPos = backLimit();
+  var backBtn = state.pos > minPos
+    ? '<button class="navbtn ghost" onclick="go('+(state.pos-1)+')">'+T('back')+'</button>'
+    : '<span></span>';
+  var nb = nextLocked
+    ? '<button class="navbtn locked" id="nextbtn" aria-disabled="true">'+(lockMsg||T('nextLocked'))+'</button>'
+    : '<button class="navbtn" id="nextbtn" onclick="go('+(state.pos+1)+')">'+(nextLabel||T('next'))+'</button>';
+  return '<div class="nav">'+backBtn+nb+'</div>';
+}
+function unlockNext(label){
+  var nb = document.getElementById('nextbtn');
+  if(!nb) return;
+  nb.classList.remove('locked');
+  nb.removeAttribute('aria-disabled');
+  nb.textContent = label || T('next');
+  nb.onclick = function(){ go(state.pos+1); };
+}
+function exhibitHTML(ex){
+  if(!ex || !ex.length) return '';
+  return ex.map(function(e){
+    if(!IMG[e.key]) return '';
+    return '<figure class="exhibit"><img'+(e.half?' class="half"':'')+' src="'+IMG[e.key]+'" alt=""><figcaption>'+e.cap[state.language]+'</figcaption></figure>';
+  }).join('');
+}
+function npcHTML(city){
+  var L = state.language;
+  return city.npcs.map(function(n){
+    return n.lines.map(function(line, i){
+      return '<div class="npc">'+
+        '<div class="face">'+faceHTML(n)+'</div>'+
+        '<div class="bubble"><div class="who">'+(i===0? n.name[L] : n.name[L])+'</div>'+wrap(line[L])+'</div>'+
+      '</div>';
+    }).join('');
+  }).join('');
+}
+
+/* ---------- SCREENS ---------- */
+function renderTitle(){
+  var L = state.language;
+  var saved = loadLocal();
+  var canContinue = saved && saved.pos > 1;
+  stage.innerHTML =
+  '<div class="card title-card">'+
+    '<figure class="scene">'+sceneHTML('cover')+'<figcaption>'+T('coverCap')+'</figcaption></figure>'+
+    '<div class="card-body">'+
+      '<div class="kicker">'+T('titleKicker')+'</div>'+
+      '<h1>'+T('gameTitle')+'</h1>'+
+      '<p class="sub">'+T('titleSub')+'</p>'+
+      '<button class="navbtn big" onclick="startNew()">'+T('startBtn')+'</button>'+
+      (canContinue ? '<button class="navbtn big" style="background:var(--jade)" onclick="continueSaved()">'+T('continueBtn')+'</button>' : '')+
+      '<button class="navbtn big ghost" onclick="openCodeBox(true)">'+T('haveCode')+'</button>'+
+    '</div>'+
+  '</div>';
+}
+function startNew(){
+  var lang = state.language;
+  state = freshState();
+  state.language = lang;
+  state.pos = 1;
+  render();
+}
+function continueSaved(){
+  var saved = loadLocal();
+  if(saved){ saved.language = state.language; state = saved; render(); }
+}
+function renderIntro(){
+  var L = state.language;
+  stage.innerHTML =
+  '<div class="card">'+
+    '<div class="card-head"><div class="kicker">'+T('introKicker')+'</div><h1>'+T('introTitle')+'</h1></div>'+
+    '<div class="card-body prose">'+
+      '<div class="npc"><div class="face">'+faceHTML({img:'npc_uncle_wei', initials:'WEI', hue:'#7a3b1e'})+'</div>'+
+      '<div class="bubble"><div class="who">'+(L==='es'?'Tío Wei':'Uncle Wei')+'</div>'+wrap(T('introP2'))+'</div></div>'+
+      '<p>'+wrap(T('introP1'))+'</p>'+
+      '<p>'+wrap(T('introP3'))+'</p>'+
+      '<div class="section-label">'+T('howToTitle')+'</div>'+
+      '<div class="notebox">'+wrap(T('how1'))+'</div>'+
+      '<div class="notebox">'+wrap(T('how2'))+'</div>'+
+      '<div class="notebox">'+wrap(T('how3'))+'</div>'+
+      '<div class="notebox">'+wrap(T('how4'))+'</div>'+
+      '<p class="disclaimer">'+T('introDisclaimer')+'</p>'+
+      '<button class="navbtn big" onclick="go(2)">'+T('beginBtn')+'</button>'+
+    '</div>'+
+  '</div>';
+}
+function renderCity(ci){
+  var c = CITIES[ci], L = state.language;
+  stage.innerHTML =
+  '<div class="card">'+
+    '<figure class="scene">'+sceneHTML(c.scene)+'<figcaption>'+c.sceneCap[L]+'</figcaption></figure>'+
+    '<div class="card-head">'+
+      '<div class="kicker">'+T('stopWord')+' '+(ci+1)+' '+T('ofWord')+' 6</div>'+
+      '<h1>'+c.name[L]+'</h1><div class="tagline">'+c.where[L]+'</div>'+
+    '</div>'+
+    '<div class="card-body prose">'+
+      c.arrive.map(function(p){ return '<p>'+wrap(p[L])+'</p>'; }).join('')+
+      npcHTML(c)+
+      exhibitHTML(c.exhibits)+
+    '</div>'+
+    navHTML(false)+
+  '</div>';
+}
+function marketRow(g, ci){
+  var L = state.language, good = GOODS[g], price = priceOf(g, ci);
+  var have = state.cargo[g];
+  var buyDis = price===null || state.coins < price || cargoCount() >= cargoCap();
+  var sellDis = price===null || have <= 0;
+  return '<div class="goodrow">'+
+    '<span class="gico" aria-hidden="true">'+good.ico+'</span>'+
+    '<span class="gname">'+good.name[L]+'<small>'+good.note[L]+'</small></span>'+
+    '<span class="gprice">'+(price===null ? '<small>'+T('notSoldHere')+'</small>' : '🪙 '+price)+'</span>'+
+    '<span class="ghave">'+T('youHave')+': '+have+'</span>'+
+    '<span class="gbtns">'+
+      '<button class="tbtn buy" '+(buyDis?'disabled':'')+' onclick="buyGood(\''+g+'\')">'+T('buy1')+'</button>'+
+      '<button class="tbtn sell" '+(sellDis?'disabled':'')+' onclick="sellGood(\''+g+'\')">'+T('sell1')+'</button>'+
+    '</span>'+
+  '</div>';
+}
+function renderMarket(ci){
+  var c = CITIES[ci], L = state.language;
+  var isFinal = ci === 5;
+  var rows = GOOD_KEYS.map(function(g){ return marketRow(g, ci); }).join('');
+  var supplyRow = '<div class="goodrow">'+
+    '<span class="gico" aria-hidden="true">🫓</span>'+
+    '<span class="gname">'+T('supplyName')+'<small>'+T('supplyNote')+'</small></span>'+
+    '<span class="gprice">🪙 1</span>'+
+    '<span class="ghave">'+T('youHave')+': '+state.supplies+'</span>'+
+    '<span class="gbtns"><button class="tbtn buy" '+(state.coins<1?'disabled':'')+' onclick="buySupply()">'+T('buy1')+'</button></span>'+
+  '</div>';
+  var camelRow = '';
+  if((ci===1 || ci===2) && state.camels < MAX_CAMELS){
+    camelRow = '<div class="goodrow">'+
+      '<span class="gico" aria-hidden="true">🐫</span>'+
+      '<span class="gname">'+T('camelName')+'<small>'+T('camelNote')+'</small></span>'+
+      '<span class="gprice">🪙 '+CAMEL_PRICE+'</span>'+
+      '<span class="ghave">'+T('youHave')+': '+state.camels+'</span>'+
+      '<span class="gbtns"><button class="tbtn buy" '+(state.coins<CAMEL_PRICE?'disabled':'')+' onclick="buyCamel()">'+T('buy1')+'</button></span>'+
+    '</div>';
+  }
+  var finalBlock = '';
+  var locked = false;
+  if(isFinal){
+    locked = cargoCount() > 0;
+    finalBlock = '<div class="notebox terra">'+T('mustSell')+'</div>'+
+      (cargoCount()>0 ? '<button class="navbtn big" onclick="sellAll()">'+T('sellAllBtn')+'</button>' : '');
+  }
+  stage.innerHTML =
+  '<div class="card">'+
+    '<div class="card-head">'+
+      '<div class="kicker">'+(isFinal ? T('finalSaleKicker') : c.name[L])+'</div>'+
+      '<h1>'+T('marketLabel')+'</h1>'+
+      '<div class="tagline">'+T('bazaarHint')+'</div>'+
+    '</div>'+
+    '<div class="card-body">'+
+      '<div class="market-log" id="mlog" aria-live="polite">'+T('logStart')+'</div>'+
+      rows + supplyRow + camelRow + finalBlock +
+    '</div>'+
+    navHTML(locked, null, isFinal && locked ? T('sellAllBtn') : null)+
+  '</div>';
+}
+function logMsg(html){ var el=document.getElementById('mlog'); if(el) el.innerHTML = html; }
+function refreshMarket(){ var scr=cur(); if(scr.t==='market'){ var msg=document.getElementById('mlog')?document.getElementById('mlog').innerHTML:''; renderMarket(scr.c); logMsg(msg); updateMeters(); } }
+function buyGood(g){
+  var ci = cur().c, price = priceOf(g, ci), L = state.language;
+  if(price===null) return;
+  if(state.coins < price){ logMsg('<b>'+T('noCoins')+'</b>'); return; }
+  if(cargoCount() >= cargoCap()){ logMsg('<b>'+T('noRoom')+'</b>'); return; }
+  state.coins -= price; state.cargo[g]++; state.buys[g].q++; state.buys[g].c += price;
+  refreshMarket();
+  logMsg(fmt(T('youBought'), {g:GOODS[g].name[L], p:price, c:state.coins}));
+  updateMeters('m-coins'); saveLocal();
+}
+function sellGood(g){
+  var ci = cur().c, price = priceOf(g, ci), L = state.language;
+  if(price===null) return;
+  if(state.cargo[g] <= 0){ logMsg('<b>'+T('noStock')+'</b>'); return; }
+  state.coins += price; state.cargo[g]--; state.sells[g].q++; state.sells[g].c += price;
+  refreshMarket();
+  logMsg(fmt(T('youSold'), {g:GOODS[g].name[L], p:price, c:state.coins}));
+  updateMeters('m-coins'); saveLocal();
+}
+function sellAll(){
+  var ci = cur().c, L = state.language, lines = [];
+  GOOD_KEYS.forEach(function(g){
+    var price = priceOf(g, ci);
+    while(state.cargo[g] > 0 && price !== null){
+      state.coins += price; state.cargo[g]--; state.sells[g].q++; state.sells[g].c += price;
+      lines.push(fmt(T('youSold'), {g:GOODS[g].name[L], p:price, c:state.coins}));
+    }
+    /* goods with no market here (none in Constantinople) would simply remain — all six trade there */
+  });
+  state.finalSold = true;
+  refreshMarket();
+  logMsg(lines.join('<br>') || T('logStart'));
+  updateMeters('m-coins'); saveLocal();
+}
+function buySupply(){
+  if(state.coins < 1){ logMsg('<b>'+T('noCoins')+'</b>'); return; }
+  state.coins -= 1; state.supplies += 1;
+  refreshMarket();
+  logMsg(fmt(T('boughtSupply'), {c:state.coins}));
+  updateMeters('m-supplies'); saveLocal();
+}
+function buyCamel(){
+  if(state.camels >= MAX_CAMELS){ logMsg(T('maxCamels')); return; }
+  if(state.coins < CAMEL_PRICE){ logMsg('<b>'+T('noCoins')+'</b>'); return; }
+  state.coins -= CAMEL_PRICE; state.camels += 1;
+  refreshMarket();
+  logMsg(fmt(T('boughtCamel'), {p:CAMEL_PRICE, c:state.coins}));
+  updateMeters('m-cargo'); saveLocal();
+}
+
+/* ---------- QUICK CHECK ---------- */
+function renderCheck(ci){
+  var c = CITIES[ci], L = state.language;
+  var done = state.checks[ci] || {};
+  var qs = c.check.map(function(q, qi){
+    var answered = !!done[qi];
+    var btns = q.answers.map(function(a, ai){
+      var cls = 'ans';
+      if(answered && a.ok) cls += ' right';
+      return '<button class="'+cls+'" '+(answered?'disabled':'')+' onclick="answerCheck('+ci+','+qi+','+ai+', this)">'+a.t[L]+'</button>';
+    }).join('');
+    return '<div class="qc" id="qc'+qi+'"><div class="qq">'+wrap(q.q[L])+'</div>'+btns+
+      '<div class="fb good'+(answered?' show':'')+'" id="fbg'+qi+'">'+T('qcRight')+' '+wrap(q.good[L])+'</div>'+
+      '<div class="fb try" id="fbt'+qi+'"></div></div>';
+  }).join('');
+  var allDone = c.check.every(function(q, qi){ return !!done[qi]; });
+  stage.innerHTML =
+  '<div class="card">'+
+    '<div class="card-head"><div class="kicker">'+c.name[L]+'</div><h1>'+T('qcLabel')+'</h1></div>'+
+    '<div class="card-body">'+qs+'</div>'+
+    navHTML(!allDone)+
+  '</div>';
+}
+function answerCheck(ci, qi, ai, btn){
+  var c = CITIES[ci], q = c.check[qi], L = state.language;
+  if(q.answers[ai].ok){
+    if(!state.checks[ci]) state.checks[ci] = {};
+    state.checks[ci][qi] = true;
+    var qc = document.getElementById('qc'+qi);
+    qc.querySelectorAll('.ans').forEach(function(b){ b.disabled = true; });
+    btn.classList.add('right');
+    document.getElementById('fbt'+qi).classList.remove('show');
+    document.getElementById('fbg'+qi).classList.add('show');
+    var allDone = c.check.every(function(qq, k){ return state.checks[ci] && state.checks[ci][k]; });
+    if(allDone) unlockNext();
+    saveLocal();
+  } else {
+    btn.classList.add('wrong');
+    btn.disabled = true;
+    var ft = document.getElementById('fbt'+qi);
+    ft.innerHTML = T('qcTry')+' '+wrap(q.trymsg[L]);
+    ft.classList.add('show');
+  }
+}
+
+/* ---------- ROAD ---------- */
+function renderRoad(ci){
+  var c = CITIES[ci], r = c.road, L = state.language;
+  var chosen = state.decisions[ci];
+  var decided = chosen !== undefined;
+  var opts = r.options.map(function(o, oi){
+    var cls = 'choice' + (decided && chosen===oi ? ' chosen' : '');
+    return '<button class="'+cls+'" '+(decided?'disabled':'')+' onclick="chooseRoad('+ci+','+oi+')"><b>'+o.title[L]+'</b><small>'+o.detail[L]+'</small></button>';
+  }).join('');
+  var o = decided ? r.options[chosen] : null;
+  stage.innerHTML =
+  '<div class="card">'+
+    '<div class="card-head"><div class="kicker">'+c.name[L]+' → '+CITIES[ci+1].name[L]+'</div><h1>'+T('roadLabel')+'</h1></div>'+
+    '<div class="card-body prose">'+
+      '<p>'+wrap(r.intro[L])+'</p>'+
+      '<div class="notebox" id="supbox">'+suppliesBoxHTML(r.needs)+'</div>'+
+      '<div class="decide-box"><h3>'+T('chooseLabel')+'</h3><p class="q">'+wrap(r.q[L])+'</p>'+opts+
+      '<div class="outcome'+(decided?' show':'')+'" id="outcome">'+(decided?outcomeHTML(o):'')+'</div></div>'+
+    '</div>'+
+    navHTML(!canSetOut(ci), T('setOut'), decided ? T('needMoreSupplies') : T('decideFirst'))+
+  '</div>';
+  if(decided && canSetOut(ci)) prepSetOut(ci);
+}
+function suppliesBoxHTML(needs){
+  var html = fmt(T('roadNeeds'), {n:needs}) + ' ' + fmt(T('youHaveSupplies'), {n:state.supplies});
+  if(state.supplies < needs){
+    if(state.coins >= 1){
+      html += '<br><button class="tbtn buy" style="margin-top:8px" onclick="topUpSupply()">'+T('topUp')+'</button>';
+    } else {
+      html += '<br><button class="tbtn buy" style="margin-top:8px" onclick="emergencyAid('+needs+')">'+T('emergencyTitle')+'</button>';
+    }
+  }
+  return html;
+}
+function outcomeHTML(o){
+  var L = state.language;
+  return '<span class="stamp2">'+o.stamp[L]+'</span><h3 style="margin:.3rem 0 .3rem">'+T('whatHappened')+'</h3><p>'+wrap(o.out[L])+'</p>';
+}
+function canSetOut(ci){
+  return state.decisions[ci] !== undefined && state.supplies >= CITIES[ci].road.needs;
+}
+function prepSetOut(ci){
+  var nb = document.getElementById('nextbtn');
+  if(!nb) return;
+  nb.classList.remove('locked');
+  nb.removeAttribute('aria-disabled');
+  nb.textContent = T('setOut');
+  nb.onclick = function(){ setOut(ci); };
+}
+function refreshRoad(ci){
+  var box = document.getElementById('supbox');
+  if(box) box.innerHTML = suppliesBoxHTML(CITIES[ci].road.needs);
+  if(canSetOut(ci)) prepSetOut(ci);
+  else {
+    var nb = document.getElementById('nextbtn');
+    if(nb){ nb.classList.add('locked'); nb.setAttribute('aria-disabled','true');
+      nb.textContent = state.decisions[ci]===undefined ? T('decideFirst') : T('needMoreSupplies');
+      nb.onclick = null; }
+  }
+  updateMeters();
+}
+function topUpSupply(){
+  var ci = cur().c;
+  if(state.coins < 1) { refreshRoad(ci); return; }
+  state.coins -= 1; state.supplies += 1;
+  refreshRoad(ci); updateMeters('m-supplies'); saveLocal();
+}
+function emergencyAid(needs){
+  var ci = cur().c;
+  state.supplies = Math.max(state.supplies, needs);
+  state.coins += 5;
+  var box = document.getElementById('supbox');
+  if(box) box.innerHTML = '<b>'+T('emergencyTitle')+'.</b> '+T('emergencyBody')+'<br><br>'+fmt(T('roadNeeds'),{n:needs})+' '+fmt(T('youHaveSupplies'),{n:state.supplies});
+  if(canSetOut(ci)) prepSetOut(ci);
+  updateMeters('m-supplies'); saveLocal();
+}
+function mostValuableLoad(ci){
+  var best=null, bestP=-1;
+  GOOD_KEYS.forEach(function(g){
+    if(state.cargo[g]>0){
+      var p = priceOf(g, ci); if(p===null) p = 1;
+      if(p>bestP){ bestP=p; best=g; }
+    }
+  });
+  return best;
+}
+function chooseRoad(ci, oi){
+  if(state.decisions[ci] !== undefined) return;
+  state.decisions[ci] = oi;
+  var o = CITIES[ci].road.options[oi], fx = o.fx;
+  if(fx.coins){
+    var cost = -fx.coins;
+    if(fx.orLoad && state.coins < cost){
+      var g = mostValuableLoad(ci);
+      if(g){ state.cargo[g]--; }
+      else { state.coins = 0; }
+    } else {
+      state.coins = Math.max(0, state.coins + fx.coins);
+    }
+  }
+  if(fx.supplies){ state.supplies = Math.max(0, state.supplies + fx.supplies); }
+  if(fx.loseLoad){
+    if(state.cargo[fx.loseLoad] > 0){ state.cargo[fx.loseLoad]--; }
+    else if(typeof fx.elseCoins === 'number'){ state.coins = Math.max(0, state.coins + fx.elseCoins); }
+  }
+  renderRoad(ci);
+  var oc = document.getElementById('outcome');
+  if(oc && oc.scrollIntoView){ oc.scrollIntoView({behavior:'smooth', block:'center'}); }
+  saveLocal();
+}
+function setOut(ci){
+  state.supplies = Math.max(0, state.supplies - CITIES[ci].road.needs);
+  go(state.pos+1);
+}
+
+/* ---------- REST (end of Day 1) ---------- */
+function renderRest(){
+  var L = state.language;
+  stage.innerHTML =
+  '<div class="card">'+
+    '<div class="card-head"><div class="kicker">'+T('restKicker')+'</div><h1>'+T('restTitle')+'</h1></div>'+
+    '<div class="card-body prose">'+
+      '<p>'+wrap(T('restBody'))+'</p>'+
+      '<div class="section-label">'+T('yourCode')+'</div>'+
+      '<div class="codeval">'+encodeCode()+'</div>'+
+      '<p class="disclaimer">'+T('codeKeep')+'</p>'+
+      '<button class="navbtn big" onclick="go('+(state.pos+1)+')">'+T('keepGoing')+'</button>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ---------- FINALE ---------- */
+function tradeTotals(){
+  var rows=[], totS=0, totE=0;
+  GOOD_KEYS.forEach(function(g){
+    var b=state.buys[g], s=state.sells[g];
+    totS+=b.c; totE+=s.c;
+    rows.push({g:g, spent:b.c, earned:s.c, traded:(b.q+s.q)>0});
+  });
+  return {rows:rows, spent:totS, earned:totE};
+}
+function renderLedger(){
+  var L = state.language, t = tradeTotals();
+  var rows = t.rows.map(function(r){
+    var story;
+    if(!r.traded) story = T('rowNone');
+    else if(r.earned > r.spent) story = fmt(T('rowProfit'), {d:(r.earned-r.spent)});
+    else if(r.spent > r.earned) story = fmt(T('rowLoss'), {d:(r.spent-r.earned)});
+    else story = T('rowEven');
+    return '<tr><td>'+GOODS[r.g].ico+' '+GOODS[r.g].name[L]+'</td><td class="n">'+r.spent+'</td><td class="n">'+r.earned+'</td><td>'+story+'</td></tr>';
+  }).join('');
+  var silk = GOODS.silk.prices;
+  var maxP = 90;
+  var bars = CITIES.map(function(c,i){
+    var h = Math.round(silk[i]/maxP*100);
+    return '<div class="bar"><span class="v">'+silk[i]+'</span><div class="col" style="height:'+h+'%"></div><span class="c">'+c.name[L]+'</span></div>';
+  }).join('');
+  stage.innerHTML =
+  '<div class="card">'+
+    '<div class="card-head"><div class="kicker">'+T('ledgerKicker')+'</div><h1>'+T('ledgerTitle')+'</h1></div>'+
+    '<div class="card-body prose">'+
+      '<table class="ledger"><thead><tr><th>'+T('thGood')+'</th><th>'+T('thSpent')+'</th><th>'+T('thEarned')+'</th><th>'+T('thStory')+'</th></tr></thead>'+
+      '<tbody>'+rows+'<tr class="total"><td>'+T('totalRow')+'</td><td class="n">'+t.spent+'</td><td class="n">'+t.earned+'</td><td></td></tr></tbody></table>'+
+      '<p class="bigcoins">🪙 '+fmt(T('startedWith'), {c:state.coins})+'</p>'+
+      '<div class="notebox '+(state.coins>=START_COINS?'':'terra')+'">'+(state.coins>=START_COINS?T('finalRich'):T('finalPoor'))+'</div>'+
+      '<div class="section-label">'+T('stripTitle')+'</div>'+
+      '<div class="pricestrip">'+bars+'</div>'+
+      '<p>'+wrap(T('stripQ'))+'</p>'+
+    '</div>'+
+    navHTML(false)+
+  '</div>';
+}
+function renderRelay(){
+  var L = state.language;
+  stage.innerHTML =
+  '<div class="card">'+
+    '<div class="card-head"><div class="kicker">'+T('relayKicker')+'</div><h1>'+T('relayTitle')+'</h1></div>'+
+    '<div class="card-body prose">'+
+      '<p>'+wrap(T('relayBody1'))+'</p>'+
+      '<p>'+wrap(T('relayBody2'))+'</p>'+
+    '</div>'+
+    navHTML(false)+
+  '</div>';
+}
+function renderIdeas(){
+  var L = state.language;
+  stage.innerHTML =
+  '<div class="card">'+
+    '<div class="card-head"><div class="kicker">'+T('ideasKicker')+'</div><h1>'+T('ideasTitle')+'</h1></div>'+
+    '<div class="card-body prose">'+
+      '<div class="notebox"><b>'+T('idea1h')+'</b><br>'+wrap(T('idea1p'))+'</div>'+
+      '<div class="notebox"><b>'+T('idea2h')+'</b><br>'+wrap(T('idea2p'))+'</div>'+
+      '<div class="notebox terra"><b>'+T('idea3h')+'</b><br>'+wrap(T('idea3p'))+'</div>'+
+    '</div>'+
+    navHTML(false)+
+  '</div>';
+}
+function renderReflect(){
+  var L = state.language;
+  stage.innerHTML =
+  '<div class="card">'+
+    '<div class="card-head"><div class="kicker">'+T('reflectKicker')+'</div><h1>'+T('reflectTitle')+'</h1></div>'+
+    '<div class="card-body prose">'+
+      '<div class="reflect-q"><div class="qtext">1. '+wrap(T('q1'))+'</div><textarea></textarea></div>'+
+      '<div class="reflect-q"><div class="qtext">2. '+wrap(T('q2'))+'</div><textarea></textarea></div>'+
+      '<div class="reflect-q"><div class="qtext">3. '+wrap(T('q3'))+'</div><textarea></textarea></div>'+
+      '<p class="disclaimer">'+T('printNote')+'</p>'+
+      '<div class="kicker" style="margin-top:16px">'+T('doneKicker')+'</div>'+
+      '<button class="navbtn big ghost" onclick="restartAll()">'+T('restart')+'</button>'+
+    '</div>'+
+    navHTML(false)+
+  '</div>';
+}
+function restartAll(){
+  var lang = state.language;
+  state = freshState();
+  state.language = lang;
+  try { localStorage.removeItem('caravanState'); } catch(e){}
+  render();
+}
+
+/* ---------- CARAVAN CODE MODAL ---------- */
+function openCodeBox(enterMode){
+  var box = document.getElementById('codebox');
+  document.getElementById('codebox-title').textContent = T('codeTitle');
+  var body = document.getElementById('codebox-body');
+  var showCurrent = !enterMode && cur().t !== 'title';
+  body.innerHTML =
+    (showCurrent ? '<p style="margin:.2rem 0">'+T('codeCurrent')+'</p><div class="codeval">'+encodeCode()+'</div><p class="disclaimer">'+T('codeKeep')+'</p><hr style="border:none;border-top:1px solid var(--line);margin:14px 0">' : '')+
+    '<p style="margin:.2rem 0">'+T('codeEnterLabel')+'</p>'+
+    '<input id="code-input" autocomplete="off" autocapitalize="off" spellcheck="false">'+
+    '<div class="err" id="code-err"></div>'+
+    '<button class="navbtn" onclick="loadFromCode()">'+T('codeLoad')+'</button>';
+  box.hidden = false;
+  document.getElementById('code-input').focus();
+}
+function closeCodeBox(){ document.getElementById('codebox').hidden = true; }
+function loadFromCode(){
+  var v = document.getElementById('code-input').value;
+  var s = decodeCode(v);
+  if(!s){ document.getElementById('code-err').textContent = T('codeBad'); return; }
+  s.language = state.language;
+  state = s;
+  closeCodeBox();
+  render();
+}
+document.getElementById('codebox').addEventListener('click', function(e){
+  if(e.target === this) closeCodeBox();
+});
+
+/* ---------- LIGHTBOX ---------- */
+var lightbox = document.getElementById('lightbox');
+function openLightbox(img){
+  var fig = img.closest ? img.closest('figure') : null;
+  var cap = fig && fig.querySelector('figcaption') ? fig.querySelector('figcaption').textContent : '';
+  document.getElementById('lightbox-img').src = img.src;
+  document.getElementById('lightbox-cap').textContent = cap;
+  lightbox.hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(){
+  lightbox.hidden = true;
+  document.getElementById('lightbox-img').src = '';
+  document.body.style.overflow = '';
+}
+lightbox.addEventListener('click', closeLightbox);
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    if(!lightbox.hidden) closeLightbox();
+    var cb = document.getElementById('codebox');
+    if(cb && !cb.hidden) closeCodeBox();
+  }
+});
+stage.addEventListener('click', function(e){
+  var t = e.target;
+  if(t && t.tagName === 'IMG' && t.closest && t.closest('figure.exhibit')) openLightbox(t);
+});
+stage.addEventListener('keydown', function(e){
+  var t = e.target;
+  if((e.key === 'Enter' || e.key === ' ') && t && t.tagName === 'IMG' && t.closest && t.closest('figure.exhibit')){
+    e.preventDefault();
+    openLightbox(t);
+  }
+});
+function tagEnlargeableImages(){
+  var imgs = stage.querySelectorAll('figure.exhibit img');
+  for(var i=0;i<imgs.length;i++){
+    imgs[i].setAttribute('tabindex','0');
+    imgs[i].setAttribute('role','button');
+    imgs[i].setAttribute('alt', T('enlargeLabel'));
+  }
+}
+
+/* ---------- READ ALOUD (ported from the Salem build) ---------- */
+var speech = { on:false };
+function speechSupported(){
+  return typeof window !== 'undefined' && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+}
+function initSpeech(){
+  if(!speechSupported()) return;
+  document.getElementById('listen-btn').hidden = false;
+  setListenState();
+  try { window.speechSynthesis.getVoices(); } catch(e){}
+}
+function pickVoice(){
+  var lang = state.language==='es' ? 'es' : 'en';
+  var voices = [];
+  try { voices = window.speechSynthesis.getVoices() || []; } catch(e){ return null; }
+  var cands = voices.filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf(lang)===0; });
+  if(!cands.length) return null;
+  function score(v){
+    var n = (v.name||'').toLowerCase(), l = (v.lang||'').toLowerCase(), sc = 0;
+    if(n.indexOf('natural')>=0 || n.indexOf('neural')>=0 || n.indexOf('premium')>=0 || n.indexOf('enhanced')>=0) sc += 8;
+    if(n.indexOf('google')>=0) sc += 6;
+    if(n.indexOf('microsoft')>=0) sc += 3;
+    if(lang==='en' && l==='en-us') sc += 2;
+    if(lang==='es' && (l==='es-us' || l==='es-mx')) sc += 2;
+    if(v.default) sc += 1;
+    if(n.indexOf('espeak')>=0) sc -= 5;
+    return sc;
+  }
+  cands.sort(function(a,b){ return score(b)-score(a); });
+  return cands[0];
+}
+function collectSpeechText(){
+  var clone = stage.cloneNode(true);
+  ['.tooltip','button','textarea','.nav','select','input','.disclaimer','svg'].forEach(function(sel){
+    var els = clone.querySelectorAll(sel);
+    for(var i=0;i<els.length;i++){ els[i].parentNode.removeChild(els[i]); }
+  });
+  var sels = 'h1,h2,h3,.kicker,.tagline,.section-label,figcaption,.prose p,.notebox,.npc .who,.npc .bubble,.goodrow,.market-log,.decide-box .q,.outcome,.qc .qq,.qc .fb.show,.reflect-q .qtext,table.ledger tr,.codeval,p';
+  var nodes = Array.prototype.slice.call(clone.querySelectorAll(sels));
+  nodes.forEach(function(el){ el.__spk = true; });
+  var inSet = [];
+  nodes.forEach(function(el){
+    var p = el.parentElement, nested = false;
+    while(p){ if(p.__spk){ nested = true; break; } p = p.parentElement; }
+    if(!nested) inSet.push(el);
+  });
+  var parts = [];
+  inSet.forEach(function(el){
+    var t;
+    if(el.tagName === 'TR'){
+      var cells = [];
+      for(var i=0;i<el.children.length;i++){ cells.push(el.children[i].textContent.replace(/\s+/g,' ').trim()); }
+      t = cells.join(', ');
+    } else {
+      t = el.textContent.replace(/\s+/g,' ').trim();
+    }
+    if(t) parts.push(t);
+  });
+  return parts;
+}
+function chunkSentences(t){
+  return t.match(/[^.!?…]+[.!?…]+["'”)]?|[^.!?…]+$/g) || [t];
+}
+function setListenState(){
+  var btn = document.getElementById('listen-btn');
+  var lbl = document.getElementById('listen-label');
+  if(!btn || !lbl) return;
+  lbl.textContent = speech.on ? T('listenStop') : T('listenLabel');
+  btn.classList.toggle('speaking', speech.on);
+  btn.setAttribute('aria-pressed', speech.on ? 'true' : 'false');
+}
+function stopSpeech(){
+  if(!speechSupported()) return;
+  speech.on = false;
+  try { window.speechSynthesis.cancel(); } catch(e){}
+  setListenState();
+}
+function toggleSpeech(){
+  if(!speechSupported()) return;
+  if(speech.on){ stopSpeech(); return; }
+  var parts = collectSpeechText();
+  if(!parts.length) return;
+  var voice = pickVoice();
+  var fallbackLang = state.language==='es' ? 'es-US' : 'en-US';
+  speech.on = true;
+  setListenState();
+  var chunks = [];
+  parts.forEach(function(p){ chunkSentences(p).forEach(function(c){ c = c.trim(); if(c) chunks.push(c); }); });
+  chunks.forEach(function(c, i){
+    var u = new SpeechSynthesisUtterance(c);
+    if(voice) u.voice = voice;
+    u.lang = voice ? voice.lang : fallbackLang;
+    u.rate = 0.95;
+    if(i === chunks.length-1) u.onend = function(){ if(speech.on) stopSpeech(); };
+    u.onerror = function(){ if(speech.on) stopSpeech(); };
+    try { window.speechSynthesis.speak(u); } catch(e){}
+  });
+}
+
+/* ---------- LANGUAGE ---------- */
+function setLang(lang){
+  state.language = lang;
+  try { localStorage.setItem('caravanLang', lang); } catch(e){}
+  document.getElementById('lang-en').classList.toggle('active', lang==='en');
+  document.getElementById('lang-es').classList.toggle('active', lang==='es');
+  document.documentElement.lang = lang;
+  render();
+}
+
+/* ---------- INIT ---------- */
+(function init(){
+  var savedLang = null;
+  try { savedLang = localStorage.getItem('caravanLang'); } catch(e){}
+  if(savedLang==='es'||savedLang==='en') state.language = savedLang;
+  document.getElementById('lang-en').classList.toggle('active', state.language==='en');
+  document.getElementById('lang-es').classList.toggle('active', state.language==='es');
+  document.documentElement.lang = state.language;
+  initSpeech();
+  render();
+})();
+</script>
+</body>
+</html>
