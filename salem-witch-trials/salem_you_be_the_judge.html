@@ -85,11 +85,6 @@
   figure.exhibit img{max-width:100%;border:1px solid #b7a681;background:#fff;padding:5px;box-shadow:0 4px 14px rgba(0,0,0,.25);}
   figure.exhibit img.doc{background:#eee;}
   figure.exhibit figcaption{font-size:.82rem;color:var(--ink-soft);margin-top:7px;font-style:italic;line-height:1.4;}
-  .img-badge{display:inline-block;font-family:ui-monospace,monospace;font-style:normal;font-size:.64rem;letter-spacing:.5px;
-    padding:2px 7px;border-radius:3px;margin-bottom:3px;text-transform:uppercase;}
-  .img-badge.real{background:#dbe9db;color:#2f6b4f;border:1px solid #b3d0b8;}
-  .img-badge.art{background:#efe0c2;color:#8a6a2e;border:1px solid #d8c496;}
-  .img-badge.made{background:#e4e4ef;color:#4a4a78;border:1px solid #c3c3d8;}
   figure.exhibit img.half{max-width:min(100%,480px);}
 
   /* evidence cards */
@@ -288,7 +283,7 @@ var CASES = [
     id:'good',
     name:{en:'Sarah Good', es:'Sarah Good'},
     tagline:{en:'A poor, homeless woman who begged from door to door.', es:'Una mujer pobre y sin hogar que pedía de puerta en puerta.'},
-    images:[{key:'good_warrant', kind:'real', cap:{en:'The REAL warrant for Sarah Good’s arrest, February 29, 1692. It orders the constable to bring her in for questioning. Signed by judges John Hathorne and Jonathan Corwin. Kept today at the Massachusetts State Archives.', es:'La ORDEN real de arresto de Sarah Good, 29 de febrero de 1692. Ordena al alguacil llevarla a interrogatorio. Firmada por los jueces John Hathorne y Jonathan Corwin. Hoy se guarda en los Archivos del Estado de Massachusetts.'}}, {key:'jacobs', kind:'art', cap:{en:'A courtroom during the Salem trials, painted by T. H. Matteson in 1855 — more than 160 years later. This is not Sarah Good; no real picture of her exists.', es:'Un tribunal durante los juicios de Salem, pintado por T. H. Matteson en 1855, más de 160 años después. No es Sarah Good; no existe ninguna imagen real de ella.'}}],
+    images:[{key:'good_warrant', kind:'real', cap:{en:'The warrant for Sarah Good’s arrest, February 29, 1692. It orders the constable to bring her in for questioning. Signed by judges John Hathorne and Jonathan Corwin. Kept today at the Massachusetts State Archives.', es:'La orden de arresto de Sarah Good, 29 de febrero de 1692. Ordena al alguacil llevarla a interrogatorio. Firmada por los jueces John Hathorne y Jonathan Corwin. Hoy se guarda en los Archivos del Estado de Massachusetts.'}}, {key:'jacobs', kind:'art', cap:{en:'A courtroom during the Salem trials, painted by T. H. Matteson in 1855 — more than 160 years later. This is not Sarah Good; no real picture of her exists.', es:'Un tribunal durante los juicios de Salem, pintado por T. H. Matteson en 1855, más de 160 años después. No es Sarah Good; no existe ninguna imagen real de ella.'}}],
     evidence:[
       {type:'spectral', text:{en:"The afflicted girls said Sarah Good's invisible shape came to them and pinched, bit, and choked them — even while she stood across the room. This is called spectral evidence. No one but the girls could see it.", es:"Las niñas afligidas dijeron que la forma invisible de Sarah Good venía a ellas y las pellizcaba, mordía y ahogaba, incluso mientras ella estaba al otro lado del cuarto. Esto se llama evidencia espectral. Nadie más que las niñas podía verlo."}},
       {type:'gossip', text:{en:"Neighbors said that when they turned Sarah Good away from their door, she muttered under her breath as she left — and later their farm animals got sick or died. They blamed her.", es:"Los vecinos dijeron que cuando la echaban de su puerta, ella murmuraba algo al irse, y luego sus animales de granja se enfermaban o morían. La culpaban a ella."}},
@@ -305,8 +300,8 @@ var CASES = [
     name:{en:'Rebecca Nurse', es:'Rebecca Nurse'},
     tagline:{en:'71 years old. A respected member of the church that everyone knew.', es:'71 años. Una respetada miembro de la iglesia que todos conocían.'},
     images:[
-      {key:'nurse_doc', kind:'real', cap:{en:'A real 1692 court paper: neighbor Sarah Holton swears that years earlier Rebecca Nurse yelled at her husband because his pigs got into the Nurse family field. Later he got sick and died — and she blamed Rebecca.', es:'Un documento real del tribunal de 1692: la vecina Sarah Holton jura que años antes Rebecca Nurse le gritó a su esposo porque sus cerdos entraron en el campo de la familia Nurse. Luego él se enfermó y murió, y ella culpó a Rebecca.'}},
-      {key:'nurse_petition', kind:'real', cap:{en:'The REAL 1692 petition: 39 neighbors signed their names to say Rebecca Nurse was a good woman. The court listened to one angry story instead. Kept today at the Massachusetts Historical Society.', es:'La petición REAL de 1692: 39 vecinos firmaron para decir que Rebecca Nurse era una buena mujer. El tribunal escuchó una historia de enojo en su lugar. Hoy se guarda en la Sociedad Histórica de Massachusetts.'}},
+      {key:'nurse_doc', kind:'real', cap:{en:'A 1692 court paper: neighbor Sarah Holton swears that years earlier Rebecca Nurse yelled at her husband because his pigs got into the Nurse family field. Later he got sick and died — and she blamed Rebecca.', es:'Un documento del tribunal de 1692: la vecina Sarah Holton jura que años antes Rebecca Nurse le gritó a su esposo porque sus cerdos entraron en el campo de la familia Nurse. Luego él se enfermó y murió, y ella culpó a Rebecca.'}},
+      {key:'nurse_petition', kind:'real', cap:{en:'The 1692 petition: 39 neighbors signed their names to say Rebecca Nurse was a good woman. The court listened to one angry story instead. Kept today at the Massachusetts Historical Society.', es:'La petición de 1692: 39 vecinos firmaron para decir que Rebecca Nurse era una buena mujer. El tribunal escuchó una historia de enojo en su lugar. Hoy se guarda en la Sociedad Histórica de Massachusetts.'}},
       {key:'nurse_art', kind:'art', cap:{en:'An 1893 book drawing of an accused old woman led into the meetinghouse in chains — often used to picture Rebecca Nurse. Notice the old caption already calls her “the witch,” before any trial. People had decided.', es:'Un dibujo de libro de 1893 de una anciana acusada llevada a la iglesia con cadenas, usado a menudo para imaginar a Rebecca Nurse. Fíjate que el pie de foto antiguo ya la llama “la bruja”, antes de cualquier juicio. La gente ya había decidido.'}}
     ],
     evidence:[
@@ -324,7 +319,7 @@ var CASES = [
     id:'tituba',
     name:{en:'Tituba', es:'Tituba'},
     tagline:{en:'An enslaved woman in the home of the village minister — the first to confess.', es:'Una mujer esclavizada en la casa del pastor, la primera en confesar.'},
-    images:[{key:'tituba_exam', kind:'real', cap:{en:'The REAL record of Tituba’s questioning, March 1, 1692, written down as she spoke. This confession is why she lived. Kept today at the New York Public Library.', es:'El registro REAL del interrogatorio de Tituba, 1 de marzo de 1692, escrito mientras ella hablaba. Esta confesión es la razón por la que vivió. Hoy se guarda en la Biblioteca Pública de Nueva York.'}}, {key:'tituba', kind:'art', cap:{en:'A drawing of Tituba imagined by an artist in 1870 — long after 1692. No real picture of her exists. The court in 1692 recorded only that she was “an Indian woman.” Later artists guessed at the rest.', es:'Un dibujo imaginado de Tituba, hecho en 1870, mucho después de 1692. No existe ninguna imagen real de ella. El tribunal en 1692 solo anotó que era “una mujer india.” Los artistas posteriores adivinaron el resto.'}}],
+    images:[{key:'tituba_exam', kind:'real', cap:{en:'The record of Tituba’s questioning, March 1, 1692, written down as she spoke. This confession is why she lived. Kept today at the New York Public Library.', es:'El registro del interrogatorio de Tituba, 1 de marzo de 1692, escrito mientras ella hablaba. Esta confesión es la razón por la que vivió. Hoy se guarda en la Biblioteca Pública de Nueva York.'}}, {key:'tituba', kind:'art', cap:{en:'A drawing of Tituba imagined by an artist in 1870 — long after 1692. No real picture of her exists. The court in 1692 recorded only that she was “an Indian woman.” Later artists guessed at the rest.', es:'Un dibujo imaginado de Tituba, hecho en 1870, mucho después de 1692. No existe ninguna imagen real de ella. El tribunal en 1692 solo anotó que era “una mujer india.” Los artistas posteriores adivinaron el resto.'}}],
     evidence:[
       {type:'gossip', text:{en:"Tituba was enslaved in the home of Reverend Parris, where the first two sick girls lived. Because she was enslaved and an outsider, suspicion fell on her first, before almost anyone else.", es:"Tituba estaba esclavizada en la casa del reverendo Parris, donde vivían las dos primeras niñas enfermas. Por ser esclava y forastera, la sospecha cayó sobre ella primero, antes que casi nadie."}},
       {type:'confession', text:{en:"After being questioned hard — and, some accounts say, beaten by Reverend Parris — Tituba confessed. She said the devil came to her, made her hurt the children, and showed her a book to sign. She said there were OTHER witches in Salem too.", es:"Después de ser interrogada con dureza, y según algunos relatos, golpeada por el reverendo Parris, Tituba confesó. Dijo que el diablo vino a ella, la obligó a dañar a las niñas y le mostró un libro para firmar. Dijo que había OTRAS brujas en Salem también."}}
@@ -340,7 +335,7 @@ var CASES = [
     name:{en:'Bridget Bishop', es:'Bridget Bishop'},
     tagline:{en:'Ran a tavern. Wore a red bodice. The first person executed.', es:'Tenía una taberna. Vestía un corpiño rojo. La primera persona ejecutada.'},
     images:[
-      {key:'bishop_doc', kind:'real', cap:{en:'The real death warrant ordering Bridget Bishop to be hanged, June 1692. It is signed by chief judge William Stoughton. On the bottom, Sheriff George Corwin wrote that he carried it out.', es:'La orden de muerte real que ordena ahorcar a Bridget Bishop, junio de 1692. Está firmada por el juez principal William Stoughton. Abajo, el alguacil George Corwin escribió que la cumplió.'}},
+      {key:'bishop_doc', kind:'real', cap:{en:'The death warrant ordering Bridget Bishop to be hanged, June 1692. It is signed by chief judge William Stoughton. On the bottom, Sheriff George Corwin wrote that he carried it out.', es:'La orden de muerte que ordena ahorcar a Bridget Bishop, junio de 1692. Está firmada por el juez principal William Stoughton. Abajo, el alguacil George Corwin escribió que la cumplió.'}},
       {key:'bishop_art', kind:'art', cap:{en:'A later woodcut showing a condemned person taken by cart to be hanged. Not a real photo of the day.', es:'Un grabado posterior que muestra a una persona condenada llevada en carreta para ser ahorcada. No es una foto real de ese día.'}}
     ],
     evidence:[
@@ -381,7 +376,6 @@ var UI = {
   startBtn:{en:'Open the first case →', es:'Abre el primer caso →'},
   caseWord:{en:'Case', es:'Caso'},
   ofWord:{en:'of', es:'de'},
-  madeTag:{en:'Made for this lesson — not historical', es:'Hecho para esta lección — no es una imagen histórica'},
   villageCap:{en:'Salem Village in winter, as our artist imagines it. The real village was something like this: small, cold, and far from help.', es:'La aldea de Salem en invierno, como la imagina nuestro artista. La aldea real era algo así: pequeña, fría y lejos de toda ayuda.'},
   classCap:{en:'An ordinary classroom. Keep it in mind as you read the story below.', es:'Un salón de clases común. Tenlo presente mientras lees la historia de abajo.'},
   evidenceLabel:{en:'The evidence used against', es:'La evidencia usada contra'},
@@ -449,10 +443,10 @@ function renderIntro(){
     '<div class="case-no mono">'+UI.introLead[L]+'</div>'+
     '<h1>'+UI.introTitle[L]+'</h1>'+
     '<figure class="exhibit"><img src="'+IMG.village+'" alt="">'+
-      '<figcaption><span class="img-badge made">'+UI.madeTag[L]+'</span><br>'+UI.villageCap[L]+'</figcaption></figure>'+
+      '<figcaption>'+UI.villageCap[L]+'</figcaption></figure>'+
     UI.introBody[L]+
     '<figure class="exhibit"><img class="half" src="'+IMG.classroom+'" alt="">'+
-      '<figcaption><span class="img-badge made">'+UI.madeTag[L]+'</span><br>'+UI.classCap[L]+'</figcaption></figure>'+
+      '<figcaption>'+UI.classCap[L]+'</figcaption></figure>'+
     '<div class="analogy">'+UI.introHook[L]+'</div>'+
     '<button class="start-btn" onclick="go(1)">'+UI.startBtn[L]+'</button>'+
     '<div class="disclaimer">'+UI.introDisclaimer[L]+'</div>'+
@@ -464,11 +458,8 @@ function renderCase(idx){
   var L = state.language;
   var decided = !!state.verdicts[c.id];
   var imgs = c.images.map(function(im){
-    var badge = im.kind==='real'
-      ? '<span class="img-badge real">'+(L==='es'?'Documento real de 1692':'Real 1692 document')+'</span>'
-      : '<span class="img-badge art">'+(L==='es'?'Dibujo de artista — no es una foto':'Artist\'s drawing — not a photo')+'</span>';
     return '<figure class="exhibit"><img class="'+(im.kind==='real'?'doc':'')+'" src="'+IMG[im.key]+'" alt="">'+
-           '<figcaption>'+badge+'<br>'+im.cap[L]+'</figcaption></figure>';
+           '<figcaption>'+im.cap[L]+'</figcaption></figure>';
   }).join('');
 
   var evid = c.evidence.map(function(e){
