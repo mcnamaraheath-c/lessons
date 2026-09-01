@@ -81,11 +81,19 @@ history class." Therefore:
   `img/`, base64-encodes them into an `IMG` map, and writes the final file. Author file:
   `caravan_merchants_road.src.html`. Never hand-edit the built file's IMG blob.
 - **Save/resume — critical for the two-day structure:** localStorage as the convenience
-  layer PLUS a **"Caravan Code"** (short base64 of compressed state, shown at the Day 1
-  stopping point and on demand from the header) that a student writes on their ledger
-  sheet or the teacher screenshots. Entering the code on the start screen restores
-  progress. Shared Chromebooks and cleared profiles make localStorage alone insufficient
-  (Culper precedent).
+  layer PLUS a **"Caravan Code"** shown at the Day 1 stopping point and on demand from
+  the header. **Teacher decision (2026-08-30): the code must be short enough for a 7th
+  grader to copy by hand.** It is exactly 12 characters, grouped `XXXX-XXXX-XXXX`, in
+  Crockford base32 (digits + capitals, never I/L/O/U; entry auto-corrects i/l→1 and
+  o→0, ignores case, dashes, and spaces). It carries position, coins, camels, supplies,
+  cargo, and the current road decision, with a 10-bit checksum (a single wrong
+  character is rejected ~99.9% of the time). It does NOT carry trade history: on the
+  same device, entering the code picks up the matching localStorage save (full
+  history); on a different device, the final ledger marks carried-in goods honestly
+  ("You carried 2 in from Day 1. What you paid is on your paper ledger.") and the
+  coins headline stays exact. The paper Merchant's Ledger is the durable Day 1 record —
+  by design, not as a fallback. Shared Chromebooks and cleared profiles make
+  localStorage alone insufficient (Culper precedent).
 - **Works on:** Chrome on Chromebooks and Safari on iPad, widths down to 1024×600.
   Touch targets ≥ 44px. No drag-only mechanics — every interaction is tap/click (with
   keyboard operability). `prefers-reduced-motion` respected. Visible keyboard focus.

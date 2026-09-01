@@ -396,9 +396,9 @@ var UI = {
   /* rest / caravan code */
   restKicker:{en:"End of Day 1", es:"Fin del Día 1"},
   restTitle:{en:"Rest at the caravanserai", es:"Descansa en el caravasar"},
-  restBody:{en:"Your camels kneel in the courtyard. Tomorrow, the hardest part begins: the mountains they call the Roof of the World. Write your Caravan Code on your ledger sheet so you can continue next class.", es:"Tus camellos se arrodillan en el patio. Mañana empieza lo más difícil: las montañas que llaman el Techo del Mundo. Escribe tu Código de Caravana en tu hoja para continuar la próxima clase."},
+  restBody:{en:"Your camels kneel in the courtyard. Tomorrow, the hardest part begins: the mountains they call the Roof of the World. Copy your 12-character Caravan Code onto your ledger sheet so you can continue next class.", es:"Tus camellos se arrodillan en el patio. Mañana empieza lo más difícil: las montañas que llaman el Techo del Mundo. Copia tu Código de Caravana de 12 caracteres en tu hoja para continuar la próxima clase."},
   yourCode:{en:"Your Caravan Code", es:"Tu Código de Caravana"},
-  codeKeep:{en:"Write it exactly, letter by letter. It brings back your coins, cargo, and place on the road.", es:"Cópialo exacto, letra por letra. Recupera tus monedas, tu carga y tu lugar en el camino."},
+  codeKeep:{en:"12 letters and numbers. Capital letters. The code never uses the letters I, L, O, or U — so a 1 is a one and a 0 is a zero. It brings back your coins, cargo, and place on the road.", es:"12 letras y números. Letras mayúsculas. El código nunca usa las letras I, L, O ni U — así que un 1 es un uno y un 0 es un cero. Recupera tus monedas, tu carga y tu lugar en el camino."},
   keepGoing:{en:"Keep going today →", es:"Seguir hoy →"},
   codeTitle:{en:"Caravan Code", es:"Código de Caravana"},
   codeEnterLabel:{en:"Enter your code to continue your journey:", es:"Escribe tu código para continuar tu viaje:"},
@@ -421,6 +421,8 @@ var UI = {
   rowLoss:{en:"You spent {d} more than you earned.", es:"Gastaste {d} más de lo que ganaste."},
   rowEven:{en:"You broke even.", es:"Quedaste igual."},
   rowNone:{en:"You never traded this.", es:"Nunca comerciaste con esto."},
+  rowCarried:{en:"You carried {n} in from Day 1. What you paid is on your paper ledger.", es:"Trajiste {n} del Día 1. Lo que pagaste está en tu hoja de cuentas."},
+  partialNote:{en:"You came back with a Caravan Code, so your Day 1 trades are not on this screen — they are on your paper ledger. Your coins are exact.", es:"Volviste con un Código de Caravana, así que tus tratos del Día 1 no están en esta pantalla — están en tu hoja de cuentas. Tus monedas son exactas."},
   totalRow:{en:"All trades together", es:"Todos los tratos juntos"},
   startedWith:{en:"You started with 60 coins. You finished with {c}.", es:"Empezaste con 60 monedas. Terminaste con {c}."},
   finalRich:{en:"Uncle Wei would be proud. You came home richer than you left.", es:"El tío Wei estaría orgulloso. Volviste más rico de lo que saliste."},
@@ -865,44 +867,64 @@ function loadLocal(){
   return null;
 }
 
-/* ---------- CARAVAN CODE ---------- */
+/* ---------- CARAVAN CODE ----------
+   12 characters, Crockford base32 (no I, L, O, U — students' 1/l/0/O mix-ups are auto-corrected on entry).
+   Carries the essentials to resume: position, coins, camels, supplies, cargo, and the current road
+   decision, plus a 10-bit checksum. Trade history is NOT in the code (it lives in localStorage and on the
+   paper ledger); see renderLedger for how a code-resumed journey is reported honestly. */
+var B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+function bitsOf(n, w){ n = Math.max(0, Math.min((1<<w)-1, n|0)); var s = n.toString(2); while(s.length < w) s = '0'+s; return s; }
 function encodeCode(){
-  var a = [1, state.pos, state.coins, state.camels, state.supplies];
-  GOOD_KEYS.forEach(function(g){ a.push(state.cargo[g]); });
-  for(var i=0;i<5;i++){ a.push(state.decisions[i]===undefined ? 0 : state.decisions[i]+1); }
-  var bits=0;
-  CITIES.forEach(function(c,i){ if(state.checks[i] && Object.keys(state.checks[i]).length >= c.check.length) bits |= (1<<i); });
-  a.push(bits);
-  GOOD_KEYS.forEach(function(g){ a.push(state.buys[g].q, state.buys[g].c, state.sells[g].q, state.sells[g].c); });
-  a.push(state.finalSold ? 1 : 0);
-  var sum=0; a.forEach(function(n){ sum=(sum + (n||0)*7) % 89; });
-  a.push(sum);
-  var b64 = btoa(a.join(','));
-  return b64.replace(/=+$/,'');
+  var bits = '';
+  bits += bitsOf(2, 2);                 /* version */
+  bits += bitsOf(state.pos, 5);
+  bits += bitsOf(state.coins, 9);       /* capped at 511 in the code */
+  bits += bitsOf(state.camels, 3);
+  bits += bitsOf(state.supplies, 5);    /* capped at 31 */
+  GOOD_KEYS.forEach(function(g){ bits += bitsOf(state.cargo[g], 4); });
+  var scr = cur(), dec = 0;
+  if(scr.t === 'road' && state.decisions[scr.c] !== undefined) dec = state.decisions[scr.c] + 1;
+  bits += bitsOf(dec, 2);
+  /* checksum: fold the 50 payload bits into 10 */
+  var sum = 0;
+  for(var i=0;i<bits.length;i+=5){ sum = (sum * 31 + parseInt(bits.substr(i,5),2)) % 1021; }
+  bits += bitsOf(sum, 10);
+  var out = '';
+  for(var j=0;j<bits.length;j+=5){ out += B32[parseInt(bits.substr(j,5),2)]; }
+  return out.replace(/(.{4})(?=.)/g, '$1-');
+}
+function normalizeCode(code){
+  return String(code || '').toUpperCase().replace(/[^0-9A-Z]/g,'').replace(/I|L/g,'1').replace(/O/g,'0');
 }
 function decodeCode(code){
   try {
-    var clean = String(code).replace(/\s+/g,'');
-    while(clean.length % 4){ clean += '='; }
-    var raw = atob(clean);
-    var a = raw.split(',').map(function(x){ return parseInt(x,10); });
-    if(a.some(function(n){ return isNaN(n); })) return null;
-    var chk = a.pop();
-    var sum=0; a.forEach(function(n){ sum=(sum + n*7) % 89; });
+    var c = normalizeCode(code);
+    if(c.length !== 12) return null;
+    var bits = '';
+    for(var i=0;i<c.length;i++){ var v = B32.indexOf(c[i]); if(v<0) return null; bits += bitsOf(v,5); }
+    var payload = bits.substr(0,50), chk = parseInt(bits.substr(50,10),2);
+    var sum = 0;
+    for(var k=0;k<payload.length;k+=5){ sum = (sum * 31 + parseInt(payload.substr(k,5),2)) % 1021; }
     if(sum !== chk) return null;
-    if(a[0] !== 1) return null;
+    var at = 0; function take(w){ var v = parseInt(payload.substr(at,w),2); at += w; return v; }
+    if(take(2) !== 2) return null;
     var s = freshState();
-    var i = 1;
-    s.pos = Math.max(0, Math.min(SEQ.length-1, a[i++]));
-    s.coins = a[i++]; s.camels = a[i++]; s.supplies = a[i++];
-    GOOD_KEYS.forEach(function(g){ s.cargo[g] = a[i++]; });
-    for(var d=0; d<5; d++){ var v=a[i++]; if(v>0) s.decisions[d]=v-1; }
-    var bits = a[i++];
-    CITIES.forEach(function(c,ci){
-      if(bits & (1<<ci)){ s.checks[ci]={}; c.check.forEach(function(q,qi){ s.checks[ci][qi]=true; }); }
+    s.pos = Math.max(2, Math.min(SEQ.length-1, take(5)));
+    s.coins = take(9); s.camels = Math.max(1, Math.min(MAX_CAMELS, take(3))); s.supplies = take(5);
+    GOOD_KEYS.forEach(function(g){ s.cargo[g] = take(4); });
+    var dec = take(2);
+    var scr = SEQ[s.pos], ci = (typeof scr.c === 'number') ? scr.c : CITIES.length;
+    /* everything before the current city is done; the current city's check is done if we are past it */
+    CITIES.forEach(function(city, i){
+      var checkPos = SEQ.findIndex(function(x){ return x.t==='check' && x.c===i; });
+      if(i < ci || (i === ci && s.pos > checkPos)){ s.checks[i] = {}; city.check.forEach(function(q,qi){ s.checks[i][qi]=true; }); }
+      if(i < ci && city.road) s.decisions[i] = 0;
     });
-    GOOD_KEYS.forEach(function(g){ s.buys[g].q=a[i++]; s.buys[g].c=a[i++]; s.sells[g].q=a[i++]; s.sells[g].c=a[i++]; });
-    s.finalSold = a[i++] === 1;
+    if(scr.t === 'road' && dec > 0) s.decisions[ci] = dec - 1;
+    s.finalSold = s.pos > SEQ.findIndex(function(x){ return x.t==='market' && x.c===5; });
+    /* trade history is not in the code: remember what was carried in so the ledger can say so */
+    s.carriedIn = {}; GOOD_KEYS.forEach(function(g){ s.carriedIn[g] = s.cargo[g]; });
+    s.codeResumed = true;
     return s;
   } catch(e){ return null; }
 }
@@ -1381,6 +1403,10 @@ function renderLedger(){
   var L = state.language, t = tradeTotals();
   var rows = t.rows.map(function(r){
     var story;
+    var carried = state.carriedIn && state.carriedIn[r.g] ? state.carriedIn[r.g] : 0;
+    if(carried > 0){
+      return '<tr><td>'+GOODS[r.g].ico+' '+GOODS[r.g].name[L]+'</td><td class="n">'+r.spent+' + ?</td><td class="n">'+r.earned+'</td><td>'+fmt(T('rowCarried'), {n:carried})+'</td></tr>';
+    }
     if(!r.traded) story = T('rowNone');
     else if(r.earned > r.spent) story = fmt(T('rowProfit'), {d:(r.earned-r.spent)});
     else if(r.spent > r.earned) story = fmt(T('rowLoss'), {d:(r.spent-r.earned)});
@@ -1398,7 +1424,8 @@ function renderLedger(){
     '<div class="card-head"><div class="kicker">'+T('ledgerKicker')+'</div><h1>'+T('ledgerTitle')+'</h1></div>'+
     '<div class="card-body prose">'+
       '<table class="ledger"><thead><tr><th>'+T('thGood')+'</th><th>'+T('thSpent')+'</th><th>'+T('thEarned')+'</th><th>'+T('thStory')+'</th></tr></thead>'+
-      '<tbody>'+rows+'<tr class="total"><td>'+T('totalRow')+'</td><td class="n">'+t.spent+'</td><td class="n">'+t.earned+'</td><td></td></tr></tbody></table>'+
+      '<tbody>'+rows+'<tr class="total"><td>'+T('totalRow')+'</td><td class="n">'+t.spent+(state.codeResumed?' + ?':'')+'</td><td class="n">'+t.earned+'</td><td></td></tr></tbody></table>'+
+      (state.codeResumed ? '<p class="disclaimer">'+T('partialNote')+'</p>' : '')+
       '<p class="bigcoins">🪙 '+fmt(T('startedWith'), {c:state.coins})+'</p>'+
       '<div class="notebox '+(state.coins>=START_COINS?'':'terra')+'">'+(state.coins>=START_COINS?T('finalRich'):T('finalPoor'))+'</div>'+
       '<div class="section-label">'+T('stripTitle')+'</div>'+
@@ -1477,6 +1504,9 @@ function loadFromCode(){
   var v = document.getElementById('code-input').value;
   var s = decodeCode(v);
   if(!s){ document.getElementById('code-err').textContent = T('codeBad'); return; }
+  /* same device? if the saved journey matches the code, use it — it has the full trade history */
+  var local = loadLocal();
+  if(local && local.pos === s.pos && local.coins === s.coins && local.camels === s.camels){ s = local; }
   s.language = state.language;
   state = s;
   closeCodeBox();
