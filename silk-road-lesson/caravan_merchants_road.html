@@ -107,7 +107,10 @@
 
   /* ---------- NPC dialogue ---------- */
   .npc{display:flex;gap:14px;align-items:flex-start;margin:14px 0;}
-  .npc .face{flex:0 0 108px;width:108px;height:108px;border-radius:10px;overflow:hidden;border:2px solid var(--gold);background:#ddd0b2;}
+  .npc .face{flex:0 0 150px;width:150px;height:150px;border-radius:10px;overflow:hidden;border:2px solid var(--gold);background:#ddd0b2;}
+  .npc .bubble p{margin:.45rem 0;}
+  .npc .bubble p:first-of-type{margin-top:0;}
+  .npc .bubble p:last-of-type{margin-bottom:0;}
   .npc.big .face{flex-basis:220px;width:220px;height:220px;border-radius:14px;}
   .npc.big .bubble::before{top:40px;}
   .npc .face img,.npc .face svg{width:100%;height:100%;object-fit:cover;display:block;}
@@ -241,7 +244,7 @@
 
   @media (max-width:640px){
     .card-head,.card-body,.nav{padding-left:16px;padding-right:16px;}
-    .npc .face{flex-basis:76px;width:76px;height:76px;}
+    .npc .face{flex-basis:96px;width:96px;height:96px;}
     .npc.big{flex-direction:column;align-items:center;}
     .npc.big .face{flex-basis:auto;width:200px;height:200px;}
     .npc.big .bubble::before{display:none;}
@@ -257,6 +260,7 @@
   <div class="brand">CARAVAN<small id="brand-sub">The Merchant's Road — c. 800</small></div>
   <div class="hdr-tools">
     <button id="listen-btn" class="hbtn" hidden onclick="toggleSpeech()" aria-pressed="false">🔊 <span id="listen-label">Read aloud</span></button>
+    <button id="home-btn" class="hbtn" onclick="goHome()">🏠 <span id="home-label">Home</span></button>
     <button id="code-btn" class="hbtn" onclick="openCodeBox(false)">🐫 <span id="code-label">Caravan Code</span></button>
     <div class="lang-toggle" role="group" aria-label="Language">
       <button id="lang-en" onclick="setLang('en')">EN</button>
@@ -333,6 +337,8 @@ var UI = {
   stopWord:{en:"Stop", es:"Parada"},
   ofWord:{en:"of", es:"de"},
   next:{en:"Continue →", es:"Continuar →"},
+  home:{en:"Home", es:"Inicio"},
+  marketClosed:{en:"You have already left {city}. You can look at the prices, but you cannot trade here anymore.", es:"Ya te fuiste de {city}. Puedes ver los precios, pero ya no puedes comerciar aquí."},
   back:{en:"← Back", es:"← Atrás"},
   nextLocked:{en:"Finish this step first", es:"Primero termina este paso"},
 
@@ -354,7 +360,7 @@ var UI = {
   howToTitle:{en:"How to play", es:"Cómo se juega"},
   how1:{en:"🪙 Watch your three meters: coins, cargo, and supplies.", es:"🪙 Vigila tus tres medidores: monedas, carga y provisiones."},
   how2:{en:"📦 Buy goods where they are cheap. Carry them west. Sell them for more. The game does all the math for you and shows every trade.", es:"📦 Compra la mercancía donde es barata. Llévala al oeste. Véndela por más. El juego hace todas las cuentas por ti y muestra cada trato."},
-  how3:{en:"🐫 Each camel carries 2 loads. Supplies are the food and water your caravan uses on each road.", es:"🐫 Cada camello lleva 2 cargas. Las provisiones son la comida y el agua que tu caravana usa en cada camino."},
+  how3:{en:"🐫 Each camel can carry 2 loads of goods, such as 2 loads of silk or 1 of silk and 1 of tea. Supplies are the food and water your caravan uses on each road.", es:"🐫 Cada camello puede llevar 2 cargas de mercancía, por ejemplo 2 cargas de seda, o 1 de seda y 1 de té. Las provisiones son la comida y el agua que tu caravana usa en cada camino."},
   how4:{en:"🗺 At each stop: look around, trade in the bazaar, answer one question, then choose your road.", es:"🗺 En cada parada: observa, comercia en el bazar, responde una pregunta y elige tu camino."},
   introDisclaimer:{en:"The cities, goods, prices, and dangers in this game are real history. The characters you meet in this story are imagined, but people like them did exist during this time period. One more thing: no one in the year 800 said “Silk Road.” That name was invented in 1877. Travelers just called them “the roads.”", es:"Las ciudades, mercancías, precios y peligros de este juego son historia real. Los personajes que conoces en esta historia son imaginados, pero personas como ellos sí existieron en esa época. Algo más: nadie en el año 800 decía “Ruta de la Seda.” Ese nombre se inventó en 1877. Los viajeros solo decían “los caminos.”"},
   beginBtn:{en:"Load the camels →", es:"Carga los camellos →"},
@@ -369,7 +375,7 @@ var UI = {
   youBought:{en:"You bought 1 load of {g} for {p} coins. You now have {c} coins.", es:"Compraste 1 carga de {g} por {p} monedas. Ahora tienes {c} monedas."},
   youSold:{en:"You sold 1 load of {g} for {p} coins. You now have {c} coins.", es:"Vendiste 1 carga de {g} por {p} monedas. Ahora tienes {c} monedas."},
   boughtSupply:{en:"You bought 1 supply for 1 coin. You now have {c} coins.", es:"Compraste 1 provisión por 1 moneda. Ahora tienes {c} monedas."},
-  boughtCamel:{en:"You bought a camel for {p} coins! It can carry 2 more loads. You now have {c} coins.", es:"¡Compraste un camello por {p} monedas! Puede llevar 2 cargas más. Ahora tienes {c} monedas."},
+  boughtCamel:{en:"You bought a camel for {p} coins! It can carry 2 more loads of goods. You now have {c} coins.", es:"¡Compraste un camello por {p} monedas! Puede llevar 2 cargas más de mercancía. Ahora tienes {c} monedas."},
   noCoins:{en:"Not enough coins for that.", es:"No te alcanzan las monedas."},
   noRoom:{en:"Your camels are full! Sell something, or buy another camel if one is for sale.", es:"¡Tus camellos están llenos! Vende algo, o compra otro camello si hay uno en venta."},
   noStock:{en:"You have none to sell.", es:"No tienes nada de eso para vender."},
@@ -377,7 +383,7 @@ var UI = {
   supplyName:{en:"Supplies (food & water)", es:"Provisiones (comida y agua)"},
   supplyNote:{en:"1 coin each", es:"1 moneda cada una"},
   camelName:{en:"A strong camel", es:"Un camello fuerte"},
-  camelNote:{en:"carries 2 more loads", es:"lleva 2 cargas más"},
+  camelNote:{en:"carries 2 more loads of goods", es:"lleva 2 cargas más de mercancía"},
   maxCamels:{en:"Your caravan is big enough — five camels is the most one merchant can handle.", es:"Tu caravana ya es bastante grande — cinco camellos es lo máximo que un mercader puede manejar."},
 
   /* road */
@@ -860,6 +866,7 @@ function priceOf(g, cityIdx){ return GOODS[g].prices[cityIdx]; }
 
 /* ---------- PERSISTENCE ---------- */
 function saveLocal(){
+  if(cur().t === 'title') return; /* the title screen is not a journey state — never overwrite a saved journey with it */
   try { localStorage.setItem('caravanState', JSON.stringify(state)); } catch(e){}
 }
 function loadLocal(){
@@ -923,8 +930,9 @@ function decodeCode(code){
     CITIES.forEach(function(city, i){
       var checkPos = SEQ.findIndex(function(x){ return x.t==='check' && x.c===i; });
       if(i < ci || (i === ci && s.pos > checkPos)){ s.checks[i] = {}; city.check.forEach(function(q,qi){ s.checks[i][qi]=true; }); }
-      if(i < ci && city.road) s.decisions[i] = 0;
+      if(i < ci && city.road){ s.decisions[i] = 0; if(!s.traveled) s.traveled = {}; s.traveled[i] = true; }
     });
+    s.maxCity = ci;
     if(scr.t === 'road' && dec > 0) s.decisions[ci] = dec - 1;
     s.finalSold = s.pos > SEQ.findIndex(function(x){ return x.t==='market' && x.c===5; });
     /* trade history is not in the code: remember what was carried in so the ledger can say so */
@@ -977,6 +985,8 @@ function render(){
   if(lb && !lb.hidden) closeLightbox();
   document.getElementById('brand-sub').textContent = T('brandSub');
   document.getElementById('code-label').textContent = T('codeTitle');
+  document.getElementById('home-label').textContent = T('home');
+  document.getElementById('home-btn').hidden = (cur().t === 'title');
   var scr = cur();
   if(scr.t==='title') renderTitle();
   else if(scr.t==='intro') renderIntro();
@@ -996,14 +1006,9 @@ function render(){
   window.scrollTo(0,0);
 }
 function go(n){ state.pos = Math.max(0, Math.min(SEQ.length-1, n)); render(); }
-function backLimit(){
-  /* Back never crosses a completed road/rest boundary */
-  for(var i=state.pos-1; i>=0; i--){
-    var s = SEQ[i];
-    if(s.t==='road' || s.t==='rest' || s.t==='intro' || s.t==='title') return i+1;
-  }
-  return 0;
-}
+function goHome(){ saveLocal(); state.pos = 0; render(); }
+function maxCity(){ return state.maxCity || 0; }
+function backLimit(){ return 0; }
 function navHTML(nextLocked, nextLabel, lockMsg){
   var L = state.language;
   var minPos = backLimit();
@@ -1033,12 +1038,11 @@ function exhibitHTML(ex){
 function npcHTML(city){
   var L = state.language;
   return city.npcs.map(function(n){
-    return n.lines.map(function(line, i){
-      return '<div class="npc">'+
-        '<div class="face">'+faceHTML(n)+'</div>'+
-        '<div class="bubble"><div class="who">'+(i===0? n.name[L] : n.name[L])+'</div>'+wrap(line[L])+'</div>'+
-      '</div>';
-    }).join('');
+    var paras = n.lines.map(function(line){ return '<p>'+wrap(line[L])+'</p>'; }).join('');
+    return '<div class="npc">'+
+      '<div class="face">'+faceHTML(n)+'</div>'+
+      '<div class="bubble"><div class="who">'+n.name[L]+'</div>'+paras+'</div>'+
+    '</div>';
   }).join('');
 }
 
@@ -1087,8 +1091,8 @@ function renderIntro(){
       '<div class="notebox">'+wrap(T('how3'))+'</div>'+
       '<div class="notebox">'+wrap(T('how4'))+'</div>'+
       '<p class="disclaimer">'+T('introDisclaimer')+'</p>'+
-      '<button class="navbtn big" onclick="go(2)">'+T('beginBtn')+'</button>'+
     '</div>'+
+    navHTML(false, T('beginBtn'))+
   '</div>';
 }
 function renderCity(ci){
@@ -1111,8 +1115,9 @@ function renderCity(ci){
 function marketRow(g, ci){
   var L = state.language, good = GOODS[g], price = priceOf(g, ci);
   var have = state.cargo[g];
-  var buyDis = price===null || state.coins < price || cargoCount() >= cargoCap();
-  var sellDis = price===null || have <= 0;
+  var closed = ci < maxCity();
+  var buyDis = closed || price===null || state.coins < price || cargoCount() >= cargoCap();
+  var sellDis = closed || price===null || have <= 0;
   return '<div class="goodrow">'+
     '<span class="gico" aria-hidden="true">'+good.ico+'</span>'+
     '<span class="gname">'+good.name[L]+'<small>'+good.note[L]+'</small></span>'+
@@ -1127,16 +1132,17 @@ function marketRow(g, ci){
 function renderMarket(ci){
   var c = CITIES[ci], L = state.language;
   var isFinal = ci === 5;
+  var closed = ci < maxCity();
   var rows = GOOD_KEYS.map(function(g){ return marketRow(g, ci); }).join('');
   var supplyRow = '<div class="goodrow">'+
     '<span class="gico" aria-hidden="true">🫓</span>'+
     '<span class="gname">'+T('supplyName')+'<small>'+T('supplyNote')+'</small></span>'+
     '<span class="gprice">🪙 1</span>'+
     '<span class="ghave">'+T('youHave')+': '+state.supplies+'</span>'+
-    '<span class="gbtns"><button class="tbtn buy" '+(state.coins<1?'disabled':'')+' onclick="buySupply()">'+T('buy1')+'</button></span>'+
+    '<span class="gbtns"><button class="tbtn buy" '+((closed || state.coins<1)?'disabled':'')+' onclick="buySupply()">'+T('buy1')+'</button></span>'+
   '</div>';
   var camelRow = '';
-  if((ci===1 || ci===2) && state.camels < MAX_CAMELS){
+  if((ci===1 || ci===2) && state.camels < MAX_CAMELS && !closed){
     camelRow = '<div class="goodrow">'+
       '<span class="gico" aria-hidden="true">🐫</span>'+
       '<span class="gname">'+T('camelName')+'<small>'+T('camelNote')+'</small></span>'+
@@ -1160,6 +1166,7 @@ function renderMarket(ci){
       '<div class="tagline">'+T('bazaarHint')+'</div>'+
     '</div>'+
     '<div class="card-body">'+
+      (closed ? '<div class="notebox terra">'+fmt(T('marketClosed'), {city:c.name[L]})+'</div>' : '')+
       '<div class="market-log" id="mlog" aria-live="polite">'+T('logStart')+'</div>'+
       rows + supplyRow + camelRow + finalBlock +
     '</div>'+
@@ -1168,9 +1175,10 @@ function renderMarket(ci){
 }
 function logMsg(html){ var el=document.getElementById('mlog'); if(el) el.innerHTML = html; }
 function refreshMarket(){ var scr=cur(); if(scr.t==='market'){ var msg=document.getElementById('mlog')?document.getElementById('mlog').innerHTML:''; renderMarket(scr.c); logMsg(msg); updateMeters(); } }
+function marketOpen(){ var s = cur(); return s.t === 'market' && s.c >= maxCity(); }
 function buyGood(g){
   var ci = cur().c, price = priceOf(g, ci), L = state.language;
-  if(price===null) return;
+  if(price===null || !marketOpen()) return;
   if(state.coins < price){ logMsg('<b>'+T('noCoins')+'</b>'); return; }
   if(cargoCount() >= cargoCap()){ logMsg('<b>'+T('noRoom')+'</b>'); return; }
   state.coins -= price; state.cargo[g]++; state.buys[g].q++; state.buys[g].c += price;
@@ -1180,7 +1188,7 @@ function buyGood(g){
 }
 function sellGood(g){
   var ci = cur().c, price = priceOf(g, ci), L = state.language;
-  if(price===null) return;
+  if(price===null || !marketOpen()) return;
   if(state.cargo[g] <= 0){ logMsg('<b>'+T('noStock')+'</b>'); return; }
   state.coins += price; state.cargo[g]--; state.sells[g].q++; state.sells[g].c += price;
   refreshMarket();
@@ -1203,6 +1211,7 @@ function sellAll(){
   updateMeters('m-coins'); saveLocal();
 }
 function buySupply(){
+  if(!marketOpen()) return;
   if(state.coins < 1){ logMsg('<b>'+T('noCoins')+'</b>'); return; }
   state.coins -= 1; state.supplies += 1;
   refreshMarket();
@@ -1210,6 +1219,7 @@ function buySupply(){
   updateMeters('m-supplies'); saveLocal();
 }
 function buyCamel(){
+  if(!marketOpen()) return;
   if(state.camels >= MAX_CAMELS){ logMsg(T('maxCamels')); return; }
   if(state.coins < CAMEL_PRICE){ logMsg('<b>'+T('noCoins')+'</b>'); return; }
   state.coins -= CAMEL_PRICE; state.camels += 1;
@@ -1288,7 +1298,8 @@ function renderRoad(ci){
 }
 function suppliesBoxHTML(needs){
   var html = fmt(T('roadNeeds'), {n:needs}) + ' ' + fmt(T('youHaveSupplies'), {n:state.supplies});
-  if(state.supplies < needs){
+  var ci = cur().c;
+  if(state.supplies < needs && !traveled(ci)){
     if(state.coins >= 1){
       html += '<br><button class="tbtn buy" style="margin-top:8px" onclick="topUpSupply()">'+T('topUp')+'</button>';
     } else {
@@ -1301,7 +1312,9 @@ function outcomeHTML(o){
   var L = state.language;
   return '<span class="stamp2">'+o.stamp[L]+'</span><h3 style="margin:.3rem 0 .3rem">'+T('whatHappened')+'</h3><p>'+wrap(o.out[L])+'</p>';
 }
+function traveled(ci){ return !!(state.traveled && state.traveled[ci]); }
 function canSetOut(ci){
+  if(traveled(ci)) return true;
   return state.decisions[ci] !== undefined && state.supplies >= CITIES[ci].road.needs;
 }
 function prepSetOut(ci){
@@ -1309,7 +1322,7 @@ function prepSetOut(ci){
   if(!nb) return;
   nb.classList.remove('locked');
   nb.removeAttribute('aria-disabled');
-  nb.textContent = T('setOut');
+  nb.textContent = traveled(ci) ? T('next') : T('setOut');
   nb.onclick = function(){ setOut(ci); };
 }
 function refreshRoad(ci){
@@ -1374,7 +1387,12 @@ function chooseRoad(ci, oi){
   saveLocal();
 }
 function setOut(ci){
-  state.supplies = Math.max(0, state.supplies - CITIES[ci].road.needs);
+  if(!traveled(ci)){
+    state.supplies = Math.max(0, state.supplies - CITIES[ci].road.needs);
+    if(!state.traveled) state.traveled = {};
+    state.traveled[ci] = true;
+    state.maxCity = Math.max(maxCity(), ci+1);
+  }
   go(state.pos+1);
 }
 
@@ -1389,8 +1407,8 @@ function renderRest(){
       '<div class="section-label">'+T('yourCode')+'</div>'+
       '<div class="codeval">'+encodeCode()+'</div>'+
       '<p class="disclaimer">'+T('codeKeep')+'</p>'+
-      '<button class="navbtn big" onclick="go('+(state.pos+1)+')">'+T('keepGoing')+'</button>'+
     '</div>'+
+    navHTML(false, T('keepGoing'))+
   '</div>';
 }
 
