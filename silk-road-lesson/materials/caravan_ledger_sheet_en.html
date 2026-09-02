@@ -1,0 +1,107 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Caravan: The Merchant's Road — Merchant's Ledger</title><style>
+  @page { size: Letter; margin: 0.45in 0.5in; }
+  * { box-sizing: border-box; }
+  body { font-family: Georgia, 'Times New Roman', serif; color: #222; margin: 0; font-size: 11pt; line-height: 1.3; }
+  .page { width: 7.5in; min-height: 10.1in; page-break-after: always; position: relative; }
+  .page:last-child { page-break-after: auto; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #b0512b; padding-bottom: 4px; margin-bottom: 8px; }
+  header h1 { margin: 0; font-size: 17pt; letter-spacing: .5px; }
+  header .sub { font-size: 11pt; color: #6f6353; font-style: italic; }
+  .idline { display: flex; gap: 18px; font-size: 10pt; margin: 4px 0 8px; }
+  .idline span { flex: 1; border-bottom: 1px solid #222; padding-bottom: 2px; }
+  .howto { font-size: 9.5pt; color: #444; background: #f4e9d3; border-left: 4px solid #c69b41; padding: 5px 8px; margin: 0 0 8px; }
+  .day { font-family: 'Courier New', monospace; font-weight: bold; letter-spacing: 2px; font-size: 10pt; color: #b0512b; border-bottom: 1px solid #cfc0a0; margin: 8px 0 5px; }
+  .label { font-weight: bold; font-size: 10.5pt; margin: 6px 0 2px; }
+  .hint { font-size: 8.5pt; color: #666; font-style: italic; margin: 0 0 4px; }
+  .bell { border: 1.5px dashed #888; border-radius: 6px; padding: 5px 8px; min-height: .62in; margin-bottom: 6px; }
+  .bell .label { margin-top: 0; }
+  .strip { display: flex; gap: 6px; margin: 4px 0 8px; }
+  .strip .box { flex: 1; text-align: center; }
+  .strip .box .v { border: 1.5px solid #222; border-radius: 6px; height: .5in; display: flex; align-items: center; justify-content: center; font-size: 14pt; color: #bbb; }
+  .strip .box .c { font-size: 8.5pt; margin-top: 3px; font-family: 'Courier New', monospace; }
+  table.log { width: 100%; border-collapse: collapse; margin: 2px 0 6px; table-layout: fixed; }
+  table.log th { font-family: 'Courier New', monospace; font-size: 8.5pt; text-align: left; border-bottom: 2px solid #222; padding: 3px 5px; }
+  table.log td { border: 1px solid #999; padding: 4px 5px; height: .58in; vertical-align: top; font-size: 9.5pt; }
+  table.log td.city { font-weight: bold; width: 1.05in; background: #f7f0e1; }
+  table.log td.muted { color: #888; font-style: italic; font-size: 8.5pt; }
+  .code { border: 2px solid #b0512b; border-radius: 8px; padding: 6px 10px; margin: 4px 0 6px; display: flex; align-items: center; gap: 14px; background: #fbf4e4; }
+  .code .label { margin: 0; white-space: nowrap; }
+  .code .cells { display: flex; gap: 6px; align-items: center; font-family: 'Courier New', monospace; font-size: 16pt; }
+  .code .cell { width: .32in; height: .42in; border: 1.5px solid #222; border-radius: 4px; background: #fff; }
+  .code .dash { color: #888; }
+  .code .hint { margin: 0; flex: 1; }
+  .profit { border: 1.5px solid #222; border-radius: 8px; padding: 8px 10px; margin: 4px 0 8px; }
+  .profit .row { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: 11pt; }
+  .blank { display: inline-block; border-bottom: 1.5px solid #222; min-width: .8in; height: 1em; }
+  .blank.wide { min-width: 1.3in; }
+  .circ { border: 1.5px solid #222; border-radius: 999px; padding: 2px 9px; font-weight: bold; }
+  .example { font-size: 9pt; color: #555; font-style: italic; margin-top: 4px; }
+  .q { margin: 6px 0 4px; font-size: 10.5pt; }
+  .lines { height: 1.05in; background: repeating-linear-gradient(to bottom, transparent 0, transparent .25in, #aaa .25in, #aaa calc(.25in + 1px)); margin-bottom: 6px; }
+  .lines.short { height: .8in; }
+  .exit { border: 2px dashed #b0512b; border-radius: 8px; padding: 6px 10px; margin-top: 6px; }
+  .foot { position: absolute; bottom: 0; right: 0; font-size: 8pt; color: #999; font-family: 'Courier New', monospace; }
+</style></head><body>
+<div class="page">
+  <header><div><h1>Caravan: The Merchant's Road</h1><div class="sub">Merchant's Ledger</div></div><div class="sub">c. 800</div></header>
+  <div class="idline"><span>Name: </span><span>Period: </span><span>Date: </span></div>
+  <div class="howto">Fill this in while you play. Copy the numbers from the screen. You do not need to do any math until the very end.</div>
+
+  <div class="day">DAY 1</div>
+  <div class="bell"><div class="label">Bell ringer</div><div class="hint">Answer in one or two sentences.</div></div>
+
+  <div class="label">The price of 1 load of silk at each stop</div>
+  <div class="hint">Write the silk price from the price board when you arrive in each city.</div>
+  <div class="strip"><div class="box"><div class="v">🪙</div><div class="c">Chang'an</div></div><div class="box"><div class="v">🪙</div><div class="c">Dunhuang</div></div><div class="box"><div class="v">🪙</div><div class="c">Kashgar</div></div><div class="box"><div class="v">🪙</div><div class="c">Samarkand</div></div><div class="box"><div class="v">🪙</div><div class="c">Baghdad</div></div><div class="box"><div class="v">🪙</div><div class="c">Constantinople</div></div></div>
+
+  <div class="label">My trade log</div>
+  <table class="log"><thead><tr><th style="width:1.05in">City</th><th>What I bought</th><th>What I sold</th><th style="width:2.5in">My road decision — and why</th></tr></thead><tbody><tr><td class="city">Chang'an</td>
+      <td></td>
+      <td></td>
+      <td></td></tr><tr><td class="city">Dunhuang</td>
+      <td></td>
+      <td></td>
+      <td></td></tr><tr><td class="city">Kashgar</td>
+      <td></td>
+      <td></td>
+      <td></td></tr></tbody></table>
+
+  <div class="code"><div class="label">My Caravan Code (end of Day 1)</div><div class="cells"><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="dash">-</span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="dash">-</span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span></div></div>
+  <div class="hint">Copy it exactly from the screen. Capital letters and numbers only — it never uses I, L, O, or U.</div>
+
+  <div class="day">DAY 2</div>
+  <div class="bell"><div class="label">Bell ringer</div><div class="hint">Answer in one or two sentences.</div></div>
+  <table class="log"><thead><tr><th style="width:1.05in">City</th><th>What I bought</th><th>What I sold</th><th style="width:2.5in">My road decision — and why</th></tr></thead><tbody><tr><td class="city">Samarkand</td>
+      <td></td>
+      <td></td>
+      <td></td></tr><tr><td class="city">Baghdad</td>
+      <td></td>
+      <td></td>
+      <td></td></tr><tr><td class="city">Constantinople</td>
+      <td></td>
+      <td><span class="muted">Sold everything to Anna</span></td>
+      <td><span class="muted">End of the road</span></td></tr></tbody></table>
+  <div class="foot">Merchant's Ledger · 1/2</div>
+</div>
+
+<div class="page">
+  <header><div><h1>Caravan: The Merchant's Road</h1><div class="sub">Merchant's Ledger</div></div><div class="sub">c. 800</div></header>
+  <div class="label" style="font-size:12pt">How did I do?</div>
+  <div class="profit">
+    <div class="row">Every merchant started with 60 coins.</div>
+    <div class="row">I finished with <span class="blank"></span> coins.</div>
+    <div class="row" style="margin-top:8px"><b>Circle one and fill in the blank:</b></div>
+    <div class="row"><span class="circ">A</span> I finished with MORE than 60. &nbsp; My coins − 60 = <span class="blank"></span> coins earned</div>
+    <div class="row"><span class="circ">B</span> I finished with FEWER than 60. &nbsp; 60 − my coins = <span class="blank"></span> coins lost</div>
+    <div class="example">Example: a merchant who finished with 118 coins writes 118 − 60 = 58 coins earned.</div>
+  </div>
+
+  <div class="label" style="font-size:12pt">Think and write</div>
+  <div class="q">1. Silk cost 8 coins in Chang'an and 90 in Constantinople. In your own words, why did the price grow at every stop?</div><div class="lines"></div>
+  <div class="q">2. Vandak said: “I have never seen China. My silk has.” What did he mean?</div><div class="lines"></div>
+  <div class="q">3. Would you rather be a merchant who runs one leg of the road, or the whole road like you just did? Why?</div><div class="lines"></div>
+
+  <div class="exit"><div class="label" style="margin-top:0">Exit ticket</div><div class="q" style="margin-top:2px">Name one thing that traveled the Silk Road that was not a good for sale, and tell how it traveled.</div><div class="lines short"></div></div>
+  <div class="foot">Merchant's Ledger · 2/2</div>
+</div>
+</body></html>
