@@ -123,15 +123,15 @@
 
   /* ---------- market ---------- */
   .goodrow{
-    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    display:grid;grid-template-columns:40px minmax(0,1fr) 90px 120px auto;align-items:center;gap:10px;
     background:#fbf4e4;border:1px solid var(--line);border-radius:9px;padding:10px 14px;margin:9px 0;
   }
-  .goodrow .gico{font-size:1.5rem;flex:0 0 auto;}
-  .goodrow .gname{font-weight:700;min-width:110px;}
+  .goodrow .gico{font-size:1.5rem;text-align:center;}
+  .goodrow .gname{font-weight:700;min-width:0;}
   .goodrow .gname small{display:block;font-weight:400;color:var(--ink-soft);font-size:.78rem;font-style:italic;}
-  .goodrow .gprice{font-family:ui-monospace,monospace;font-weight:700;color:var(--coin);min-width:86px;}
-  .goodrow .ghave{font-family:ui-monospace,monospace;font-size:.8rem;color:var(--ink-soft);min-width:70px;}
-  .goodrow .gbtns{margin-left:auto;display:flex;gap:8px;}
+  .goodrow .gprice{font-family:ui-monospace,monospace;font-weight:700;color:var(--coin);white-space:nowrap;}
+  .goodrow .ghave{font-family:ui-monospace,monospace;font-size:.8rem;color:var(--ink-soft);white-space:nowrap;}
+  .goodrow .gbtns{justify-self:end;display:flex;gap:8px;}
   .tbtn{
     border:2px solid var(--indigo);background:#fff;color:var(--indigo);border-radius:7px;
     padding:8px 14px;font-weight:700;cursor:pointer;font-size:.92rem;min-height:44px;min-width:74px;
@@ -248,7 +248,8 @@
     .npc.big{flex-direction:column;align-items:center;}
     .npc.big .face{flex-basis:auto;width:200px;height:200px;}
     .npc.big .bubble::before{display:none;}
-    .goodrow .gbtns{margin-left:0;width:100%;justify-content:flex-end;}
+    .goodrow{grid-template-columns:40px minmax(0,1fr) 80px 110px;}
+    .goodrow .gbtns{grid-column:1 / -1;justify-self:end;}
   }
   @media (prefers-reduced-motion: reduce){
     *{animation:none !important;transition:none !important;}
@@ -1133,7 +1134,7 @@ function renderMarket(ci){
   var c = CITIES[ci], L = state.language;
   var isFinal = ci === 5;
   var closed = ci < maxCity();
-  var rows = GOOD_KEYS.map(function(g){ return marketRow(g, ci); }).join('');
+  var rows = GOOD_KEYS.filter(function(g){ return priceOf(g, ci) !== null; }).map(function(g){ return marketRow(g, ci); }).join('');
   var supplyRow = '<div class="goodrow">'+
     '<span class="gico" aria-hidden="true">🫓</span>'+
     '<span class="gname">'+T('supplyName')+'<small>'+T('supplyNote')+'</small></span>'+
