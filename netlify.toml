@@ -1,0 +1,36 @@
+# Netlify configuration for the lessons site.
+# No build step: the repo is plain HTML, so the repo root is published as-is.
+# The site index (index.html) links to every lesson, and each lesson also gets
+# a short address below so students can type it easily.
+
+[build]
+  publish = "."
+  command = ""
+
+# Short links: yoursite.netlify.app/caravan opens the Silk Road lesson directly.
+[[redirects]]
+  from = "/caravan"
+  to = "/silk-road-lesson/caravan_merchants_road.html"
+  status = 200
+
+[[redirects]]
+  from = "/salem"
+  to = "/salem-witch-trials/salem_you_be_the_judge.html"
+  status = 200
+
+[[redirects]]
+  from = "/culper"
+  to = "/culper-ring-lesson/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/civilwar"
+  to = "/civil-war-lesson/civil_war_journal.html"
+  status = 200
+
+# Serve the lesson files fresh after each deploy (no stale cached copies on
+# Chromebooks between edits). Images are embedded, so this is the only file.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
