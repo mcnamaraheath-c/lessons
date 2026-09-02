@@ -19,7 +19,7 @@ const STR = {
     cities: ["Chang'an", "Dunhuang", "Kashgar", "Samarkand", "Baghdad", "Constantinople"],
     logTitle: "My trade log",
     thCity: "City", thBought: "What I bought", thSold: "What I sold", thRoad: "My road decision — and why",
-    finalSold: "What I sold to Anna", finalCoins: "Coins I finished with (write this on page 2 too)",
+    finalSold: "What I sold to Anna", finalCoins: "Coins I finished with (write this on page 2 also)",
     codeTitle: "My Caravan Code (end of Day 1)",
     codeHint: "Copy it exactly from the screen. Capital letters and numbers only — it never uses I, L, O, or U.",
     profitTitle: "How did I do?",
