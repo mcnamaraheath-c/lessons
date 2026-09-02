@@ -17,11 +17,11 @@
   .bell .label { margin-top: 0; }
   .strip { display: flex; gap: 6px; margin: 4px 0 8px; }
   .strip .box { flex: 1; text-align: center; }
-  .strip .box .v { border: 1.5px solid #222; border-radius: 6px; height: .5in; display: flex; align-items: center; justify-content: center; font-size: 14pt; color: #bbb; }
+  .strip .box .v { border: 1.5px solid #222; border-radius: 6px; height: .55in; display: flex; align-items: center; justify-content: flex-start; padding-left: 6px; font-size: 13pt; color: #bbb; }
   .strip .box .c { font-size: 8.5pt; margin-top: 3px; font-family: 'Courier New', monospace; }
   table.log { width: 100%; border-collapse: collapse; margin: 2px 0 6px; table-layout: fixed; }
   table.log th { font-family: 'Courier New', monospace; font-size: 8.5pt; text-align: left; border-bottom: 2px solid #222; padding: 3px 5px; }
-  table.log td { border: 1px solid #999; padding: 4px 5px; height: .58in; vertical-align: top; font-size: 9.5pt; }
+  table.log td { border: 1px solid #999; padding: 4px 5px; height: .72in; vertical-align: top; font-size: 9.5pt; }
   table.log td.city { font-weight: bold; width: 1.05in; background: #f7f0e1; }
   table.log td.muted { color: #888; font-style: italic; font-size: 8.5pt; }
   .code { border: 2px solid #b0512b; border-radius: 8px; padding: 6px 10px; margin: 4px 0 6px; display: flex; align-items: center; gap: 14px; background: #fbf4e4; }
@@ -48,39 +48,21 @@
   <div class="howto">Fill this in while you play. Copy the numbers from the screen. You do not need to do any math until the very end.</div>
 
   <div class="day">DAY 1</div>
-  <div class="bell"><div class="label">Bell ringer</div><div class="hint">Answer in one or two sentences.</div></div>
 
   <div class="label">The price of 1 load of silk at each stop</div>
   <div class="hint">Write the silk price from the price board when you arrive in each city.</div>
   <div class="strip"><div class="box"><div class="v">🪙</div><div class="c">Chang'an</div></div><div class="box"><div class="v">🪙</div><div class="c">Dunhuang</div></div><div class="box"><div class="v">🪙</div><div class="c">Kashgar</div></div><div class="box"><div class="v">🪙</div><div class="c">Samarkand</div></div><div class="box"><div class="v">🪙</div><div class="c">Baghdad</div></div><div class="box"><div class="v">🪙</div><div class="c">Constantinople</div></div></div>
 
   <div class="label">My trade log</div>
-  <table class="log"><thead><tr><th style="width:1.05in">City</th><th>What I bought</th><th>What I sold</th><th style="width:2.5in">My road decision — and why</th></tr></thead><tbody><tr><td class="city">Chang'an</td>
-      <td></td>
-      <td></td>
-      <td></td></tr><tr><td class="city">Dunhuang</td>
-      <td></td>
-      <td></td>
-      <td></td></tr><tr><td class="city">Kashgar</td>
-      <td></td>
-      <td></td>
-      <td></td></tr></tbody></table>
+  <table class="log"><thead><tr><th style="width:1.05in">City</th><th>What I bought</th><th>What I sold</th><th style="width:2.5in">My road decision — and why</th></tr></thead><tbody><tr><td class="city">Chang'an</td><td></td><td></td><td></td></tr><tr><td class="city">Dunhuang</td><td></td><td></td><td></td></tr><tr><td class="city">Kashgar</td><td></td><td></td><td></td></tr></tbody></table>
 
   <div class="code"><div class="label">My Caravan Code (end of Day 1)</div><div class="cells"><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="dash">-</span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="dash">-</span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span></div></div>
   <div class="hint">Copy it exactly from the screen. Capital letters and numbers only — it never uses I, L, O, or U.</div>
 
   <div class="day">DAY 2</div>
-  <div class="bell"><div class="label">Bell ringer</div><div class="hint">Answer in one or two sentences.</div></div>
-  <table class="log"><thead><tr><th style="width:1.05in">City</th><th>What I bought</th><th>What I sold</th><th style="width:2.5in">My road decision — and why</th></tr></thead><tbody><tr><td class="city">Samarkand</td>
-      <td></td>
-      <td></td>
-      <td></td></tr><tr><td class="city">Baghdad</td>
-      <td></td>
-      <td></td>
-      <td></td></tr><tr><td class="city">Constantinople</td>
-      <td></td>
-      <td><span class="muted">Sold everything to Anna</span></td>
-      <td><span class="muted">End of the road</span></td></tr></tbody></table>
+  <table class="log"><thead><tr><th style="width:1.05in">City</th><th>What I bought</th><th>What I sold</th><th style="width:2.5in">My road decision — and why</th></tr></thead><tbody><tr><td class="city">Samarkand</td><td></td><td></td><td></td></tr><tr><td class="city">Baghdad</td><td></td><td></td><td></td></tr><tr><td class="city">Constantinople</td>
+        <td colspan="2"><span class="muted">What I sold to Anna</span></td>
+        <td><span class="muted">Coins I finished with (write this on page 2 too)</span><div style="margin-top:14px;font-size:16pt;color:#bbb">🪙 <span class="blank wide"></span></div></td></tr></tbody></table>
   <div class="foot">Merchant's Ledger · 1/2</div>
 </div>
 

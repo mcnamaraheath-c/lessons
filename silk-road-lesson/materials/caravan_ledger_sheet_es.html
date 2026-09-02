@@ -17,11 +17,11 @@
   .bell .label { margin-top: 0; }
   .strip { display: flex; gap: 6px; margin: 4px 0 8px; }
   .strip .box { flex: 1; text-align: center; }
-  .strip .box .v { border: 1.5px solid #222; border-radius: 6px; height: .5in; display: flex; align-items: center; justify-content: center; font-size: 14pt; color: #bbb; }
+  .strip .box .v { border: 1.5px solid #222; border-radius: 6px; height: .55in; display: flex; align-items: center; justify-content: flex-start; padding-left: 6px; font-size: 13pt; color: #bbb; }
   .strip .box .c { font-size: 8.5pt; margin-top: 3px; font-family: 'Courier New', monospace; }
   table.log { width: 100%; border-collapse: collapse; margin: 2px 0 6px; table-layout: fixed; }
   table.log th { font-family: 'Courier New', monospace; font-size: 8.5pt; text-align: left; border-bottom: 2px solid #222; padding: 3px 5px; }
-  table.log td { border: 1px solid #999; padding: 4px 5px; height: .58in; vertical-align: top; font-size: 9.5pt; }
+  table.log td { border: 1px solid #999; padding: 4px 5px; height: .72in; vertical-align: top; font-size: 9.5pt; }
   table.log td.city { font-weight: bold; width: 1.05in; background: #f7f0e1; }
   table.log td.muted { color: #888; font-style: italic; font-size: 8.5pt; }
   .code { border: 2px solid #b0512b; border-radius: 8px; padding: 6px 10px; margin: 4px 0 6px; display: flex; align-items: center; gap: 14px; background: #fbf4e4; }
@@ -48,39 +48,21 @@
   <div class="howto">Llena esta hoja mientras juegas. Copia los números de la pantalla. No necesitas hacer cuentas hasta el final.</div>
 
   <div class="day">DÍA 1</div>
-  <div class="bell"><div class="label">Actividad de inicio</div><div class="hint">Responde en una o dos oraciones.</div></div>
 
   <div class="label">El precio de 1 carga de seda en cada parada</div>
   <div class="hint">Escribe el precio de la seda de la tabla de precios al llegar a cada ciudad.</div>
   <div class="strip"><div class="box"><div class="v">🪙</div><div class="c">Chang'an</div></div><div class="box"><div class="v">🪙</div><div class="c">Dunhuang</div></div><div class="box"><div class="v">🪙</div><div class="c">Kashgar</div></div><div class="box"><div class="v">🪙</div><div class="c">Samarcanda</div></div><div class="box"><div class="v">🪙</div><div class="c">Bagdad</div></div><div class="box"><div class="v">🪙</div><div class="c">Constantinopla</div></div></div>
 
   <div class="label">Mi registro de tratos</div>
-  <table class="log"><thead><tr><th style="width:1.05in">Ciudad</th><th>Lo que compré</th><th>Lo que vendí</th><th style="width:2.5in">Mi decisión de camino — y por qué</th></tr></thead><tbody><tr><td class="city">Chang'an</td>
-      <td></td>
-      <td></td>
-      <td></td></tr><tr><td class="city">Dunhuang</td>
-      <td></td>
-      <td></td>
-      <td></td></tr><tr><td class="city">Kashgar</td>
-      <td></td>
-      <td></td>
-      <td></td></tr></tbody></table>
+  <table class="log"><thead><tr><th style="width:1.05in">Ciudad</th><th>Lo que compré</th><th>Lo que vendí</th><th style="width:2.5in">Mi decisión de camino — y por qué</th></tr></thead><tbody><tr><td class="city">Chang'an</td><td></td><td></td><td></td></tr><tr><td class="city">Dunhuang</td><td></td><td></td><td></td></tr><tr><td class="city">Kashgar</td><td></td><td></td><td></td></tr></tbody></table>
 
   <div class="code"><div class="label">Mi Código de Caravana (fin del Día 1)</div><div class="cells"><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="dash">-</span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="dash">-</span><span class="cell"></span><span class="cell"></span><span class="cell"></span><span class="cell"></span></div></div>
   <div class="hint">Cópialo exacto de la pantalla. Solo letras mayúsculas y números — nunca usa I, L, O ni U.</div>
 
   <div class="day">DÍA 2</div>
-  <div class="bell"><div class="label">Actividad de inicio</div><div class="hint">Responde en una o dos oraciones.</div></div>
-  <table class="log"><thead><tr><th style="width:1.05in">Ciudad</th><th>Lo que compré</th><th>Lo que vendí</th><th style="width:2.5in">Mi decisión de camino — y por qué</th></tr></thead><tbody><tr><td class="city">Samarcanda</td>
-      <td></td>
-      <td></td>
-      <td></td></tr><tr><td class="city">Bagdad</td>
-      <td></td>
-      <td></td>
-      <td></td></tr><tr><td class="city">Constantinopla</td>
-      <td></td>
-      <td><span class="muted">Le vendí todo a Anna</span></td>
-      <td><span class="muted">Fin del camino</span></td></tr></tbody></table>
+  <table class="log"><thead><tr><th style="width:1.05in">Ciudad</th><th>Lo que compré</th><th>Lo que vendí</th><th style="width:2.5in">Mi decisión de camino — y por qué</th></tr></thead><tbody><tr><td class="city">Samarcanda</td><td></td><td></td><td></td></tr><tr><td class="city">Bagdad</td><td></td><td></td><td></td></tr><tr><td class="city">Constantinopla</td>
+        <td colspan="2"><span class="muted">Lo que le vendí a Anna</span></td>
+        <td><span class="muted">Monedas con las que terminé (escríbelo también en la página 2)</span><div style="margin-top:14px;font-size:16pt;color:#bbb">🪙 <span class="blank wide"></span></div></td></tr></tbody></table>
   <div class="foot">Libro de cuentas del mercader · 1/2</div>
 </div>
 

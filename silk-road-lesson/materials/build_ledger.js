@@ -19,7 +19,7 @@ const STR = {
     cities: ["Chang'an", "Dunhuang", "Kashgar", "Samarkand", "Baghdad", "Constantinople"],
     logTitle: "My trade log",
     thCity: "City", thBought: "What I bought", thSold: "What I sold", thRoad: "My road decision — and why",
-    finalRow: "Sold everything to Anna", noRoad: "End of the road",
+    finalSold: "What I sold to Anna", finalCoins: "Coins I finished with (write this on page 2 too)",
     codeTitle: "My Caravan Code (end of Day 1)",
     codeHint: "Copy it exactly from the screen. Capital letters and numbers only — it never uses I, L, O, or U.",
     profitTitle: "How did I do?",
@@ -47,7 +47,7 @@ const STR = {
     cities: ["Chang'an", "Dunhuang", "Kashgar", "Samarcanda", "Bagdad", "Constantinopla"],
     logTitle: "Mi registro de tratos",
     thCity: "Ciudad", thBought: "Lo que compré", thSold: "Lo que vendí", thRoad: "Mi decisión de camino — y por qué",
-    finalRow: "Le vendí todo a Anna", noRoad: "Fin del camino",
+    finalSold: "Lo que le vendí a Anna", finalCoins: "Monedas con las que terminé (escríbelo también en la página 2)",
     codeTitle: "Mi Código de Caravana (fin del Día 1)",
     codeHint: "Cópialo exacto de la pantalla. Solo letras mayúsculas y números — nunca usa I, L, O ni U.",
     profitTitle: "¿Cómo me fue?",
@@ -85,11 +85,11 @@ const CSS = `
   .bell .label { margin-top: 0; }
   .strip { display: flex; gap: 6px; margin: 4px 0 8px; }
   .strip .box { flex: 1; text-align: center; }
-  .strip .box .v { border: 1.5px solid #222; border-radius: 6px; height: .5in; display: flex; align-items: center; justify-content: center; font-size: 14pt; color: #bbb; }
+  .strip .box .v { border: 1.5px solid #222; border-radius: 6px; height: .55in; display: flex; align-items: center; justify-content: flex-start; padding-left: 6px; font-size: 13pt; color: #bbb; }
   .strip .box .c { font-size: 8.5pt; margin-top: 3px; font-family: 'Courier New', monospace; }
   table.log { width: 100%; border-collapse: collapse; margin: 2px 0 6px; table-layout: fixed; }
   table.log th { font-family: 'Courier New', monospace; font-size: 8.5pt; text-align: left; border-bottom: 2px solid #222; padding: 3px 5px; }
-  table.log td { border: 1px solid #999; padding: 4px 5px; height: .58in; vertical-align: top; font-size: 9.5pt; }
+  table.log td { border: 1px solid #999; padding: 4px 5px; height: .72in; vertical-align: top; font-size: 9.5pt; }
   table.log td.city { font-weight: bold; width: 1.05in; background: #f7f0e1; }
   table.log td.muted { color: #888; font-style: italic; font-size: 8.5pt; }
   .code { border: 2px solid #b0512b; border-radius: 8px; padding: 6px 10px; margin: 4px 0 6px; display: flex; align-items: center; gap: 14px; background: #fbf4e4; }
@@ -115,12 +115,13 @@ function sheet(L) {
   const s = STR[L];
   const cells = Array.from({length:4}).map(()=>'<span class="cell"></span>').join('');
   const strip = s.cities.map(c => `<div class="box"><div class="v">🪙</div><div class="c">${c}</div></div>`).join('');
-  const row = (i, day) => {
-    const last = i === 5;
-    return `<tr><td class="city">${s.cities[i]}</td>
-      <td></td>
-      <td>${last ? `<span class="muted">${s.finalRow}</span>` : ''}</td>
-      <td>${last ? `<span class="muted">${s.noRoad}</span>` : ''}</td></tr>`;
+  const row = (i) => {
+    if (i === 5) {
+      return `<tr><td class="city">${s.cities[i]}</td>
+        <td colspan="2"><span class="muted">${s.finalSold}</span></td>
+        <td><span class="muted">${s.finalCoins}</span><div style="margin-top:14px;font-size:16pt;color:#bbb">🪙 <span class="blank wide"></span></div></td></tr>`;
+    }
+    return `<tr><td class="city">${s.cities[i]}</td><td></td><td></td><td></td></tr>`;
   };
   const head = `<header><div><h1>${s.title}</h1><div class="sub">${s.sub}</div></div><div class="sub">${L === 'en' ? 'c. 800' : 'c. 800'}</div></header>`;
   const thead = `<thead><tr><th style="width:1.05in">${s.thCity}</th><th>${s.thBought}</th><th>${s.thSold}</th><th style="width:2.5in">${s.thRoad}</th></tr></thead>`;
@@ -131,7 +132,6 @@ function sheet(L) {
   <div class="howto">${s.howto}</div>
 
   <div class="day">${s.day1}</div>
-  <div class="bell"><div class="label">${s.bell}</div><div class="hint">${s.bellHint}</div></div>
 
   <div class="label">${s.stripTitle}</div>
   <div class="hint">${s.stripHint}</div>
@@ -144,7 +144,6 @@ function sheet(L) {
   <div class="hint">${s.codeHint}</div>
 
   <div class="day">${s.day2}</div>
-  <div class="bell"><div class="label">${s.bell}</div><div class="hint">${s.bellHint}</div></div>
   <table class="log">${thead}<tbody>${row(3)}${row(4)}${row(5)}</tbody></table>
   <div class="foot">${s.sub} · 1/2</div>
 </div>
