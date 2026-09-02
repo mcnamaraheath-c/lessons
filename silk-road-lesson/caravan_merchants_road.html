@@ -107,7 +107,9 @@
 
   /* ---------- NPC dialogue ---------- */
   .npc{display:flex;gap:14px;align-items:flex-start;margin:14px 0;}
-  .npc .face{flex:0 0 84px;width:84px;height:84px;border-radius:10px;overflow:hidden;border:2px solid var(--gold);background:#ddd0b2;}
+  .npc .face{flex:0 0 108px;width:108px;height:108px;border-radius:10px;overflow:hidden;border:2px solid var(--gold);background:#ddd0b2;}
+  .npc.big .face{flex-basis:220px;width:220px;height:220px;border-radius:14px;}
+  .npc.big .bubble::before{top:40px;}
   .npc .face img,.npc .face svg{width:100%;height:100%;object-fit:cover;display:block;}
   .npc .bubble{
     background:#fbf4e4;border:1px solid var(--line);border-radius:10px;padding:12px 16px;flex:1;position:relative;font-size:1.04rem;
@@ -239,7 +241,10 @@
 
   @media (max-width:640px){
     .card-head,.card-body,.nav{padding-left:16px;padding-right:16px;}
-    .npc .face{flex-basis:64px;width:64px;height:64px;}
+    .npc .face{flex-basis:76px;width:76px;height:76px;}
+    .npc.big{flex-direction:column;align-items:center;}
+    .npc.big .face{flex-basis:auto;width:200px;height:200px;}
+    .npc.big .bubble::before{display:none;}
     .goodrow .gbtns{margin-left:0;width:100%;justify-content:flex-end;}
   }
   @media (prefers-reduced-motion: reduce){
@@ -344,14 +349,14 @@ var UI = {
   introKicker:{en:"Your mission", es:"Tu misión"},
   introTitle:{en:"Uncle Wei's Last Wish", es:"El último deseo del tío Wei"},
   introP1:{en:"The year is about 800. You live in Chang'an, the capital of China under the Tang dynasty. It is the biggest city in the world. People from many lands walk its markets.", es:"Estamos hacia el año 800. Vives en Chang'an, la capital de China bajo la dinastía Tang. Es la ciudad más grande del mundo. Gente de muchas tierras camina por sus mercados."},
-  introP2:{en:"Your uncle Wei was a merchant all his life. Now he is old. He gives you his three camels, 60 coins, and one wish: take a caravan west, farther than he ever went — all the way to Constantinople.", es:"Tu tío Wei fue mercader toda su vida. Ahora es mayor. Te da sus tres camellos, 60 monedas y un deseo: lleva una caravana al oeste, más lejos de lo que él llegó — hasta Constantinopla."},
+  introP2:{en:"Your Uncle Wei was a merchant all his life. Now he is old. He gives you his three camels, 60 coins, and one wish: take a caravan west, farther than he ever went — all the way to Constantinople.", es:"Tu tío Wei fue mercader toda su vida. Ahora es mayor. Te da sus tres camellos, 60 monedas y un deseo: lleva una caravana al oeste, más lejos de lo que él llegó — hasta Constantinopla."},
   introP3:{en:"Merchants say silk that costs 8 coins here sells for 90 there. But the road is long: deserts, mountains, tolls, and bandits. Every choice will cost you or pay you.", es:"Los mercaderes dicen que la seda que aquí cuesta 8 monedas, allá se vende por 90. Pero el camino es largo: desiertos, montañas, peajes y bandidos. Cada decisión te costará o te pagará."},
   howToTitle:{en:"How to play", es:"Cómo se juega"},
   how1:{en:"🪙 Watch your three meters: coins, cargo, and supplies.", es:"🪙 Vigila tus tres medidores: monedas, carga y provisiones."},
-  how2:{en:"📦 Buy goods cheap. Carry them west. Sell them for more. The game does all the math for you and shows every trade.", es:"📦 Compra barato. Lleva la mercancía al oeste. Véndela por más. El juego hace todas las cuentas por ti y muestra cada trato."},
-  how3:{en:"🐫 Each camel carries 2 loads. Supplies are the food and water your caravan eats on each road.", es:"🐫 Cada camello lleva 2 cargas. Las provisiones son la comida y el agua que tu caravana consume en cada camino."},
+  how2:{en:"📦 Buy goods where they are cheap. Carry them west. Sell them for more. The game does all the math for you and shows every trade.", es:"📦 Compra la mercancía donde es barata. Llévala al oeste. Véndela por más. El juego hace todas las cuentas por ti y muestra cada trato."},
+  how3:{en:"🐫 Each camel carries 2 loads. Supplies are the food and water your caravan uses on each road.", es:"🐫 Cada camello lleva 2 cargas. Las provisiones son la comida y el agua que tu caravana usa en cada camino."},
   how4:{en:"🗺 At each stop: look around, trade in the bazaar, answer one question, then choose your road.", es:"🗺 En cada parada: observa, comercia en el bazar, responde una pregunta y elige tu camino."},
-  introDisclaimer:{en:"The cities, goods, prices' story, and dangers in this game are real history. The people you will meet are imagined — they stand for the kinds of people who really worked this road. One more thing: no one in 800 said “Silk Road.” That name was invented in 1877. Travelers just called them “the roads.”", es:"Las ciudades, mercancías, precios y peligros de este juego son historia real. Las personas que conocerás son imaginadas — representan a la gente que de verdad trabajaba en este camino. Algo más: nadie en el año 800 decía “Ruta de la Seda.” Ese nombre se inventó en 1877. Los viajeros solo decían “los caminos.”"},
+  introDisclaimer:{en:"The cities, goods, prices, and dangers in this game are real history. The characters you meet in this story are imagined, but people like them did exist during this time period. One more thing: no one in the year 800 said “Silk Road.” That name was invented in 1877. Travelers just called them “the roads.”", es:"Las ciudades, mercancías, precios y peligros de este juego son historia real. Los personajes que conoces en esta historia son imaginados, pero personas como ellos sí existieron en esa época. Algo más: nadie en el año 800 decía “Ruta de la Seda.” Ese nombre se inventó en 1877. Los viajeros solo decían “los caminos.”"},
   beginBtn:{en:"Load the camels →", es:"Carga los camellos →"},
 
   /* market */
@@ -386,7 +391,7 @@ var UI = {
   whatHappened:{en:"What happened", es:"Qué pasó"},
   setOut:{en:"Set out →", es:"Ponte en marcha →"},
   emergencyTitle:{en:"A caravan master helps you", es:"Un jefe de caravana te ayuda"},
-  emergencyBody:{en:"You ran short, but the caravan master shares supplies and coins so no traveler is left behind. Merchants helped each other — alone, the road was death. You owe him a favor.", es:"Te quedaste corto, pero el jefe de la caravana comparte provisiones y monedas para no dejar a nadie atrás. Los mercaderes se ayudaban — solos, el camino era la muerte. Le debes un favor."},
+  emergencyBody:{en:"You ran short, but the caravan master shares supplies and coins so no traveler is left behind. Merchants helped each other, because a traveler alone could not survive this road. You owe him a favor.", es:"Te quedaste corto, pero el jefe de la caravana comparte provisiones y monedas para no dejar a nadie atrás. Los mercaderes se ayudaban, porque un viajero solo no podía sobrevivir este camino. Le debes un favor."},
 
   /* quick check */
   qcLabel:{en:"Merchant's question", es:"Pregunta del mercader"},
@@ -398,7 +403,7 @@ var UI = {
   restTitle:{en:"Rest at the caravanserai", es:"Descansa en el caravasar"},
   restBody:{en:"Your camels kneel in the courtyard. Tomorrow, the hardest part begins: the mountains they call the Roof of the World. Copy your 12-character Caravan Code onto your ledger sheet so you can continue next class.", es:"Tus camellos se arrodillan en el patio. Mañana empieza lo más difícil: las montañas que llaman el Techo del Mundo. Copia tu Código de Caravana de 12 caracteres en tu hoja para continuar la próxima clase."},
   yourCode:{en:"Your Caravan Code", es:"Tu Código de Caravana"},
-  codeKeep:{en:"12 letters and numbers. Capital letters. The code never uses the letters I, L, O, or U — so a 1 is a one and a 0 is a zero. It brings back your coins, cargo, and place on the road.", es:"12 letras y números. Letras mayúsculas. El código nunca usa las letras I, L, O ni U — así que un 1 es un uno y un 0 es un cero. Recupera tus monedas, tu carga y tu lugar en el camino."},
+  codeKeep:{en:"The code is 12 capital letters and numbers. It never uses the letters I, L, O, or U, so a 1 is always a one and a 0 is always a zero. It brings back your coins, your cargo, and your place on the road.", es:"El código tiene 12 letras mayúsculas y números. Nunca usa las letras I, L, O ni U, así que un 1 siempre es un uno y un 0 siempre es un cero. Recupera tus monedas, tu carga y tu lugar en el camino."},
   keepGoing:{en:"Keep going today →", es:"Seguir hoy →"},
   codeTitle:{en:"Caravan Code", es:"Código de Caravana"},
   codeEnterLabel:{en:"Enter your code to continue your journey:", es:"Escribe tu código para continuar tu viaje:"},
@@ -442,7 +447,7 @@ var UI = {
   idea2h:{en:"Paper moved west", es:"El papel viajó al oeste"},
   idea2p:{en:"Papermaking was a Chinese invention. After the battle of Talas in 751, the skill reached Samarkand, then Baghdad. Books got cheaper. Learning spread. You watched it change prices with your own coins.", es:"El papel fue un invento chino. Después de la batalla de Talas en 751, la técnica llegó a Samarcanda y luego a Bagdad. Los libros se volvieron más baratos. El saber se extendió. Tú viste cómo cambiaba los precios con tus propias monedas."},
   idea3h:{en:"And sickness traveled too", es:"Y la enfermedad también viajó"},
-  idea3p:{en:"Everything that moves with people moves with caravans — including disease. Sickness sometimes traveled these roads from city to city. It is a sober fact about connecting the world: everything travels.", es:"Todo lo que se mueve con la gente se mueve con las caravanas — incluida la enfermedad. A veces las enfermedades viajaban por estos caminos de ciudad en ciudad. Es un hecho serio sobre conectar el mundo: todo viaja."},
+  idea3p:{en:"Everything that moves with people moves with caravans — including disease. Sickness sometimes traveled these roads from city to city. That is a serious fact about a connected world: everything travels.", es:"Todo lo que se mueve con la gente se mueve con las caravanas — incluida la enfermedad. A veces las enfermedades viajaban por estos caminos de ciudad en ciudad. Es un hecho serio sobre un mundo conectado: todo viaja."},
 
   reflectKicker:{en:"Think and write", es:"Piensa y escribe"},
   reflectTitle:{en:"Your merchant's report", es:"Tu informe de mercader"},
@@ -540,7 +545,7 @@ var CITIES = [
     {en:"One million people live in Chang'an. In the West Market you hear ten languages at once. Camels kneel between stalls of silk, tea, paper, and porcelain.", es:"Un millón de personas viven en Chang'an. En el Mercado del Oeste se oyen diez idiomas a la vez. Los camellos se arrodillan entre puestos de seda, té, papel y porcelana."},
     {en:"Everything China makes is cheap here, because this is where it is made. The farther west you carry it, the more it will be worth. That is your whole plan.", es:"Todo lo que China fabrica es barato aquí, porque aquí se fabrica. Cuanto más al oeste lo lleves, más valdrá. Ese es todo tu plan."}
   ],
-  exhibits:[{key:"sancai_camel", half:true, cap:{en:"A camel with musicians, made of glazed pottery in China in 723 — about the time of your journey. Tang families loved these figures of the caravan camels that made them rich. Photo: John Hill, CC BY-SA 4.0.", es:"Un camello con músicos, hecho de cerámica vidriada en China en 723 — cerca del tiempo de tu viaje. A las familias Tang les encantaban estas figuras de los camellos que las hacían ricas. Foto: John Hill, CC BY-SA 4.0."}}],
+  exhibits:[{key:"sancai_camel", half:true, cap:{en:"A camel with musicians, made of glazed pottery in China in 723 — about the time of your journey. Rich Tang families loved these figures of the camels that carried their trade. Photo: John Hill, CC BY-SA 4.0.", es:"Un camello con músicos, hecho de cerámica vidriada en China en 723 — cerca del tiempo de tu viaje. A las familias ricas Tang les encantaban estas figuras de los camellos que llevaban su comercio. Foto: John Hill, CC BY-SA 4.0."}}],
   npcs:[{
     name:{en:"Uncle Wei", es:"Tío Wei"}, img:"npc_uncle_wei", initials:"WEI", hue:"#7a3b1e",
     lines:[
@@ -556,7 +561,7 @@ var CITIES = [
       {t:{en:"Because people in China do not like silk", es:"Porque a la gente de China no le gusta la seda"}, ok:false},
       {t:{en:"Because coins are worth more in China", es:"Porque las monedas valen más en China"}, ok:false}
     ],
-    good:{en:"Where something is made, there is plenty of it — big supply, lower price. Every step away from the source, it gets rarer and dearer.", es:"Donde algo se fabrica, hay mucho — mucha oferta, precio bajo. Con cada paso lejos de la fuente, se vuelve más raro y más caro."},
+    good:{en:"Where something is made, there is plenty of it — big supply, lower price. With every step away from where it is made, it gets rarer and more expensive.", es:"Donde algo se fabrica, hay mucho — mucha oferta, precio bajo. Con cada paso lejos de donde se fabrica, se vuelve más raro y más caro."},
     trymsg:{en:"Think about supply: where silk is made, is it rare or common?", es:"Piensa en la oferta: donde se hace la seda, ¿es rara o común?"}
   }],
   road:{
@@ -624,7 +629,7 @@ var CITIES = [
        detail:{en:"Shorter — but the old camel men look at the sky and frown.", es:"Más corto — pero los viejos camelleros miran el cielo y fruncen el ceño."},
        stamp:{en:"Sandstorm!", es:"¡Tormenta de arena!"},
        fx:{supplies:-4},
-       out:{en:"On the third day the sky turns yellow, then black. A sandstorm buries the trail. Your caravan huddles for two days, eating through 4 extra supplies, and wanders another day to find the road. Merchants told stories that the desert's name meant «you go in and you don't come out.» Now you understand the stories.", es:"Al tercer día el cielo se vuelve amarillo, luego negro. Una tormenta de arena entierra el sendero. Tu caravana se refugia dos días, gastando 4 provisiones extra, y vaga un día más para hallar el camino. Los mercaderes contaban que el nombre del desierto significaba «entras y no sales.» Ahora entiendes esas historias."}}
+       out:{en:"On the third day the sky turns yellow, then black. A sandstorm buries the trail. Your caravan huddles for two days, eating through 4 extra supplies, and wanders another day to find the road. Merchants told stories that the desert's name meant “you go in and you don't come out.” Now you understand the stories.", es:"Al tercer día el cielo se vuelve amarillo, luego negro. Una tormenta de arena entierra el sendero. Tu caravana se refugia dos días, gastando 4 provisiones extra, y vaga un día más para hallar el camino. Los mercaderes contaban que el nombre del desierto significaba «entras y no sales.» Ahora entiendes esas historias."}}
     ]
   }
 },
@@ -644,8 +649,8 @@ var CITIES = [
     name:{en:"Old Yusuf", es:"Viejo Yusuf"}, img:"npc_old_yusuf", initials:"YSF", hue:"#3d5a45",
     lines:[
       {en:"Forty years I have led camels over those mountains. Rule one: what is heavy and breakable stays here. Rule two: hire help, or pay in broken pots.", es:"Cuarenta años llevando camellos por esas montañas. Regla uno: lo pesado y frágil se queda aquí. Regla dos: contrata ayuda, o paga en ollas rotas."},
-      {en:"You eye that jade? Ha! Jade is dug near here. Carry it EAST to Chang'an and emperors pay fortunes. Carry it west and every city pays you less. Wrong direction, friend.", es:"¿Miras ese jade? ¡Ja! El jade se saca cerca de aquí. Llévalo al ESTE, a Chang'an, y los emperadores pagan fortunas. Llévalo al oeste y cada ciudad te paga menos. Dirección equivocada, amigo."},
-      {en:"Tea, though — the horse lords of the steppe drink rivers of it. Tea sells high here and hereabouts. Farther west? They shrug at it.", es:"El té, en cambio — los señores de los caballos de la estepa beben ríos de té. El té se vende caro aquí y por estas tierras. ¿Más al oeste? Se encogen de hombros."}
+      {en:"You are looking at that jade? Ha! Jade is dug up near here. Carry it EAST to Chang'an and emperors pay fortunes. Carry it west and every city pays you less. Wrong direction, friend.", es:"¿Miras ese jade? ¡Ja! El jade se saca cerca de aquí. Llévalo al ESTE, a Chang'an, y los emperadores pagan fortunas. Llévalo al oeste y cada ciudad te paga menos. Dirección equivocada, amigo."},
+      {en:"Tea, though — the horse lords of the steppe drink rivers of it. Tea sells for a high price here and in the lands nearby. Farther west? They shrug at it.", es:"El té, en cambio — los señores de los caballos de la estepa beben ríos de té. El té se vende caro aquí y en las tierras cercanas. ¿Más al oeste? Se encogen de hombros."}
     ]
   }],
   check:[{
@@ -660,7 +665,7 @@ var CITIES = [
   }],
   road:{
     needs:4,
-    intro:{en:"The trail west climbs into thin, freezing air. Passes higher than the clouds. Ice on the stones. This is the hardest leg of the whole road.", es:"El sendero al oeste sube a un aire helado y delgado. Pasos más altos que las nubes. Hielo en las piedras. Este es el tramo más duro de todo el camino."},
+    intro:{en:"The trail west climbs into thin, freezing air. The passes are higher than the clouds. There is ice on the stones. This is the hardest part of the whole road.", es:"El sendero al oeste sube a un aire helado y delgado. Los pasos están más altos que las nubes. Hay hielo en las piedras. Este es el tramo más duro de todo el camino."},
     q:{en:"How will you take your caravan over the Roof of the World?", es:"¿Cómo llevarás tu caravana por el Techo del Mundo?"},
     options:[
       {title:{en:"Hire Yusuf's yak porters — 6 coins", es:"Contrata a los porteadores con yaks de Yusuf — 6 monedas"},
@@ -672,7 +677,7 @@ var CITIES = [
        detail:{en:"Free — but camels slip on ice, and cargo falls.", es:"Gratis — pero los camellos resbalan en el hielo, y la carga cae."},
        stamp:{en:"A load is lost", es:"Se pierde una carga"},
        fx:{loseLoad:"porcelain", elseCoins:-4},
-       out:{en:"On the second pass, a camel slips on black ice. If you carried porcelain, you hear it — a crunch inside the pack, a full load in pieces. If not, the camel goes lame and mountain herders charge 4 coins to treat and re-shoe your animals. The Pamirs always take their toll; merchants planned for it.", es:"En el segundo paso, un camello resbala en el hielo. Si llevabas porcelana, lo oyes — un crujido dentro del fardo, una carga entera en pedazos. Si no, el camello queda cojo y los pastores de la montaña cobran 4 monedas por curar y herrar a tus animales. Los Pamir siempre cobran su parte; los mercaderes contaban con ello."}}
+       out:{en:"On the second pass, a camel slips on black ice. If you carried porcelain, you hear it — a crunch inside the pack, a full load in pieces. If not, the camel goes lame and mountain herders charge 4 coins to treat and re-shoe your animals. The Pamirs always take their toll, and merchants planned for it.", es:"En el segundo paso, un camello resbala en el hielo. Si llevabas porcelana, lo oyes — un crujido dentro del fardo, una carga entera en pedazos. Si no, el camello queda cojo y los pastores de la montaña cobran 4 monedas por curar y herrar a tus animales. Los Pamir siempre cobran su parte, y los mercaderes contaban con ello."}}
     ]
   }
 },
@@ -685,7 +690,7 @@ var CITIES = [
   sceneCap:{en:"Evening in a Samarkand caravanserai — as our artist imagines it.", es:"Atardecer en un caravasar de Samarcanda — como lo imagina nuestro artista."},
   arrive:[
     {en:"Down from the mountains, into gardens and canals: Samarkand. This is the home city of the Sogdians, a people famous from China to Persia for one skill — trade.", es:"Bajas de las montañas a jardines y canales: Samarcanda. Es la ciudad de los sogdianos, un pueblo famoso de China a Persia por una sola habilidad — el comercio."},
-    {en:"Sogdian merchants run caravanserais and trading posts along the whole road. Their letters travel thousands of miles between family businesses. Many children in Chang'an learn Sogdian words for 'price' before Chinese ones.", es:"Los mercaderes sogdianos manejan caravasares y puestos de comercio por todo el camino. Sus cartas viajan miles de kilómetros entre negocios familiares. Muchos niños en Chang'an aprenden palabras sogdianas para 'precio' antes que las chinas."}
+    {en:"Sogdian merchants run caravanserais and trading posts along the whole road. Their letters travel thousands of miles between family shops. Even market children in Chang'an pick up Sogdian words for buying and selling.", es:"Los mercaderes sogdianos manejan caravasares y puestos de comercio por todo el camino. Sus cartas viajan miles de kilómetros entre tiendas familiares. Hasta los niños del mercado en Chang'an aprenden palabras sogdianas para comprar y vender."}
   ],
   exhibits:[{key:"afrasiab", cap:{en:"A Sogdian wall painting made in Samarkand in the 600s: ambassadors from many lands, in patterned silk robes, arrive in procession. It was found in the old city, Afrasiab, and can be seen in Samarkand today. Tap to enlarge — look for the silk patterns.", es:"Una pintura mural sogdiana hecha en Samarcanda en el siglo VII: embajadores de muchas tierras, con túnicas de seda estampada, llegan en procesión. Se encontró en la ciudad vieja, Afrasiab, y hoy puede verse en Samarcanda. Tócala para ampliarla — busca los estampados de seda."}}],
   npcs:[
@@ -698,7 +703,7 @@ var CITIES = [
     {name:{en:"Roshan the paper-maker", es:"Roshan la papelera"}, img:"npc_roshan", initials:"RSH", hue:"#2f6b57",
      lines:[
       {en:"You brought paper to sell? Oh, merchant. Fifty years ago, after a great battle at Talas, Chinese papermakers settled here and taught us the craft. Samarkand makes its own paper now — good paper, cheap paper.", es:"¿Trajiste papel para vender? Ay, mercader. Hace cincuenta años, tras una gran batalla en Talas, papeleros chinos se establecieron aquí y nos enseñaron el oficio. Samarcanda ya hace su propio papel — bueno y barato."},
-      {en:"That is the road for you: goods travel, but so do the SKILLS to make them. Then the price falls. Sell your paper further west — or better, in lands the mills have not reached.", es:"Así es el camino: viajan las mercancías, pero también las TÉCNICAS para hacerlas. Y entonces el precio baja. Vende tu papel más al oeste — o mejor, donde los molinos aún no llegan."}
+      {en:"That is the road for you: goods travel, but so do the SKILLS to make them. Then the price falls. Sell your paper farther west — or better, in lands the paper mills have not reached.", es:"Así es el camino: viajan las mercancías, pero también las TÉCNICAS para hacerlas. Y entonces el precio baja. Vende tu papel más al oeste — o mejor, donde los molinos aún no llegan."}
      ]}
   ],
   check:[
@@ -752,7 +757,7 @@ var CITIES = [
   npcs:[{
     name:{en:"Scholar Salim", es:"El sabio Salim"}, img:"npc_scholar_salim", initials:"SLM", hue:"#39496b",
     lines:[
-      {en:"You come from Chang'an? Then you have seen the paper mills' mother country! Our House of Wisdom fills with books because paper is cheap now. We translate the Greeks, the Persians, the Indians — everything.", es:"¿Vienes de Chang'an? ¡Entonces has visto la patria de los molinos de papel! Nuestra Casa de la Sabiduría se llena de libros porque el papel ya es barato. Traducimos a los griegos, los persas, los indios — todo."},
+      {en:"You come from Chang'an? Then you come from the land where paper was born! Our House of Wisdom is filling with books because paper is cheap now. We translate the Greeks, the Persians, the Indians — everything.", es:"¿Vienes de Chang'an? ¡Entonces vienes de la tierra donde nació el papel! Nuestra Casa de la Sabiduría se está llenando de libros porque el papel ya es barato. Traducimos a los griegos, los persas, los indios — todo."},
       {en:"Merchants think they carry cloth and spice. They also carry numbers, star charts, and medicine. A caravan is a school that walks.", es:"Los mercaderes creen que llevan tela y especias. También llevan números, mapas de estrellas y medicina. Una caravana es una escuela que camina."},
       {en:"One warning for the road west: the Byzantines tax every load at their border. Every merchant grumbles. Every merchant pays. Almost every merchant, anyway…", es:"Un aviso para el camino al oeste: los bizantinos cobran impuesto por cada carga en su frontera. Todo mercader se queja. Todo mercader paga. Bueno, casi todos…"}
     ]
@@ -773,7 +778,7 @@ var CITIES = [
     q:{en:"The customs officers demand the emperor's tax: 6 coins on your cargo.", es:"Los oficiales de aduana exigen el impuesto del emperador: 6 monedas por tu carga."},
     options:[
       {title:{en:"Declare everything and pay the 6 coins", es:"Declara todo y paga las 6 monedas"},
-       detail:{en:"Legal entry, sealed papers, no fear at every checkpoint.", es:"Entrada legal, papeles sellados, sin miedo en cada control."},
+       detail:{en:"Legal entry, sealed papers, no fear at the checkpoints.", es:"Entrada legal, papeles sellados, sin miedo en los controles."},
        stamp:{en:"Sealed and legal", es:"Sellado y legal"},
        fx:{coins:-6},
        out:{en:"The officials list your goods, take 6 coins, and give you a sealed permit. The Byzantines taxed everything that crossed their border — it paid for their armies and roads. From here to the capital, no guard can touch you: your papers are in order.", es:"Los oficiales anotan tus mercancías, toman 6 monedas y te dan un permiso sellado. Los bizantinos cobraban impuestos por todo lo que cruzaba su frontera — pagaba sus ejércitos y caminos. De aquí a la capital, ningún guardia puede tocarte: tus papeles están en orden."}},
@@ -1072,7 +1077,7 @@ function renderIntro(){
   '<div class="card">'+
     '<div class="card-head"><div class="kicker">'+T('introKicker')+'</div><h1>'+T('introTitle')+'</h1></div>'+
     '<div class="card-body prose">'+
-      '<div class="npc"><div class="face">'+faceHTML({img:'npc_uncle_wei', initials:'WEI', hue:'#7a3b1e'})+'</div>'+
+      '<div class="npc big"><div class="face">'+faceHTML({img:'npc_uncle_wei', initials:'WEI', hue:'#7a3b1e'})+'</div>'+
       '<div class="bubble"><div class="who">'+(L==='es'?'Tío Wei':'Uncle Wei')+'</div>'+wrap(T('introP2'))+'</div></div>'+
       '<p>'+wrap(T('introP1'))+'</p>'+
       '<p>'+wrap(T('introP3'))+'</p>'+
