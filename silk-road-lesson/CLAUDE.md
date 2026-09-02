@@ -269,9 +269,12 @@ inline-SVG scenes ship in the meantime so the build is never blocked):
 - 6 city backdrops: Chang'an West Market; the Jade Gate/desert; Kashgar oasis bazaar;
   Samarkand caravanserai courtyard; Baghdad round city; Constantinople harbor
 - 7 NPC portraits (cast above)
-All captioned "as our artist imagines it" / Spanish equivalent. Source PNGs kept in
-`img/generated/`; embedded copies downscaled like everything else (~1000–1400 px long
-edge, JPEG q70–72).
+All captioned "as our artist imagines it" / Spanish equivalent. **Status 2026-09-01: all 14
+delivered by the teacher and embedded.** Source PNGs are kept in `img/generated/originals/`;
+the build embeds the web-size JPEGs in `img/generated/` (backdrops 1344 px wide, portraits
+512 px, q74). Known, accepted anachronism: minarets on Hagia Sophia and in the Kashgar and
+Baghdad backdrops — covered by the "as our artist imagines it" caption; add "no minarets"
+if regenerating.
 
 ## 7. HISTORICAL CONTENT GUARDRAILS (verified facts — use these)
 

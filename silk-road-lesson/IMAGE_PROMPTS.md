@@ -1,7 +1,7 @@
 # IMAGE_PROMPTS.md — Generated art for "Caravan: The Merchant's Road"
 
 Prompts for the teacher to run in Midjourney (same workflow as the Salem intro images).
-Drop finished PNGs into `img/generated/` using the **exact filenames** below, then run
+Drop finished PNGs into `img/generated/originals/` (any names — the build reads the web-size JPEGs in `img/generated/`, which Claude regenerates from the originals), then run
 `node build_embed.js` — the build picks them up automatically and retires the placeholder
 art. Until then, the lesson ships with neutral built-in scene art, so nothing is blocked.
 
