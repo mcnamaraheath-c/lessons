@@ -396,6 +396,13 @@ var UI = {
   chooseLabel:{en:"Your decision", es:"Tu decisión"},
   decideFirst:{en:"Choose your road first", es:"Primero elige tu camino"},
   whatHappened:{en:"What happened", es:"Qué pasó"},
+  fxLabel:{en:"What it cost you:", es:"Lo que te costó:"},
+  fxPaid:{en:"You paid {n} coins. You now have {c} coins.", es:"Pagaste {n} monedas. Ahora tienes {c} monedas."},
+  fxTook:{en:"They took {n} coins. You now have {c} coins.", es:"Te quitaron {n} monedas. Ahora tienes {c} monedas."},
+  fxTookLoad:{en:"You only had {c} coins, so they took 1 load of {g} instead. Your coins did not change.", es:"Solo tenías {c} monedas, así que se llevaron 1 carga de {g} en su lugar. Tus monedas no cambiaron."},
+  fxTookAll:{en:"You only had {c} coins and no goods to take. They took every coin you had.", es:"Solo tenías {c} monedas y ninguna mercancía. Te quitaron todas tus monedas."},
+  fxLostLoad:{en:"You lost 1 load of {g}.", es:"Perdiste 1 carga de {g}."},
+  fxUsedSupplies:{en:"You used {n} extra supplies. You now have {c} supplies.", es:"Gastaste {n} provisiones extra. Ahora tienes {c} provisiones."},
   setOut:{en:"Set out →", es:"Ponte en marcha →"},
   emergencyTitle:{en:"A caravan master helps you", es:"Un jefe de caravana te ayuda"},
   emergencyBody:{en:"You ran short, but the caravan master shares supplies and coins so no traveler is left behind. Merchants helped each other, because a traveler alone could not survive this road. You owe him a favor.", es:"Te quedaste corto, pero el jefe de la caravana comparte provisiones y monedas para no dejar a nadie atrás. Los mercaderes se ayudaban, porque un viajero solo no podía sobrevivir este camino. Le debes un favor."},
@@ -585,7 +592,7 @@ var CITIES = [
        detail:{en:"Free — if no one sees you.", es:"Gratis — si nadie te ve."},
        stamp:{en:"Caught!", es:"¡Atrapado!"},
        fx:{coins:-10, orLoad:true},
-       out:{en:"A patrol catches your caravan in the hills. In Tang China every traveler needed a permit, and the fine for sneaking past is double the tax — 10 coins. You pay it and are lucky: smugglers could lose everything they carried.", es:"Una patrulla atrapa tu caravana en las colinas. En la China Tang todo viajero necesitaba un permiso, y la multa por esconderse es el doble del impuesto — 10 monedas. La pagas y tienes suerte: los contrabandistas podían perder todo lo que llevaban."}}
+       out:{en:"A patrol catches your caravan in the hills. In Tang China every traveler needed a permit, and the fine for sneaking past is double the tax — 10 coins. You are lucky: smugglers could lose everything they carried.", es:"Una patrulla atrapa tu caravana en las colinas. En la China Tang todo viajero necesitaba un permiso, y la multa por esconderse es el doble del impuesto — 10 monedas. Tienes suerte: los contrabandistas podían perder todo lo que llevaban."}}
     ]
   }
 },
@@ -745,7 +752,7 @@ var CITIES = [
        detail:{en:"Keep your coins. Small caravans are quick — and tempting.", es:"Guarda tus monedas. Las caravanas pequeñas son rápidas — y tentadoras."},
        stamp:{en:"Bandits!", es:"¡Bandidos!"},
        fx:{coins:-12, orLoad:true},
-       out:{en:"On the fourth night, riders come out of the dark. They are quick, quiet, and very practiced: they take 12 coins and ride off. It could have been far worse — lone caravans sometimes lost everything. This is exactly why the caravanserai system existed, and why merchants paid to travel together.", es:"La cuarta noche, jinetes salen de la oscuridad. Son rápidos, silenciosos y con mucha práctica: toman 12 monedas y se van. Pudo ser mucho peor — las caravanas solitarias a veces lo perdían todo. Justo para esto existía el sistema de caravasares, y por eso los mercaderes pagaban por viajar juntos."}}
+       out:{en:"On the fourth night, riders come out of the dark. They are quick, quiet, and very practiced: they demand 12 coins, take what they can, and ride off. It could have been far worse — lone caravans sometimes lost everything. This is exactly why the caravanserai system existed, and why merchants paid to travel together.", es:"La cuarta noche, jinetes salen de la oscuridad. Son rápidos, silenciosos y con mucha práctica: exigen 12 monedas, toman lo que pueden y se van. Pudo ser mucho peor — las caravanas solitarias a veces lo perdían todo. Justo para esto existía el sistema de caravasares, y por eso los mercaderes pagaban por viajar juntos."}}
     ]
   }
 },
@@ -1309,9 +1316,23 @@ function suppliesBoxHTML(needs){
   }
   return html;
 }
+function fxNoteText(n){
+  var L = state.language, gname = n.g ? GOODS[n.g].name[L] : '';
+  switch(n.k){
+    case 'paid': return fmt(T('fxPaid'), {n:n.n, c:n.c});
+    case 'took': return fmt(T('fxTook'), {n:n.n, c:n.c});
+    case 'tookLoad': return fmt(T('fxTookLoad'), {c:n.c, g:gname});
+    case 'tookAll': return fmt(T('fxTookAll'), {c:n.c});
+    case 'lostLoad': return fmt(T('fxLostLoad'), {g:gname});
+    case 'usedSupplies': return fmt(T('fxUsedSupplies'), {n:n.n, c:n.c});
+  }
+  return '';
+}
 function outcomeHTML(o){
-  var L = state.language;
-  return '<span class="stamp2">'+o.stamp[L]+'</span><h3 style="margin:.3rem 0 .3rem">'+T('whatHappened')+'</h3><p>'+wrap(o.out[L])+'</p>';
+  var L = state.language, ci = cur().c;
+  var notes = (state.roadFx && state.roadFx[ci]) ? state.roadFx[ci] : [];
+  var fxLine = notes.length ? '<div class="notebox terra" style="margin-top:12px"><b>'+T('fxLabel')+'</b> '+notes.map(fxNoteText).join(' ')+'</div>' : '';
+  return '<span class="stamp2">'+o.stamp[L]+'</span><h3 style="margin:.3rem 0 .3rem">'+T('whatHappened')+'</h3><p>'+wrap(o.out[L])+'</p>'+fxLine;
 }
 function traveled(ci){ return !!(state.traveled && state.traveled[ci]); }
 function canSetOut(ci){
@@ -1366,22 +1387,29 @@ function mostValuableLoad(ci){
 function chooseRoad(ci, oi){
   if(state.decisions[ci] !== undefined) return;
   state.decisions[ci] = oi;
-  var o = CITIES[ci].road.options[oi], fx = o.fx;
+  var o = CITIES[ci].road.options[oi], fx = o.fx, notes = [];
   if(fx.coins){
     var cost = -fx.coins;
     if(fx.orLoad && state.coins < cost){
       var g = mostValuableLoad(ci);
-      if(g){ state.cargo[g]--; }
-      else { state.coins = 0; }
+      if(g){ state.cargo[g]--; notes.push({k:'tookLoad', c:state.coins, g:g}); }
+      else { notes.push({k:'tookAll', c:state.coins}); state.coins = 0; }
     } else {
       state.coins = Math.max(0, state.coins + fx.coins);
+      notes.push({k: fx.orLoad ? 'took' : 'paid', n:cost, c:state.coins});
     }
   }
-  if(fx.supplies){ state.supplies = Math.max(0, state.supplies + fx.supplies); }
-  if(fx.loseLoad){
-    if(state.cargo[fx.loseLoad] > 0){ state.cargo[fx.loseLoad]--; }
-    else if(typeof fx.elseCoins === 'number'){ state.coins = Math.max(0, state.coins + fx.elseCoins); }
+  if(fx.supplies){
+    var before = state.supplies;
+    state.supplies = Math.max(0, state.supplies + fx.supplies);
+    notes.push({k:'usedSupplies', n:(before - state.supplies), c:state.supplies});
   }
+  if(fx.loseLoad){
+    if(state.cargo[fx.loseLoad] > 0){ state.cargo[fx.loseLoad]--; notes.push({k:'lostLoad', g:fx.loseLoad}); }
+    else if(typeof fx.elseCoins === 'number'){ state.coins = Math.max(0, state.coins + fx.elseCoins); notes.push({k:'paid', n:-fx.elseCoins, c:state.coins}); }
+  }
+  if(!state.roadFx) state.roadFx = {};
+  state.roadFx[ci] = notes;
   renderRoad(ci);
   var oc = document.getElementById('outcome');
   if(oc && oc.scrollIntoView){ oc.scrollIntoView({behavior:'smooth', block:'center'}); }
