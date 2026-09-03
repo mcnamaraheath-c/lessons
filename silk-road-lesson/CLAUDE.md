@@ -308,6 +308,13 @@ if regenerating.
 - **Substitute plan**, two pages, Salem format: link, board rules, two-day timeline,
   opening script, troubleshooting, no-wifi discussion fallback.
 - **Answer key is NOT committed** (students browse this site) — deliver directly.
+- **Lost-code rescue (added 2026-09-02 after a student's code failed in class):** the
+  Caravan Code dialog has a "Teacher: rebuild a caravan" link behind the teacher code
+  **800**. It rebuilds a student's journey from their paper ledger (start city, coins,
+  camels, supplies, loads of each good). The dialog also auto-repairs one handwriting
+  mix-up per code (S/5, B/8, Z/2, G/6, Q/D/0, A/4, T/7/1, Y/V) when exactly one repair
+  passes the checksum, and tells the student which letter it fixed. Put the teacher
+  code in the sub plan, never in student-facing text.
 - New unit card on the repo's root `index.html`: "Silk Road — c. 800 CE / Caravan: The
   Merchant's Road / Trading simulation".
 

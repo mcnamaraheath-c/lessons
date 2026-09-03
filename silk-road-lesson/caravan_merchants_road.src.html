@@ -425,6 +425,19 @@ var UI = {
   codeBad:{en:"That code does not work. Check every letter and try again.", es:"Ese código no funciona. Revisa cada letra e inténtalo de nuevo."},
   codeCurrent:{en:"Your code right now:", es:"Tu código en este momento:"},
   codeClose:{en:"Close", es:"Cerrar"},
+  codeFixed:{en:"One letter looked wrong, so the game fixed it: {code}", es:"Una letra parecía incorrecta, así que el juego la corrigió: {code}"},
+  lostCode:{en:"Lost your code, or it will not work? Ask your teacher.", es:"¿Perdiste tu código o no funciona? Pide ayuda a tu maestra/o."},
+  teacherRebuild:{en:"Teacher: rebuild a caravan", es:"Maestra/o: reconstruir una caravana"},
+  pinLabel:{en:"Teacher code", es:"Código de maestra/o"},
+  pinBad:{en:"That is not the teacher code.", es:"Ese no es el código de maestra/o."},
+  rebuildIntro:{en:"Use the student's paper ledger. Start them at the city where they should be, with the coins and goods they had.", es:"Usa la hoja de cuentas del estudiante. Empieza en la ciudad donde debería estar, con las monedas y la mercancía que tenía."},
+  rebuildCity:{en:"Start at", es:"Empezar en"},
+  rebuildCoins:{en:"Coins", es:"Monedas"},
+  rebuildCamels:{en:"Camels", es:"Camellos"},
+  rebuildSupplies:{en:"Supplies", es:"Provisiones"},
+  rebuildCargo:{en:"Loads of goods being carried", es:"Cargas de mercancía que lleva"},
+  rebuildGo:{en:"Rebuild caravan", es:"Reconstruir caravana"},
+  rebuildTooMuch:{en:"Too many loads for that many camels (2 per camel).", es:"Demasiadas cargas para esos camellos (2 por camello)."},
 
   /* finale */
   finalSaleKicker:{en:"The last bazaar", es:"El último bazar"},
@@ -1547,14 +1560,80 @@ function openCodeBox(enterMode){
     '<p style="margin:.2rem 0">'+T('codeEnterLabel')+'</p>'+
     '<input id="code-input" autocomplete="off" autocapitalize="off" spellcheck="false">'+
     '<div class="err" id="code-err"></div>'+
-    '<button class="navbtn" onclick="loadFromCode()">'+T('codeLoad')+'</button>';
+    '<button class="navbtn" onclick="loadFromCode()">'+T('codeLoad')+'</button>'+
+    '<p class="disclaimer" style="margin-top:14px">'+T('lostCode')+' <a href="#" onclick="showTeacherPin();return false;">'+T('teacherRebuild')+'</a></p>'+
+    '<div id="teacher-box" hidden></div>';
   box.hidden = false;
   document.getElementById('code-input').focus();
+}
+var TEACHER_PIN = '800';
+function showTeacherPin(){
+  var tb = document.getElementById('teacher-box');
+  tb.hidden = false;
+  tb.innerHTML = '<hr style="border:none;border-top:1px solid var(--line);margin:10px 0">'+
+    '<p style="margin:.2rem 0">'+T('pinLabel')+':</p><input id="pin-input" type="password" autocomplete="off" style="max-width:140px">'+
+    '<div class="err" id="pin-err"></div><button class="navbtn ghost" onclick="checkTeacherPin()">OK</button>';
+  document.getElementById('pin-input').focus();
+}
+function checkTeacherPin(){
+  if(document.getElementById('pin-input').value.trim() !== TEACHER_PIN){ document.getElementById('pin-err').textContent = T('pinBad'); return; }
+  var L = state.language;
+  var cityOpts = CITIES.map(function(c,i){ return '<option value="'+i+'"'+(i===3?' selected':'')+'>'+c.name[L]+'</option>'; }).join('');
+  var goods = GOOD_KEYS.map(function(g){ return '<label style="display:inline-block;margin:4px 10px 4px 0">'+GOODS[g].ico+' '+GOODS[g].name[L]+' <input id="rb-'+g+'" type="number" min="0" max="10" value="0" style="width:56px"></label>'; }).join('');
+  document.getElementById('teacher-box').innerHTML =
+    '<hr style="border:none;border-top:1px solid var(--line);margin:10px 0"><p style="margin:.2rem 0">'+T('rebuildIntro')+'</p>'+
+    '<label style="display:block;margin:6px 0">'+T('rebuildCity')+' <select id="rb-city">'+cityOpts+'</select></label>'+
+    '<label style="display:inline-block;margin:4px 12px 4px 0">'+T('rebuildCoins')+' <input id="rb-coins" type="number" min="0" max="400" value="60" style="width:70px"></label>'+
+    '<label style="display:inline-block;margin:4px 12px 4px 0">'+T('rebuildCamels')+' <input id="rb-camels" type="number" min="1" max="5" value="3" style="width:56px"></label>'+
+    '<label style="display:inline-block;margin:4px 12px 4px 0">'+T('rebuildSupplies')+' <input id="rb-supplies" type="number" min="0" max="30" value="6" style="width:56px"></label>'+
+    '<p style="margin:.6rem 0 .2rem">'+T('rebuildCargo')+'</p><div>'+goods+'</div>'+
+    '<div class="err" id="rb-err"></div><button class="navbtn" onclick="rebuildCaravan()">'+T('rebuildGo')+'</button>';
+}
+function num(id, lo, hi){ var v = parseInt(document.getElementById(id).value, 10); if(isNaN(v)) v = lo; return Math.max(lo, Math.min(hi, v)); }
+function rebuildCaravan(){
+  var ci = num('rb-city', 0, 5), coins = num('rb-coins', 0, 400), camels = num('rb-camels', 1, MAX_CAMELS), supplies = num('rb-supplies', 0, 30);
+  var cargo = {}, total = 0;
+  GOOD_KEYS.forEach(function(g){ cargo[g] = num('rb-'+g, 0, 10); total += cargo[g]; });
+  if(total > camels * LOADS_PER_CAMEL){ document.getElementById('rb-err').textContent = T('rebuildTooMuch'); return; }
+  var s = freshState();
+  s.pos = SEQ.findIndex(function(x){ return x.t === 'city' && x.c === ci; });
+  s.coins = coins; s.camels = camels; s.supplies = supplies; s.cargo = cargo;
+  s.traveled = {}; s.maxCity = ci;
+  CITIES.forEach(function(city, i){
+    if(i < ci){ s.checks[i] = {}; city.check.forEach(function(q, qi){ s.checks[i][qi] = true; }); if(city.road){ s.decisions[i] = 0; s.traveled[i] = true; } }
+  });
+  s.carriedIn = {}; GOOD_KEYS.forEach(function(g){ s.carriedIn[g] = cargo[g]; });
+  s.codeResumed = true;
+  s.language = state.language;
+  state = s;
+  closeCodeBox();
+  render();
+}
+/* Common handwriting mix-ups the alphabet cannot exclude. If a code fails its checksum, try every
+   single-character swap from this table; accept only if exactly one candidate is valid. */
+var CONFUSABLES = { 'S':['5'], '5':['S'], 'B':['8'], '8':['B'], 'Z':['2'], '2':['Z'], 'G':['6'], '6':['G'], 'Q':['0'], 'D':['0'], '0':['Q','D'], 'A':['4'], '4':['A'], 'T':['7'], '7':['T','1'], '1':['7'], 'Y':['V'], 'V':['Y'] };
+function recoverCode(code){
+  var c = normalizeCode(code);
+  if(c.length !== 12) return null;
+  var found = {};
+  for(var i=0;i<12;i++){
+    var alts = CONFUSABLES[c[i]] || [];
+    for(var k=0;k<alts.length;k++){
+      var cand = c.slice(0,i) + alts[k] + c.slice(i+1);
+      if(decodeCode(cand)) found[cand] = true;
+    }
+  }
+  var keys = Object.keys(found);
+  return keys.length === 1 ? keys[0] : null;
 }
 function closeCodeBox(){ document.getElementById('codebox').hidden = true; }
 function loadFromCode(){
   var v = document.getElementById('code-input').value;
   var s = decodeCode(v);
+  if(!s){
+    var fixed = recoverCode(v);
+    if(fixed){ s = decodeCode(fixed); document.getElementById('code-err').textContent = fmt(T('codeFixed'), {code: fixed.replace(/(.{4})(?=.)/g, '$1-')}); }
+  }
   if(!s){ document.getElementById('code-err').textContent = T('codeBad'); return; }
   /* same device? if the saved journey matches the code, use it — it has the full trade history */
   var local = loadLocal();
