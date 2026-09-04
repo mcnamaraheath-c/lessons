@@ -251,6 +251,20 @@
     .goodrow{grid-template-columns:40px minmax(0,1fr) 80px 110px;}
     .goodrow .gbtns{grid-column:1 / -1;justify-self:end;}
   }
+  /* ---------- dice ---------- */
+  .dice-wrap{display:flex;align-items:center;gap:18px;margin:14px 0 6px;flex-wrap:wrap;}
+  .die{width:76px;height:76px;background:#fff;border:3px solid var(--ink);border-radius:14px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:9px;box-shadow:0 5px 14px rgba(0,0,0,.28);flex:0 0 auto;}
+  .die span{width:13px;height:13px;border-radius:50%;background:var(--ink);align-self:center;justify-self:center;visibility:hidden;}
+  .die[data-v="1"] .p5,.die[data-v="2"] .p3,.die[data-v="2"] .p7,.die[data-v="3"] .p3,.die[data-v="3"] .p5,.die[data-v="3"] .p7,
+  .die[data-v="4"] .p1,.die[data-v="4"] .p3,.die[data-v="4"] .p7,.die[data-v="4"] .p9,
+  .die[data-v="5"] .p1,.die[data-v="5"] .p3,.die[data-v="5"] .p5,.die[data-v="5"] .p7,.die[data-v="5"] .p9,
+  .die[data-v="6"] .p1,.die[data-v="6"] .p3,.die[data-v="6"] .p4,.die[data-v="6"] .p6,.die[data-v="6"] .p7,.die[data-v="6"] .p9{visibility:visible;}
+  .die.rolling{animation:diceshake .14s infinite;}
+  @keyframes diceshake{0%{transform:rotate(-10deg) translate(-2px,-2px);}50%{transform:rotate(10deg) translate(2px,2px);}100%{transform:rotate(-10deg) translate(-2px,-2px);}}
+  .dice-text{font-size:1.05rem;}
+  .dice-text b{color:var(--terra);}
+  .dice-text .win{color:var(--jade);font-weight:700;}
+  .dice-text .lose{color:var(--terra);font-weight:700;}
   @media (prefers-reduced-motion: reduce){
     *{animation:none !important;transition:none !important;}
   }
@@ -397,6 +411,13 @@ var UI = {
   decideFirst:{en:"Choose your road first", es:"Primero elige tu camino"},
   whatHappened:{en:"What happened", es:"Qué pasó"},
   fxLabel:{en:"What it cost you:", es:"Lo que te costó:"},
+  fxNone:{en:"It cost you nothing.", es:"No te costó nada."},
+  rollNeeds:{en:"🎲 Roll the dice: a {n} or higher and you get away with it.", es:"🎲 Tira el dado: con un {n} o más, te sales con la tuya."},
+  rolling:{en:"Rolling…", es:"Tirando…"},
+  rolled:{en:"You rolled a {r}. You needed a {n} or higher.", es:"Sacaste un {r}. Necesitabas un {n} o más."},
+  rollWin:{en:"Success!", es:"¡Lo lograste!"},
+  rollLose:{en:"No luck.", es:"Sin suerte."},
+  reflectOnPaper:{en:"Answer these three questions on your paper ledger sheet. You do not type them here.", es:"Responde estas tres preguntas en tu hoja de cuentas de papel. No las escribes aquí."},
   fxPaid:{en:"You paid {n} coins. You now have {c} coins.", es:"Pagaste {n} monedas. Ahora tienes {c} monedas."},
   fxTook:{en:"They took {n} coins. You now have {c} coins.", es:"Te quitaron {n} monedas. Ahora tienes {c} monedas."},
   fxTookLoad:{en:"You only had {c} coins, so they took 1 load of {g} instead. Your coins did not change.", es:"Solo tenías {c} monedas, así que se llevaron 1 carga de {g} en su lugar. Tus monedas no cambiaron."},
@@ -604,6 +625,7 @@ var CITIES = [
       {title:{en:"Slip around the gate on a smugglers' path", es:"Escápate por un sendero de contrabandistas"},
        detail:{en:"Free — if no one sees you.", es:"Gratis — si nadie te ve."},
        stamp:{en:"Caught!", es:"¡Atrapado!"},
+       risk:{need:4, win:{stamp:{en:"Slipped past", es:"Pasaste sin ser visto"}, fx:{}, out:{en:"You wait for dark and follow the smugglers' path through the hills. No patrol sees you, and you keep your 5 coins. But know this: most travelers who tried this were caught, and the fine was double the tax. Tonight, luck rode with you.", es:"Esperas la noche y sigues el sendero de los contrabandistas por las colinas. Ninguna patrulla te ve, y te quedas con tus 5 monedas. Pero que sepas: la mayoría de los viajeros que lo intentaron fueron atrapados, y la multa era el doble del impuesto. Esta noche, la suerte viajó contigo."}}},
        fx:{coins:-10, orLoad:true},
        out:{en:"A patrol catches your caravan in the hills. In Tang China every traveler needed a permit, and the fine for sneaking past is double the tax — 10 coins. You are lucky: smugglers could lose everything they carried.", es:"Una patrulla atrapa tu caravana en las colinas. En la China Tang todo viajero necesitaba un permiso, y la multa por esconderse es el doble del impuesto — 10 monedas. Tienes suerte: los contrabandistas podían perder todo lo que llevaban."}}
     ]
@@ -655,6 +677,7 @@ var CITIES = [
       {title:{en:"The southern shortcut, near the dunes", es:"El atajo del sur, junto a las dunas"},
        detail:{en:"Shorter — but the old camel men look at the sky and frown.", es:"Más corto — pero los viejos camelleros miran el cielo y fruncen el ceño."},
        stamp:{en:"Sandstorm!", es:"¡Tormenta de arena!"},
+       risk:{need:5, win:{stamp:{en:"Clear skies", es:"Cielo despejado"}, fx:{}, out:{en:"The sky stays blue for six straight days. The shortcut works: you reach Kashgar sooner and burn no extra supplies. The old camel men shake their heads — they have watched that same sky turn black in an hour.", es:"El cielo se queda azul seis días seguidos. El atajo funciona: llegas antes a Kashgar y no gastas provisiones extra. Los viejos camelleros mueven la cabeza — han visto ese mismo cielo volverse negro en una hora."}}},
        fx:{supplies:-4},
        out:{en:"On the third day the sky turns yellow, then black. A sandstorm buries the trail. Your caravan huddles for two days, eating through 4 extra supplies, and wanders another day to find the road. Merchants told stories that the desert's name meant “you go in and you don't come out.” Now you understand the stories.", es:"Al tercer día el cielo se vuelve amarillo, luego negro. Una tormenta de arena entierra el sendero. Tu caravana se refugia dos días, gastando 4 provisiones extra, y vaga un día más para hallar el camino. Los mercaderes contaban que el nombre del desierto significaba «entras y no sales.» Ahora entiendes esas historias."}}
     ]
@@ -703,6 +726,7 @@ var CITIES = [
       {title:{en:"Push your own camels over the passes", es:"Sube con tus propios camellos"},
        detail:{en:"Free — but camels slip on ice, and cargo falls.", es:"Gratis — pero los camellos resbalan en el hielo, y la carga cae."},
        stamp:{en:"A load is lost", es:"Se pierde una carga"},
+       risk:{need:4, win:{stamp:{en:"Sure-footed", es:"Pie firme"}, fx:{}, out:{en:"Your camels pick their way over the ice as if they were born on it. Every load arrives whole, and you saved 6 coins. Merchants who crossed these passes many times knew this kind of luck does not last.", es:"Tus camellos cruzan el hielo como si hubieran nacido en él. Cada carga llega entera, y ahorraste 6 monedas. Los mercaderes que cruzaron estos pasos muchas veces sabían que esa suerte no dura."}}},
        fx:{loseLoad:"porcelain", elseCoins:-4},
        out:{en:"On the second pass, a camel slips on black ice. If you carried porcelain, you hear it — a crunch inside the pack, a full load in pieces. If not, the camel goes lame and mountain herders charge 4 coins to treat and re-shoe your animals. The Pamirs always take their toll, and merchants planned for it.", es:"En el segundo paso, un camello resbala en el hielo. Si llevabas porcelana, lo oyes — un crujido dentro del fardo, una carga entera en pedazos. Si no, el camello queda cojo y los pastores de la montaña cobran 4 monedas por curar y herrar a tus animales. Los Pamir siempre cobran su parte, y los mercaderes contaban con ello."}}
     ]
@@ -764,6 +788,7 @@ var CITIES = [
       {title:{en:"Travel alone and move fast", es:"Viaja solo y muévete rápido"},
        detail:{en:"Keep your coins. Small caravans are quick — and tempting.", es:"Guarda tus monedas. Las caravanas pequeñas son rápidas — y tentadoras."},
        stamp:{en:"Bandits!", es:"¡Bandidos!"},
+       risk:{need:4, win:{stamp:{en:"Fast and lucky", es:"Rápido y con suerte"}, fx:{}, out:{en:"You travel by night and rest by day. The riders in the hills never spot your small caravan. Fast, free — and lucky. Many lone caravans on this road were not.", es:"Viajas de noche y descansas de día. Los jinetes de las colinas nunca ven tu pequeña caravana. Rápido, gratis — y con suerte. Muchas caravanas solitarias en este camino no la tuvieron."}}},
        fx:{coins:-12, orLoad:true},
        out:{en:"On the fourth night, riders come out of the dark. They are quick, quiet, and very practiced: they demand 12 coins, take what they can, and ride off. It could have been far worse — lone caravans sometimes lost everything. This is exactly why the caravanserai system existed, and why merchants paid to travel together.", es:"La cuarta noche, jinetes salen de la oscuridad. Son rápidos, silenciosos y con mucha práctica: exigen 12 monedas, toman lo que pueden y se van. Pudo ser mucho peor — las caravanas solitarias a veces lo perdían todo. Justo para esto existía el sistema de caravasares, y por eso los mercaderes pagaban por viajar juntos."}}
     ]
@@ -812,6 +837,7 @@ var CITIES = [
       {title:{en:"Hide a silk load inside the tea bales", es:"Esconde una carga de seda entre los fardos de té"},
        detail:{en:"Pay tax on less. Risky — Byzantine inspectors are famous for finding things.", es:"Paga impuesto por menos. Arriesgado — los inspectores bizantinos son famosos por encontrar cosas."},
        stamp:{en:"Found it", es:"La encontraron"},
+       risk:{need:5, win:{stamp:{en:"Not found", es:"No la encontraron"}, fx:{coins:-4}, out:{en:"The inspector's rod slides right past your hidden silk. He stamps your papers and waves you through. You paid tax on less — 4 coins instead of 6. If he had found it, the fine would have been more than double.", es:"La vara del inspector pasa justo al lado de tu seda escondida. Sella tus papeles y te deja pasar. Pagaste impuesto por menos — 4 monedas en vez de 6. Si la hubiera encontrado, la multa habría sido más del doble."}}},
        fx:{coins:-14, orLoad:true},
        out:{en:"An inspector slides a rod into your tea bale — thock — silk. He does not even look surprised. The fine is 14 coins, more than double the tax, and they check the rest of your cargo twice. Smuggling silk past Byzantine customs was common, and so was getting caught.", es:"Un inspector mete una vara en tu fardo de té — toc — seda. Ni siquiera parece sorprendido. La multa es de 14 monedas, más del doble del impuesto, y revisan el resto de tu carga dos veces. Contrabandear seda por la aduana bizantina era común, y ser atrapado también."}}
     ]
@@ -861,6 +887,8 @@ function freshState(){
     coins: START_COINS, camels: START_CAMELS, supplies: START_SUPPLIES,
     cargo: cargo, buys: buys, sells: sells,
     decisions: {},           /* cityIdx -> option index chosen */
+    rolls: {},               /* cityIdx -> {r, need, ok} for dice gambles */
+    seed: Math.floor(Math.random()*1e9), /* shuffles quick-check answers per game */
     checks: {},              /* cityIdx -> {qIdx:true} once answered correctly */
     finalSold: false
   };
@@ -1250,12 +1278,22 @@ function buyCamel(){
 }
 
 /* ---------- QUICK CHECK ---------- */
+function seededOrder(n, seed){
+  /* mulberry32 — same seed, same order, so a student's answers stay put while they play */
+  var t = (seed >>> 0) || 1, idx = [];
+  for(var i=0;i<n;i++) idx.push(i);
+  function rnd(){ t += 0x6D2B79F5; var x = Math.imul(t ^ (t >>> 15), 1 | t); x ^= x + Math.imul(x ^ (x >>> 7), 61 | x); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }
+  for(var k=n-1;k>0;k--){ var j = Math.floor(rnd()*(k+1)); var tmp = idx[k]; idx[k] = idx[j]; idx[j] = tmp; }
+  return idx;
+}
 function renderCheck(ci){
   var c = CITIES[ci], L = state.language;
   var done = state.checks[ci] || {};
   var qs = c.check.map(function(q, qi){
     var answered = !!done[qi];
-    var btns = q.answers.map(function(a, ai){
+    var order = seededOrder(q.answers.length, (state.seed||0) + ci*101 + qi*7);
+    var btns = order.map(function(ai){
+      var a = q.answers[ai];
       var cls = 'ans';
       if(answered && a.ok) cls += ' right';
       return '<button class="'+cls+'" '+(answered?'disabled':'')+' onclick="answerCheck('+ci+','+qi+','+ai+', this)">'+a.t[L]+'</button>';
@@ -1301,9 +1339,11 @@ function renderRoad(ci){
   var decided = chosen !== undefined;
   var opts = r.options.map(function(o, oi){
     var cls = 'choice' + (decided && chosen===oi ? ' chosen' : '');
-    return '<button class="'+cls+'" '+(decided?'disabled':'')+' onclick="chooseRoad('+ci+','+oi+')"><b>'+o.title[L]+'</b><small>'+o.detail[L]+'</small></button>';
+    var roll = o.risk ? '<br>'+fmt(T('rollNeeds'), {n:o.risk.need}) : '';
+    return '<button class="'+cls+'" '+(decided?'disabled':'')+' onclick="chooseRoad('+ci+','+oi+')"><b>'+o.title[L]+'</b><small>'+o.detail[L]+roll+'</small></button>';
   }).join('');
   var o = decided ? r.options[chosen] : null;
+  var animating = decided && pendingRoll === ci;
   stage.innerHTML =
   '<div class="card">'+
     '<div class="card-head"><div class="kicker">'+c.name[L]+' → '+CITIES[ci+1].name[L]+'</div><h1>'+T('roadLabel')+'</h1></div>'+
@@ -1311,11 +1351,51 @@ function renderRoad(ci){
       '<p>'+wrap(r.intro[L])+'</p>'+
       '<div class="notebox" id="supbox">'+suppliesBoxHTML(r.needs)+'</div>'+
       '<div class="decide-box"><h3>'+T('chooseLabel')+'</h3><p class="q">'+wrap(r.q[L])+'</p>'+opts+
-      '<div class="outcome'+(decided?' show':'')+'" id="outcome">'+(decided?outcomeHTML(o):'')+'</div></div>'+
+      (animating ? diceHTML(ci, true) : '')+
+      '<div class="outcome'+(decided && !animating ?' show':'')+'" id="outcome">'+(decided?outcomeHTML(o):'')+'</div></div>'+
     '</div>'+
-    navHTML(!canSetOut(ci), T('setOut'), decided ? T('needMoreSupplies') : T('decideFirst'))+
+    navHTML(!canSetOut(ci) || animating, T('setOut'), decided ? T('needMoreSupplies') : T('decideFirst'))+
   '</div>';
-  if(decided && canSetOut(ci)) prepSetOut(ci);
+  if(animating){
+    pendingRoll = null;
+    var rollInfo = state.rolls[ci];
+    animateDice(document.getElementById('die-'+ci), rollInfo.r, function(){
+      var dt = document.getElementById('dice-text-'+ci);
+      if(dt) dt.innerHTML = diceResultText(rollInfo);
+      var oc = document.getElementById('outcome');
+      if(oc){ oc.classList.add('show'); if(oc.scrollIntoView) oc.scrollIntoView({behavior:'smooth', block:'center'}); }
+      if(canSetOut(ci)) prepSetOut(ci);
+    });
+  } else if(decided && canSetOut(ci)) prepSetOut(ci);
+}
+var pendingRoll = null;
+var DICE_MS = 1400;
+function dieFace(id, v){
+  var pips = ''; for(var i=1;i<=9;i++) pips += '<span class="p'+i+'"></span>';
+  return '<div class="die" id="'+id+'" data-v="'+v+'" aria-hidden="true">'+pips+'</div>';
+}
+function diceResultText(info){
+  return fmt(T('rolled'), {r:info.r, n:info.need}) + ' <span class="'+(info.ok?'win':'lose')+'">'+(info.ok ? T('rollWin') : T('rollLose'))+'</span>';
+}
+function diceHTML(ci, animating){
+  var info = state.rolls[ci];
+  if(!info) return '';
+  return '<div class="dice-wrap">'+dieFace('die-'+ci, animating ? 1 : info.r)+
+    '<div class="dice-text" id="dice-text-'+ci+'">'+(animating ? T('rolling') : diceResultText(info))+'</div></div>';
+}
+function reducedMotion(){
+  try { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){ return false; }
+}
+function animateDice(el, finalV, done){
+  if(!el || DICE_MS <= 0 || reducedMotion()){ if(el) el.setAttribute('data-v', finalV); done(); return; }
+  el.classList.add('rolling');
+  var iv = setInterval(function(){ el.setAttribute('data-v', 1 + Math.floor(Math.random()*6)); }, 90);
+  setTimeout(function(){
+    clearInterval(iv);
+    el.classList.remove('rolling');
+    el.setAttribute('data-v', finalV);
+    done();
+  }, DICE_MS);
 }
 function suppliesBoxHTML(needs){
   var html = fmt(T('roadNeeds'), {n:needs}) + ' ' + fmt(T('youHaveSupplies'), {n:state.supplies});
@@ -1338,6 +1418,7 @@ function fxNoteText(n){
     case 'tookAll': return fmt(T('fxTookAll'), {c:n.c});
     case 'lostLoad': return fmt(T('fxLostLoad'), {g:gname});
     case 'usedSupplies': return fmt(T('fxUsedSupplies'), {n:n.n, c:n.c});
+    case 'none': return T('fxNone');
   }
   return '';
 }
@@ -1345,7 +1426,12 @@ function outcomeHTML(o){
   var L = state.language, ci = cur().c;
   var notes = (state.roadFx && state.roadFx[ci]) ? state.roadFx[ci] : [];
   var fxLine = notes.length ? '<div class="notebox terra" style="margin-top:12px"><b>'+T('fxLabel')+'</b> '+notes.map(fxNoteText).join(' ')+'</div>' : '';
-  return '<span class="stamp2">'+o.stamp[L]+'</span><h3 style="margin:.3rem 0 .3rem">'+T('whatHappened')+'</h3><p>'+wrap(o.out[L])+'</p>'+fxLine;
+  var info = o.risk && state.rolls ? state.rolls[ci] : null;
+  var won = info && info.ok;
+  var stamp = won ? o.risk.win.stamp[L] : o.stamp[L];
+  var out = won ? o.risk.win.out[L] : o.out[L];
+  var dice = (info && pendingRoll !== ci) ? diceHTML(ci, false) : '';
+  return dice + '<span class="stamp2">'+stamp+'</span><h3 style="margin:.3rem 0 .3rem">'+T('whatHappened')+'</h3><p>'+wrap(out)+'</p>'+fxLine;
 }
 function traveled(ci){ return !!(state.traveled && state.traveled[ci]); }
 function canSetOut(ci){
@@ -1400,7 +1486,27 @@ function mostValuableLoad(ci){
 function chooseRoad(ci, oi){
   if(state.decisions[ci] !== undefined) return;
   state.decisions[ci] = oi;
-  var o = CITIES[ci].road.options[oi], fx = o.fx, notes = [];
+  var o = CITIES[ci].road.options[oi], fx = o.fx;
+  if(o.risk){
+    var r = (typeof window.DICE_FORCE === 'number') ? window.DICE_FORCE : 1 + Math.floor(Math.random()*6);
+    var ok = r >= o.risk.need;
+    if(!state.rolls) state.rolls = {};
+    state.rolls[ci] = {r:r, need:o.risk.need, ok:ok};
+    if(ok) fx = o.risk.win.fx || {};
+    pendingRoll = ci;
+  }
+  var notes = applyFx(fx, ci);
+  if(!state.roadFx) state.roadFx = {};
+  state.roadFx[ci] = notes;
+  renderRoad(ci);
+  if(pendingRoll !== ci){
+    var oc = document.getElementById('outcome');
+    if(oc && oc.scrollIntoView){ oc.scrollIntoView({behavior:'smooth', block:'center'}); }
+  }
+  saveLocal();
+}
+function applyFx(fx, ci){
+  var notes = [];
   if(fx.coins){
     var cost = -fx.coins;
     if(fx.orLoad && state.coins < cost){
@@ -1421,12 +1527,8 @@ function chooseRoad(ci, oi){
     if(state.cargo[fx.loseLoad] > 0){ state.cargo[fx.loseLoad]--; notes.push({k:'lostLoad', g:fx.loseLoad}); }
     else if(typeof fx.elseCoins === 'number'){ state.coins = Math.max(0, state.coins + fx.elseCoins); notes.push({k:'paid', n:-fx.elseCoins, c:state.coins}); }
   }
-  if(!state.roadFx) state.roadFx = {};
-  state.roadFx[ci] = notes;
-  renderRoad(ci);
-  var oc = document.getElementById('outcome');
-  if(oc && oc.scrollIntoView){ oc.scrollIntoView({behavior:'smooth', block:'center'}); }
-  saveLocal();
+  if(!notes.length) notes.push({k:'none'});
+  return notes;
 }
 function setOut(ci){
   if(!traveled(ci)){
@@ -1531,10 +1633,10 @@ function renderReflect(){
   '<div class="card">'+
     '<div class="card-head"><div class="kicker">'+T('reflectKicker')+'</div><h1>'+T('reflectTitle')+'</h1></div>'+
     '<div class="card-body prose">'+
-      '<div class="reflect-q"><div class="qtext">1. '+wrap(T('q1'))+'</div><textarea></textarea></div>'+
-      '<div class="reflect-q"><div class="qtext">2. '+wrap(T('q2'))+'</div><textarea></textarea></div>'+
-      '<div class="reflect-q"><div class="qtext">3. '+wrap(T('q3'))+'</div><textarea></textarea></div>'+
-      '<p class="disclaimer">'+T('printNote')+'</p>'+
+      '<div class="notebox terra">📝 '+T('reflectOnPaper')+'</div>'+
+      '<div class="reflect-q"><div class="qtext">1. '+wrap(T('q1'))+'</div></div>'+
+      '<div class="reflect-q"><div class="qtext">2. '+wrap(T('q2'))+'</div></div>'+
+      '<div class="reflect-q"><div class="qtext">3. '+wrap(T('q3'))+'</div></div>'+
       '<div class="kicker" style="margin-top:16px">'+T('doneKicker')+'</div>'+
       '<button class="navbtn big ghost" onclick="restartAll()">'+T('restart')+'</button>'+
     '</div>'+

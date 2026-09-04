@@ -192,6 +192,25 @@ Illustrative price line (final numbers tuned during build, all ≤ ~100):
    succeeds — students see why smuggling silk was common AND risky). Framed with the
    kommerkion in kid terms: "the emperor taxes everything that enters."
 
+### Teacher decisions after the first classroom run (2026-09-02)
+
+- **Risky road options are dice gambles now** (teacher asked for a real chance of
+  success). Each risky option shows "Roll the dice: a N or higher and you get away
+  with it." Chosen → a six-sided die animates (~1.4 s, skipped under
+  prefers-reduced-motion), then the outcome. Thresholds: Jade Gate smuggling 4+,
+  Taklamakan shortcut 5+, Pamirs without porters 4+, travel alone 4+, hide silk 5+.
+  A win costs nothing (customs win: 4 coins instead of 6) and has its own stamp and
+  story; a loss is the original scripted outcome. The roll is stored in state
+  (`rolls[ci]`) so it never re-rolls on revisit. `window.DICE_FORCE` (number) and
+  `DICE_MS = 0` exist for tests. The safe options are unchanged and never roll.
+- **Quick-check answers are shuffled** per game with a seeded shuffle
+  (`state.seed`), so the correct answer is not always first, but the order stays
+  put while a student is on the screen.
+- **No typing on the final screen.** The three Think-and-Write questions are shown
+  with "Answer these on your paper ledger sheet"; the textareas were removed because
+  students were confused about what to type. The paper ledger is the only answer
+  record.
+
 ### The endgame payoff (Day 2, last ~12 min)
 
 1. **Final Ledger screen** — the student's actual numbers, pre-computed, one row per
