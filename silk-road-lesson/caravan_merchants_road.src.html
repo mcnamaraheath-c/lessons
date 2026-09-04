@@ -1354,7 +1354,7 @@ function renderRoad(ci){
       (animating ? diceHTML(ci, true) : '')+
       '<div class="outcome'+(decided && !animating ?' show':'')+'" id="outcome">'+(decided?outcomeHTML(o):'')+'</div></div>'+
     '</div>'+
-    navHTML(!canSetOut(ci) || animating, T('setOut'), decided ? T('needMoreSupplies') : T('decideFirst'))+
+    navHTML(!canSetOut(ci) || animating, T('setOut'), animating ? T('rolling') : (decided ? T('needMoreSupplies') : T('decideFirst')))+
   '</div>';
   if(animating){
     pendingRoll = null;
