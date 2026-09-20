@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salem, 1692 — An Interactive Investigation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#211a14;
+    --ink-soft:#4a4136;
+    --parchment:#f2e9d3;
+    --parchment-deep:#e7d9b8;
+    --paper-card:#faf4e4;
+    --wax:#8c2222;
+    --wax-dark:#621616;
+    --candle:#b97f24;
+    --moss:#4e5d3a;
+    --line:#c9b98f;
+    --shadow:0 2px 0 rgba(33,26,20,.14), 0 10px 24px rgba(33,26,20,.10);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--parchment);
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(185,127,36,.10), transparent 50%),
+      radial-gradient(ellipse at 90% 100%, rgba(140,34,34,.06), transparent 45%);
+    color:var(--ink);
+    font-family:'Atkinson Hyperlegible', Georgia, serif;
+    font-size:17px;
+    line-height:1.55;
+  }
+  h1,h2,h3{font-family:'IM Fell English SC', serif; font-weight:400; letter-spacing:.5px; margin:0 0 .35em}
+  .fell{font-family:'IM Fell English', serif}
+  em{font-style:italic}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:var(--ink); color:var(--parchment);
+    border-bottom:3px double var(--candle);
+  }
+  .topbar-inner{max-width:1000px; margin:0 auto; padding:8px 14px; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .topbar .brand{font-family:'IM Fell English SC',serif; font-size:1.05rem; letter-spacing:1px; margin-right:auto}
+  .navbtn{
+    background:transparent; color:var(--parchment);
+    border:1px solid rgba(242,233,211,.35); border-radius:4px;
+    font-family:'Atkinson Hyperlegible',serif; font-size:.8rem;
+    padding:5px 9px; cursor:pointer; display:flex; align-items:center; gap:6px;
+  }
+  .navbtn:hover{border-color:var(--candle)}
+  .navbtn:focus-visible{outline:2px solid var(--candle); outline-offset:2px}
+  .seal{
+    width:14px;height:14px;border-radius:50%;
+    border:1.5px solid rgba(242,233,211,.5);
+    display:inline-block; position:relative; flex:none;
+    transition:all .3s;
+  }
+  .navbtn.done .seal{
+    background:radial-gradient(circle at 35% 30%, #c0392b, var(--wax) 60%, var(--wax-dark));
+    border-color:var(--wax-dark);
+    box-shadow:0 0 0 2px rgba(140,34,34,.35);
+  }
+  .navbtn.done .seal::after{
+    content:'✓'; position:absolute; inset:0; color:var(--parchment);
+    font-size:9px; line-height:14px; text-align:center;
+  }
+
+  main{max-width:1000px; margin:0 auto; padding:0 16px 80px}
+
+  /* ---------- hero ---------- */
+  .hero{
+    text-align:center; padding:56px 10px 36px;
+    border-bottom:1px solid var(--line);
+    position:relative;
+  }
+  .hero .rule-word{
+    font-family:'IM Fell English',serif; font-style:italic;
+    color:var(--wax); letter-spacing:2px; font-size:.95rem;
+  }
+  .hero h1{
+    font-size:clamp(2.4rem, 7vw, 4.2rem);
+    line-height:1.05; margin:.15em 0 .1em;
+  }
+  .hero .year{
+    font-family:'IM Fell English',serif; font-size:clamp(1.4rem,3.5vw,2rem);
+    color:var(--ink-soft);
+  }
+  .hero p.lede{max-width:620px; margin:1.1em auto 0; font-size:1.02rem}
+  .hero .start{
+    margin-top:26px; display:inline-block;
+    background:var(--wax); color:var(--parchment);
+    font-family:'IM Fell English SC',serif; font-size:1.15rem; letter-spacing:1px;
+    padding:12px 34px; border:none; border-radius:3px; cursor:pointer;
+    box-shadow:var(--shadow);
+  }
+  .hero .start:hover{background:var(--wax-dark)}
+  .hero .start:focus-visible{outline:3px solid var(--candle); outline-offset:2px}
+
+  /* ---------- sections ---------- */
+  section.part{padding:44px 0 8px; border-bottom:1px solid var(--line)}
+  .part-label{
+    display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+  }
+  .part-label .roman{
+    font-family:'IM Fell English',serif; font-style:italic;
+    color:var(--wax); font-size:1.1rem; letter-spacing:1px;
+  }
+  .part-label h2{font-size:clamp(1.6rem,4vw,2.3rem)}
+  .part-task{
+    background:var(--paper-card); border:1px solid var(--line); border-left:4px solid var(--candle);
+    padding:10px 14px; margin:10px 0 22px; font-size:.95rem; border-radius:0 4px 4px 0;
+  }
+  .part-task strong{font-family:'IM Fell English SC',serif; letter-spacing:.5px; font-weight:400}
+
+  .reading{
+    background:var(--paper-card); border:1px solid var(--line);
+    padding:20px 22px; border-radius:4px; box-shadow:var(--shadow);
+    margin-bottom:22px;
+  }
+  .reading p{margin:.4em 0}
+  .reading .dropcap::first-letter{
+    font-family:'IM Fell English',serif; font-size:3.1em; float:left;
+    line-height:.85; padding:2px 8px 0 0; color:var(--wax);
+  }
+
+  /* ---------- multiple choice ---------- */
+  .mc{margin:18px 0}
+  .mc .q{font-weight:700; margin-bottom:8px}
+  .mc .opts{display:flex; flex-direction:column; gap:8px}
+  .mc button.opt{
+    text-align:left; background:var(--paper-card); border:1px solid var(--line);
+    border-radius:4px; padding:10px 12px; font:inherit; cursor:pointer; color:var(--ink);
+  }
+  .mc button.opt:hover{border-color:var(--candle)}
+  .mc button.opt:focus-visible{outline:2px solid var(--candle); outline-offset:2px}
+  .mc button.opt.correct{background:#e8eddc; border-color:var(--moss); font-weight:700}
+  .mc button.opt.wrong{background:#f4dcd6; border-color:var(--wax); opacity:.8}
+  .mc .fb{margin-top:8px; font-size:.92rem; min-height:1.3em}
+  .mc .fb.good{color:var(--moss); font-weight:700}
+  .mc .fb.try{color:var(--wax)}
+
+  /* ---------- timeline ---------- */
+  .tl-wrap{display:grid; grid-template-columns:250px 1fr; gap:20px; align-items:start}
+  @media(max-width:760px){.tl-wrap{grid-template-columns:1fr}}
+  .tl-list{display:flex; flex-direction:column; gap:6px}
+  .tl-list button{
+    display:flex; align-items:center; gap:10px;
+    background:var(--paper-card); border:1px solid var(--line); border-radius:4px;
+    padding:9px 11px; font:inherit; font-size:.9rem; cursor:pointer; text-align:left; color:var(--ink);
+  }
+  .tl-list button:hover{border-color:var(--candle)}
+  .tl-list button:focus-visible{outline:2px solid var(--candle); outline-offset:1px}
+  .tl-list button.active{border-color:var(--wax); box-shadow:inset 3px 0 0 var(--wax)}
+  .tl-list .dot{
+    width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink-soft); flex:none;
+  }
+  .tl-list button.viewed .dot{background:var(--wax); border-color:var(--wax-dark)}
+  .tl-detail{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:4px;
+    box-shadow:var(--shadow); padding:22px; min-height:220px;
+  }
+  .tl-detail .when{
+    font-family:'IM Fell English SC',serif; font-size:1.35rem; color:var(--wax);
+  }
+  .tl-count{font-size:.85rem; color:var(--ink-soft); margin-top:8px}
+  .tl-quiz{margin-top:26px; display:none}
+  .tl-quiz.open{display:block}
+
+  /* ---------- evidence court ---------- */
+  .ev-card{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:4px;
+    box-shadow:var(--shadow); padding:18px 20px; margin-bottom:18px;
+  }
+  .ev-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap}
+  .ev-head h3{font-size:1.35rem}
+  .ev-head .tag{
+    font-size:.72rem; letter-spacing:1px; text-transform:uppercase;
+    background:var(--parchment-deep); border:1px solid var(--line);
+    padding:2px 8px; border-radius:20px; color:var(--ink-soft);
+  }
+  .ev-desc{margin:.4em 0 .8em}
+  .verdict{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:10px 0}
+  .verdict .lbl{font-weight:700; font-size:.92rem}
+  .vbtn{
+    font-family:'IM Fell English SC',serif; font-size:1rem; letter-spacing:.5px;
+    padding:7px 18px; border-radius:3px; cursor:pointer;
+    border:1.5px solid var(--ink-soft); background:transparent; color:var(--ink);
+  }
+  .vbtn:hover{border-color:var(--ink)}
+  .vbtn:focus-visible{outline:2px solid var(--candle); outline-offset:2px}
+  .vbtn.picked-yes{background:var(--moss); border-color:var(--moss); color:var(--parchment)}
+  .vbtn.picked-no{background:var(--wax); border-color:var(--wax); color:var(--parchment)}
+  .ev-fb{
+    display:none; background:var(--parchment-deep); border-left:3px solid var(--candle);
+    padding:9px 12px; font-size:.92rem; margin:8px 0 10px; border-radius:0 4px 4px 0;
+  }
+  .ev-fb.show{display:block}
+
+  /* ---------- people ---------- */
+  .people-groups h3.group{
+    font-size:1.5rem; margin-top:26px; border-bottom:2px solid var(--line); padding-bottom:4px;
+  }
+  .pgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:14px; margin-top:12px}
+  .pcard{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:4px;
+    padding:14px 16px; box-shadow:var(--shadow); position:relative;
+  }
+  .pcard h4{font-family:'IM Fell English SC',serif; font-weight:400; font-size:1.15rem; margin:0 0 6px}
+  .pcard ul{margin:0; padding-left:18px; font-size:.9rem}
+  .pcard li{margin:4px 0}
+  .pcard.solved::after{
+    content:'✓'; position:absolute; top:8px; right:10px;
+    width:22px;height:22px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #c0392b, var(--wax) 60%, var(--wax-dark));
+    color:var(--parchment); font-size:13px; text-align:center; line-height:22px;
+  }
+  .blank{
+    display:inline-block; min-width:86px; text-align:center;
+    background:#fdf3cf; border:1px dashed var(--candle); border-radius:3px;
+    font:inherit; font-weight:700; padding:1px 8px; cursor:pointer; color:var(--ink);
+  }
+  .blank:hover{background:#fbe9a8}
+  .blank:focus-visible{outline:2px solid var(--candle); outline-offset:1px}
+  .blank.filled{background:transparent; border:none; border-bottom:2px solid var(--moss); color:var(--moss); cursor:default; padding:1px 2px}
+  .blank.shake{animation:shake .35s}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+  .choice-pop{
+    position:absolute; z-index:60; background:var(--ink); color:var(--parchment);
+    border-radius:6px; padding:8px; display:flex; gap:6px; flex-wrap:wrap;
+    box-shadow:0 8px 20px rgba(0,0,0,.35);
+  }
+  .choice-pop button{
+    font:inherit; font-size:.88rem; background:transparent; color:var(--parchment);
+    border:1px solid rgba(242,233,211,.4); border-radius:4px; padding:5px 10px; cursor:pointer;
+  }
+  .choice-pop button:hover{border-color:var(--candle); color:var(--candle)}
+  .summary-band{
+    background:var(--ink); color:var(--parchment); border-radius:4px;
+    padding:16px 20px; margin-top:24px; display:flex; gap:22px; flex-wrap:wrap; justify-content:center;
+    font-family:'IM Fell English SC',serif; text-align:center;
+  }
+  .summary-band .num{font-size:2rem; color:var(--candle); display:block; line-height:1}
+  .summary-band .cap{font-size:.85rem; letter-spacing:.5px}
+
+  /* ---------- reflection ---------- */
+  .refl-item{margin-bottom:20px}
+  .refl-item .q{font-weight:700; margin-bottom:6px}
+  .hintline{font-size:.82rem; color:var(--ink-soft); margin-top:3px}
+  .hintline.ok{color:var(--moss); font-weight:700}
+
+  /* ---------- finish ---------- */
+  .finish-card{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:4px;
+    box-shadow:var(--shadow); padding:26px; text-align:center;
+  }
+  .finish-card .bigseal{
+    width:86px;height:86px;border-radius:50%;
+    margin:0 auto 14px;
+    background:radial-gradient(circle at 35% 30%, #c0392b, var(--wax) 55%, var(--wax-dark));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--parchment); font-family:'IM Fell English SC',serif; font-size:.8rem; letter-spacing:1px;
+    box-shadow:0 3px 0 var(--wax-dark), 0 10px 22px rgba(140,34,34,.35);
+    border:3px solid var(--wax-dark);
+  }
+  .finish-card ul.check{list-style:none; padding:0; margin:14px auto; max-width:420px; text-align:left}
+  .finish-card ul.check li{padding:5px 0; border-bottom:1px dotted var(--line); display:flex; justify-content:space-between; gap:10px; font-size:.95rem}
+  .finish-card .state{font-weight:700}
+  .finish-card .state.yes{color:var(--moss)}
+  .finish-card .state.no{color:var(--wax)}
+
+  /* ---------- figures ---------- */
+  figure.plate{
+    margin:18px 0; background:var(--paper-card); border:1px solid var(--line);
+    border-radius:4px; box-shadow:var(--shadow); padding:12px; text-align:center;
+  }
+  figure.plate img{
+    max-width:100%; height:auto; display:block; margin:0 auto;
+    border:1px solid var(--line); background:#fff;
+  }
+  figure.plate figcaption{font-size:.85rem; color:var(--ink-soft); margin-top:9px; text-align:left}
+  figure.plate .src-tag{
+    display:inline-block; font-size:.68rem; letter-spacing:1px; text-transform:uppercase;
+    padding:2px 9px; border-radius:20px; margin-right:8px; font-weight:700;
+  }
+  .src-tag.primary{background:var(--wax); color:var(--parchment)}
+  .src-tag.later{background:var(--parchment-deep); color:var(--ink-soft); border:1px solid var(--line)}
+  .plate-row{display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start}
+  @media(max-width:700px){.plate-row{grid-template-columns:1fr}}
+  .tl-detail img{max-width:100%; max-height:260px; height:auto; border:1px solid var(--line); margin-top:10px; background:#fff}
+  .tl-detail .imgcap{font-size:.8rem; color:var(--ink-soft); margin-top:5px}
+
+  /* ---------- paper checkboxes ---------- */
+  .paper-check{
+    display:flex; align-items:center; gap:10px; cursor:pointer;
+    background:var(--paper-card); border:1px dashed var(--candle); border-radius:4px;
+    padding:9px 12px; font-size:.92rem;
+  }
+  .paper-check input{width:18px;height:18px;accent-color:var(--wax); cursor:pointer}
+  .paper-check:has(input:checked){border-style:solid; border-color:var(--moss); background:#eef1e4}
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+<script>
+function imgFail(img){
+  var note=document.createElement('div');
+  note.style.cssText='padding:26px 16px;background:#e7d9b8;border:1px dashed #b97f24;color:#4a4136;font-size:.85rem;text-align:center;border-radius:3px';
+  note.textContent='\u26A0 This historical image could not load. It needs an internet connection, and wikimedia.org must not be blocked on this network.';
+  img.replaceWith(note);
+}
+</script>
+</head>
+<body>
+
+<div class="topbar" role="navigation" aria-label="Lesson sections">
+  <div class="topbar-inner">
+    <span class="brand">Salem · 1692</span>
+    <button class="navbtn" data-goto="part1" id="nav-part1"><span class="seal" aria-hidden="true"></span>I. Setting</button>
+    <button class="navbtn" data-goto="part2" id="nav-part2"><span class="seal" aria-hidden="true"></span>II. Timeline</button>
+    <button class="navbtn" data-goto="part3" id="nav-part3"><span class="seal" aria-hidden="true"></span>III. Evidence</button>
+    <button class="navbtn" data-goto="part4" id="nav-part4"><span class="seal" aria-hidden="true"></span>IV. People</button>
+    <button class="navbtn" data-goto="part5" id="nav-part5"><span class="seal" aria-hidden="true"></span>V. Reflection</button>
+    <button class="navbtn" data-goto="finish" id="nav-finish"><span class="seal" aria-hidden="true"></span>Finish</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- ================= HERO ================= -->
+  <div class="hero">
+    <div class="rule-word">An Interactive Investigation</div>
+    <h1>The Salem Witch Trials</h1>
+    <div class="year fell">Salem Village · Massachusetts · 1692</div>
+    <p class="lede">In one year, more than <strong>100 people</strong> were accused of witchcraft in a small Puritan town. Nineteen were executed. Your job today: investigate <em>how it happened</em> — the fear, the "evidence," and the people — and judge it with modern eyes.</p>
+    <figure class="plate" style="max-width:720px; margin:26px auto 0">
+      <img onerror="imgFail(this)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Salem_witch2.jpg/900px-Salem_witch2.jpg" alt="Lithograph of a chaotic Salem courtroom: an accused woman gestures toward the ceiling while afflicted girls collapse and judges look on" loading="lazy">
+      <figcaption><span class="src-tag later">Later Depiction · 1892</span>A Salem courtroom imagined by lithographer Joseph E. Baker, 200 years after the trials. Library of Congress — public domain, via Wikimedia Commons. As you investigate, ask: how accurate do you think this scene is?</figcaption>
+    </figure>
+    <button class="start" data-goto="part1">Begin the Investigation</button>
+  </div>
+
+  <!-- ================= PART I : SETTING ================= -->
+  <section class="part" id="part1">
+    <div class="part-label"><span class="roman">Part I</span><h2>The Setting</h2></div>
+    <div class="part-task"><strong>Your task:</strong> Read the two passages, then answer both check questions correctly to earn your first seal.</div>
+
+    <div class="reading">
+      <h3>A Town on Edge</h3>
+      <p class="dropcap">Salem Village was a tense place in 1692. Several years of extra cold winters and crop failures had plagued the town. A recent smallpox epidemic and violent conflict with nearby Indigenous groups created a culture of fear and suspicion. The small town was populated mostly by Puritans, who lived a strict, religious way of life — and small differences in behavior or appearance made some Puritans nervous.</p>
+    </div>
+
+    <figure class="plate">
+      <img onerror="imgFail(this)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Salem_Village_-_map_of_-_Project_Gutenberg_eText_17845.jpg/900px-Salem_Village_-_map_of_-_Project_Gutenberg_eText_17845.jpg" alt="Hand-drawn historical map of Salem Village in 1692 showing scattered homesteads, roads, and the meeting house" loading="lazy">
+      <figcaption><span class="src-tag later">Historical Map · drawn 1866</span>Map of Salem Village as it was in 1692, reconstructed by historian W.P. Upham. Public domain, via Wikimedia Commons. Notice how spread out the farms are — neighbors knew everyone, and everyone's business.</figcaption>
+    </figure>
+
+    <div class="reading">
+      <h3>What Do Modern Historians Think?</h3>
+      <p>If witchcraft is ruled out, what was really afflicting the Salem girls? Historians have proposed several theories:</p>
+      <p>• <strong>Mass hysteria</strong> — a group of people all suffering the same symptoms without a physical cause, often under extreme stress.<br>
+      • <strong>Attention and power</strong> — young girls with little power or freedom in Puritan society may have been drawn to the attention the accusations brought.<br>
+      • <strong>Poisoned rye</strong> — a fungus growing on rye grain can cause hallucinations and twitching in people who eat it.<br>
+      • <strong>Settling scores</strong> — accusations may have been a way for the town to get rid of people seen as threats to its values.</p>
+    </div>
+
+    <div class="mc" data-mc="s1">
+      <div class="q">1. Which of these made Salem such a fearful, suspicious place in 1692?</div>
+      <div class="opts">
+        <button class="opt" data-ok="0">The town had grown too wealthy and comfortable</button>
+        <button class="opt" data-ok="1">Cold winters, crop failures, smallpox, and nearby conflict — all at once</button>
+        <button class="opt" data-ok="0">The town had no churches or religious leadership</button>
+      </div>
+      <div class="fb" aria-live="polite"></div>
+    </div>
+
+    <div class="mc" data-mc="s2">
+      <div class="q">2. Which of these is <em>NOT</em> a modern theory about what afflicted the girls?</div>
+      <div class="opts">
+        <button class="opt" data-ok="0">Mass hysteria caused by stress and fear</button>
+        <button class="opt" data-ok="0">Hallucinations from fungus-infected rye</button>
+        <button class="opt" data-ok="1">A disease carried across the ocean by the Mayflower's cats</button>
+        <button class="opt" data-ok="0">Accusations used to remove people seen as threats</button>
+      </div>
+      <div class="fb" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ================= PART II : TIMELINE ================= -->
+  <section class="part" id="part2">
+    <div class="part-label"><span class="roman">Part II</span><h2>One Year of Panic</h2></div>
+    <div class="part-task"><strong>Your task:</strong> Click every event on the timeline and read what happened. When all seven are marked, answer the two questions that appear.</div>
+
+    <div class="tl-wrap">
+      <div class="tl-list" id="tlList" role="tablist" aria-label="Timeline events"></div>
+      <div>
+        <div class="tl-detail" id="tlDetail" aria-live="polite">
+          <div class="when">Choose an event →</div>
+          <p>Work through the year 1692 (and beyond) in order. Watch how quickly things spiral.</p>
+        </div>
+        <div class="tl-count" id="tlCount">0 of 7 events read</div>
+      </div>
+    </div>
+
+    <div class="tl-quiz" id="tlQuiz">
+      <div class="mc" data-mc="t1">
+        <div class="q">3. Who was the <em>first</em> person executed in Salem for "being a witch"?</div>
+        <div class="opts">
+          <button class="opt" data-ok="0">Tituba</button>
+          <button class="opt" data-ok="1">Bridget Bishop</button>
+          <button class="opt" data-ok="0">Betty Parris</button>
+        </div>
+        <div class="fb" aria-live="polite"></div>
+      </div>
+      <div class="mc" data-mc="t2">
+        <div class="q">4. What finally caused the trials to end in October 1692?</div>
+        <div class="opts">
+          <button class="opt" data-ok="0">The girls admitted they had been lying</button>
+          <button class="opt" data-ok="0">England sent an army to close the courthouse</button>
+          <button class="opt" data-ok="1">Governor Phips dissolved the special witch-trial court</button>
+        </div>
+        <div class="fb" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PART III : EVIDENCE ================= -->
+  <section class="part" id="part3">
+    <div class="part-label"><span class="roman">Part III</span><h2>You Be the Judge</h2></div>
+    <div class="part-task"><strong>Your task:</strong> In 1692, these five types of "evidence" could get someone convicted of witchcraft. For each one, rule whether anything similar is allowed in U.S. courts <em>today</em>, read the court's feedback, then <strong>circle your ruling and explain it on your paper response sheet</strong>. All five on-screen rulings earn the seal.</div>
+
+    <div class="plate-row">
+      <figure class="plate">
+        <img onerror="imgFail(this)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Examination_of_a_Witch_-_Tompkins_Matteson.jpg/700px-Examination_of_a_Witch_-_Tompkins_Matteson.jpg" alt="Painting of an accused woman being examined before a crowded room of officials searching for marks on her skin" loading="lazy">
+        <figcaption><span class="src-tag later">Later Depiction · 1853</span>"Examination of a Witch" by Tompkins Matteson — officials search an accused woman for "witch marks." Public domain, via Wikimedia Commons. Which exhibit below does this painting show?</figcaption>
+      </figure>
+      <figure class="plate">
+        <img onerror="imgFail(this)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/SarahWildesArrestWarrant.jpg/600px-SarahWildesArrestWarrant.jpg" alt="Handwritten 1692 arrest warrant for Sarah Wildes on aged paper" loading="lazy">
+        <figcaption><span class="src-tag primary">Primary Source · 1692</span>The actual arrest warrant for Sarah Wildes, written in 1692. Public domain, via Wikimedia Commons. Real accusations, real handwriting, real people.</figcaption>
+      </figure>
+    </div>
+
+    <div id="evList"></div>
+  </section>
+
+  <!-- ================= PART IV : PEOPLE ================= -->
+  <section class="part" id="part4">
+    <div class="part-label"><span class="roman">Part IV</span><h2>The People of Salem</h2></div>
+    <div class="part-task"><strong>Your task:</strong> These records have missing words. Click each yellow blank and choose the correct word. Fill every blank correctly to stamp each card — complete all 11 cards to earn the seal.</div>
+
+    <div class="plate-row">
+      <figure class="plate">
+        <img onerror="imgFail(this)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Matteson-jacobs.jpg/700px-Matteson-jacobs.jpg" alt="Painting of the trial of George Jacobs: an elderly man pleads before judges while a girl points accusingly" loading="lazy">
+        <figcaption><span class="src-tag later">Later Depiction · 1855</span>"Trial of George Jacobs" by Tompkins Matteson. An afflicted girl points; an elderly man begs the court to believe him. Public domain, via Wikimedia Commons.</figcaption>
+      </figure>
+      <figure class="plate">
+        <img onerror="imgFail(this)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Deposition_of_Sarah_Holton_v._Rebecca_Nurse.jpg/600px-Deposition_of_Sarah_Holton_v._Rebecca_Nurse.jpg" alt="Handwritten 1692 deposition testifying against Rebecca Nurse" loading="lazy">
+        <figcaption><span class="src-tag primary">Primary Source · 1692</span>A neighbor's handwritten deposition against Rebecca Nurse — the respected elderly woman you'll meet below. Public domain, via Wikimedia Commons. Evidence like this helped convict her.</figcaption>
+      </figure>
+    </div>
+
+    <div class="people-groups" id="peopleGroups"></div>
+
+    <div class="summary-band">
+      <div><span class="num">100+</span><span class="cap">people accused</span></div>
+      <div><span class="num">19</span><span class="cap">hanged at Gallows Hill</span></div>
+      <div><span class="num">1</span><span class="cap">pressed to death (Giles Corey)</span></div>
+      <div><span class="num">5</span><span class="cap">died in jail</span></div>
+    </div>
+  </section>
+
+  <!-- ================= PART V : REFLECTION ================= -->
+  <section class="part" id="part5">
+    <div class="part-label"><span class="roman">Part V</span><h2>Reflection</h2></div>
+    <div class="part-task"><strong>Your task:</strong> Answer each question on your <strong>paper response sheet</strong>, in complete sentences (at least two per question). Check the box here after you've written each answer.</div>
+    <div id="reflList"></div>
+  </section>
+
+  <!-- ================= FINISH ================= -->
+  <section class="part" id="finish" style="border-bottom:none">
+    <div class="part-label"><span class="roman">Verdict</span><h2>Close the Case</h2></div>
+    <div class="finish-card">
+      <div class="bigseal">SALEM<br>1692</div>
+      <h3>Case Closed?</h3>
+      <p>When every section below shows <strong>Complete</strong>, raise your screen so your teacher can see the six seals — then turn in your paper response sheet. The paper is your official case file.</p>
+      <ul class="check" id="checkList"></ul>
+      <p style="font-size:.85rem; color:var(--ink-soft); margin-top:14px">Heads up: your on-screen progress is lost if you close or refresh this page — finish in one sitting. Your written work is safe on paper.</p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  'use strict';
+
+  /* =================== DATA =================== */
+
+  const TIMELINE = [
+    {when:'January 1692', text:'Reverend Parris\u2019s daughter and niece (Betty and Abigail) become sick. The young girls twitch, twist their bodies, and speak nonsense words. The local doctor, William Griggs, says the girls have been \u201cafflicted\u201d by witchcraft.'},
+    {when:'Feb\u2013March 1692', text:'The Reverend asks the girls who torments them. They eventually name three women: Tituba, Sarah Good, and Sarah Osborne. The women are questioned. After being beaten, Tituba says she is a witch \u2014 and that there are many witches in Salem.',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/ArrestingAWitch-Pyle.jpg/400px-ArrestingAWitch-Pyle.jpg',
+     alt:'Engraving of officials arresting an accused woman at her doorway',
+     cap:'LATER DEPICTION \u00b7 \u201cArresting a Witch,\u201d Howard Pyle, 1883. Public domain, via Wikimedia Commons.'},
+    {when:'March\u2013June 1692', text:'Many more villagers are accused of being witches and put on trial. Some are tortured before confessing. Other young girls become \u201cafflicted\u201d and say witches are torturing them. Moles and blemishes on the skin are treated as proof that someone is a witch.'},
+    {when:'June 10, 1692', text:'Bridget Bishop is hanged at Gallows Hill. She is the first person in Salem executed for \u201cbeing a witch.\u201d'},
+    {when:'July\u2013Sept 1692', text:'July 19: five people are hanged for witchcraft. August 19: five more. September 22: eight more. By now, more than one hundred people have been accused of being witches.',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/SalemWitchcraftTrial.jpg/500px-SalemWitchcraftTrial.jpg',
+     alt:'Engraving of a crowded Salem witchcraft trial with an accused person standing before judges',
+     cap:'LATER DEPICTION \u00b7 A Salem witchcraft trial, 19th-century engraving. Public domain, via Wikimedia Commons.'},
+    {when:'Oct 1692\u2013May 1693', text:'October 29: Governor Phips dissolves the court that has been conducting the witch trials. January 1693: 49 of the 52 remaining accused are released. May 1693: Phips pardons and releases the rest.'},
+    {when:'January 14, 1697', text:'Four years later, Salem\u2019s General Court orders a special day honoring the victims of the trials. Judge Samuel Sewall publicly apologizes for his role. In the end, 19 people were executed, one was pressed to death, and five died in jail.',
+     img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Robert_Calef_title_page_More_Wonders_of_the_Invisible_World.jpg/400px-Robert_Calef_title_page_More_Wonders_of_the_Invisible_World.jpg',
+     alt:'Title page of Robert Calef\u2019s 1700 book More Wonders of the Invisible World',
+     cap:'PRIMARY SOURCE \u00b7 Title page of \u201cMore Wonders of the Invisible World\u201d (1700), Robert Calef\u2019s book criticizing the trials. Public domain, via Wikimedia Commons.'}
+  ];
+
+  const EVIDENCE = [
+    {num:1, id:'spectral', name:'Spectral Evidence', desc:'A victim could claim to be tortured by a ghost in the shape of the accused witch. (Puritans believed the devil could not use a person\u2019s shape without their permission.)',
+     fb:'Not allowed today. Courts require evidence that can be seen, tested, or verified by others \u2014 a vision or dream that only one person claims to see cannot be cross-examined.', modern:'no'},
+    {num:2, id:'touch', name:'The Touch Test', desc:'If the accused witch touched the victim during a fit and the fit stopped, that was taken as proof the accused was a witch.',
+     fb:'Not allowed today. Courts do not use superstition-based "tests." Modern evidence must be based on facts and science, not rituals.', modern:'no'},
+    {num:3, id:'witness', name:'Witness Testimony', desc:'Witnesses could testify against the accused and describe what they had seen the person do.',
+     fb:'Still used today \u2014 but with big protections. Witnesses must swear an oath, and the defense gets to cross-examine them to test whether they are telling the truth.', modern:'yes'},
+    {num:4, id:'physical', name:'Physical "Evidence"', desc:'Birthmarks, warts, moles, or blemishes could count as evidence, because they were seen as portals through which Satan could enter the body.',
+     fb:'Physical evidence IS used today \u2014 but it means things like fingerprints and DNA that scientifically connect a person to a crime. A birthmark proves nothing.', modern:'yes'},
+    {num:5, id:'confession', name:'Confession', desc:'The accused could confess to being a witch. (Note: most who confessed and accused others were NOT hanged.)',
+     fb:'Confessions are used today \u2014 but they can\u2019t be forced. Police must read people their rights, and a confession obtained through torture or threats is thrown out. In Salem, confessing was often the only way to survive.', modern:'yes'}
+  ];
+
+  /* blanks use | to separate options; first listed in "a" is the answer */
+  const PEOPLE = [
+    {group:'The \u201cAfflicted\u201d Girls', note:'11 girls in all were \u201cafflicted.\u201d', cards:[
+      {name:'Betty Parris', lines:[
+        '{9|16|22} years old',
+        'Daughter of Rev. Samuel Parris',
+        'May have experimented with fortune telling to learn about her future marriage',
+        'In January her strange behaviors began (twitching, nonsense words)',
+        '{Testified|Apologized|Paid} against the accused witches'
+      ]},
+      {name:'Abigail Williams', lines:[
+        '{11|19|25} years old',
+        'Niece of Rev. Samuel Parris',
+        'She and Betty were the {first|last|only adults} to be \u201cafflicted\u201d',
+        'Gave formal testimony in 7 cases \u2014 involved in as many as 17 cases that ended in hangings'
+      ]},
+      {name:'Anne Putnam Jr.', lines:[
+        '{12|30|8} years old',
+        'One of the first to join Betty and Abigail as an \u201cafflicted child\u201d',
+        'Accused {62|6|200} people \u2014 eleven of them were hanged',
+        'Years later she apologized and admitted she was lying \u2014 the {only|first|oldest} accuser to do so'
+      ]}
+    ]},
+    {group:'The Accused', note:null, cards:[
+      {name:'Tituba', lines:[
+        'An {enslaved|wealthy|elderly} Native American woman in Rev. Parris\u2019s household',
+        'One of the first accused; played fortune-telling games (forbidden by Puritans) and was viewed as an {outsider|leader|healer}',
+        'She confessed and accused others of witchcraft',
+        'Fate: spent 13 months in jail; little is known of her life afterward'
+      ]},
+      {name:'Sarah Good', lines:[
+        'One of the first accused',
+        'Was {disliked|admired|feared} by the community \u2014 she was poor and homeless',
+        'Did not confess, but accused Sarah Osborne',
+        'Her six-year-old daughter was also accused and imprisoned',
+        'Fate: gave birth in prison (the baby died), then was {hanged|released|exiled} in July'
+      ]},
+      {name:'Sarah Osborne', lines:[
+        'One of the first accused',
+        'Disliked because of a scandalous {marriage|business|letter} and rumors she tried to spend her children\u2019s inheritance',
+        'Never confessed or accused others',
+        'Fate: died in {jail|England|hiding} in May 1692'
+      ]},
+      {name:'Rev. George Burroughs', lines:[
+        'A Puritan {minister|farmer|judge} who had served the town years earlier; owed money to the Putnam family',
+        'Called the \u201cringleader\u201d of the witches',
+        'His hanging was attended by Cotton Mather, who urged the crowd against him',
+        'Never confessed \u2014 Fate: {hanged|pardoned|escaped} in August 1692'
+      ]},
+      {name:'Rebecca Nurse', lines:[
+        'A frail, elderly, and respected woman',
+        'Many friends and family wrote {petitions|poems|sermons} in her defense',
+        'The jury first found her \u201cnot guilty\u201d \u2014 but after being told to reconsider, found her \u201cguilty\u201d',
+        'Did not confess or accuse others \u2014 Fate: {hanged|freed|banished} in July 1692'
+      ]}
+    ]},
+    {group:'The Leaders', note:null, cards:[
+      {name:'Rev. Samuel Parris', lines:[
+        'His daughter and niece were the first \u201cafflicted\u201d',
+        'Educated and well respected \u2014 his support validated the girls\u2019 claims',
+        'He may have {encouraged|forbidden|paid} the girls to name certain people as witches',
+        'Served as a {witness|judge|defender} of the girls\u2019 sufferings during the trials'
+      ]},
+      {name:'Sir William Phips', lines:[
+        'The {Governor|King|Sheriff} of Massachusetts during the trials',
+        'Supported the trials while they lasted',
+        'Put a stop to them after his {wife|brother|doctor} was accused of witchcraft',
+        'Pardoned some of the accused who were awaiting execution'
+      ]},
+      {name:'Samuel Sewall', lines:[
+        'Well-educated and wealthy',
+        'Selected by Governor Phips to sit as a {judge|lawyer|guard} for the trials (one of 9)',
+        'Five years later, issued a public {apology|law|reward} expressing shame for condemning innocent people \u2014 the only judge to do so'
+      ]}
+    ]}
+  ];
+
+  const REFLECT = [
+    {id:'r1', q:'1. How old were the \u201cafflicted\u201d girls? Why is their age significant to this story?'},
+    {id:'r2', q:'2. What similarities do you notice between the first three people accused (Tituba, Sarah Good, and Sarah Osborne)? Why do you think THEY were accused first?'},
+    {id:'r3', q:'3. After the trials were over, did anyone involved apologize? If so, who were they, and what were their roles in the trials?'},
+    {id:'r4', q:'4. Which person was the most interesting to learn about, in your opinion? Why?'}
+  ];
+
+  /* answers are written on the paper response sheet */
+
+  /* =================== STATE =================== */
+  const state = {
+    mc:{},                 // mc id -> true
+    tlViewed:new Set(),
+    ev:{},                 // id -> {vote, text}
+    peopleSolved:new Set(),// card names
+    blanksTotal:0, blanksSolved:0,
+    refl:{}                // id -> text
+  };
+
+  /* =================== HELPERS =================== */
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+
+  function goTo(id){ const el = document.getElementById(id); if(el) el.scrollIntoView({behavior:'smooth', block:'start'}); }
+  $$('[data-goto]').forEach(b => b.addEventListener('click', () => goTo(b.dataset.goto)));
+
+  function sectionStatus(){
+    return {
+      part1: !!(state.mc.s1 && state.mc.s2),
+      part2: state.tlViewed.size===TIMELINE.length && !!(state.mc.t1 && state.mc.t2),
+      part3: EVIDENCE.every(e => state.ev[e.id] && state.ev[e.id].vote),
+      part4: state.blanksSolved === state.blanksTotal && state.blanksTotal>0,
+      part5: REFLECT.every(r => state.refl[r.id]===true)
+    };
+  }
+
+  function refresh(){
+    const s = sectionStatus();
+    ['part1','part2','part3','part4','part5'].forEach(k=>{
+      const nav = document.getElementById('nav-'+k);
+      nav.classList.toggle('done', s[k]);
+    });
+    const allDone = s.part1&&s.part2&&s.part3&&s.part4&&s.part5;
+    document.getElementById('nav-finish').classList.toggle('done', allDone);
+    renderChecklist(s);
+  }
+
+  function renderChecklist(s){
+    const names = {part1:'Part I \u2014 The Setting', part2:'Part II \u2014 Timeline', part3:'Part III \u2014 You Be the Judge', part4:'Part IV \u2014 The People', part5:'Part V \u2014 Reflection'};
+    const ul = $('#checkList');
+    ul.innerHTML = Object.keys(names).map(k =>
+      '<li><span>'+names[k]+'</span><span class="state '+(s[k]?'yes':'no')+'">'+(s[k]?'Complete':'Not yet')+'</span></li>'
+    ).join('');
+  }
+
+  /* =================== MULTIPLE CHOICE =================== */
+  $$('.mc').forEach(mc=>{
+    const id = mc.dataset.mc;
+    const fb = mc.querySelector('.fb');
+    mc.querySelectorAll('.opt').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(state.mc[id]) return;
+        if(btn.dataset.ok==='1'){
+          state.mc[id]=true;
+          btn.classList.add('correct');
+          mc.querySelectorAll('.opt').forEach(o=>{ if(o!==btn) o.disabled=true; });
+          fb.textContent='Correct.'; fb.className='fb good';
+        }else{
+          btn.classList.add('wrong'); btn.disabled=true;
+          fb.textContent='Not quite \u2014 look back at the reading and try again.'; fb.className='fb try';
+        }
+        maybeShowTlQuiz();
+        refresh();
+      });
+    });
+  });
+
+  /* =================== TIMELINE =================== */
+  const tlList = $('#tlList'), tlDetail = $('#tlDetail'), tlCount = $('#tlCount');
+  TIMELINE.forEach((ev,i)=>{
+    const b = document.createElement('button');
+    b.innerHTML = '<span class="dot" aria-hidden="true"></span><span>'+ev.when+'</span>';
+    b.addEventListener('click', ()=>{
+      state.tlViewed.add(i);
+      tlList.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active','viewed');
+      tlDetail.innerHTML = '<div class="when">'+ev.when+'</div><p>'+ev.text+'</p>'+
+        (ev.img ? '<img onerror="imgFail(this)" src="'+ev.img+'" alt="'+ev.alt+'" loading="lazy"><div class="imgcap">'+ev.cap+'</div>' : '');
+      tlCount.textContent = state.tlViewed.size+' of '+TIMELINE.length+' events read';
+      maybeShowTlQuiz();
+      refresh();
+    });
+    tlList.appendChild(b);
+  });
+  function maybeShowTlQuiz(){
+    if(state.tlViewed.size===TIMELINE.length){
+      const q = $('#tlQuiz');
+      if(!q.classList.contains('open')){
+        q.classList.add('open');
+        tlCount.textContent = 'All 7 events read \u2014 answer the questions below.';
+      }
+    }
+  }
+
+  /* =================== EVIDENCE =================== */
+  const evWrap = $('#evList');
+  EVIDENCE.forEach(ev=>{
+    const card = document.createElement('div');
+    card.className='ev-card';
+    card.innerHTML =
+      '<div class="ev-head"><h3>'+ev.name+'</h3><span class="tag">Exhibit</span></div>'+
+      '<p class="ev-desc">'+ev.desc+'</p>'+
+      '<div class="verdict"><span class="lbl">Is something similar used in U.S. courts today?</span>'+
+      '<button class="vbtn" data-v="yes">Yes</button><button class="vbtn" data-v="no">No</button></div>'+
+      '<div class="ev-fb" aria-live="polite"></div>'+
+      '<div class="hintline" data-hint></div>';
+    evWrap.appendChild(card);
+
+    const fb = card.querySelector('.ev-fb');
+    const hint = card.querySelector('[data-hint]');
+    card.querySelectorAll('.vbtn').forEach((v,vi)=>{
+      v.addEventListener('click', ()=>{
+        card.querySelectorAll('.vbtn').forEach(x=>x.classList.remove('picked-yes','picked-no'));
+        v.classList.add(v.dataset.v==='yes'?'picked-yes':'picked-no');
+        state.ev[ev.id] = state.ev[ev.id]||{};
+        state.ev[ev.id].vote = v.dataset.v;
+        const agree = v.dataset.v===ev.modern;
+        fb.innerHTML = '<strong>'+(agree?'The court agrees. ':'Interesting ruling \u2014 here\u2019s the modern view: ')+'</strong>'+ev.fb;
+        fb.classList.add('show');
+        hint.textContent = '\u270F Now circle your ruling and explain it on your response sheet \u2014 Exhibit #'+ev.num+'.';
+        hint.className = 'hintline ok';
+        refresh();
+      });
+    });
+  });
+
+  /* =================== PEOPLE (fill-in blanks) =================== */
+  const pgWrap = $('#peopleGroups');
+  let pop = null;
+  function closePop(){ if(pop){ pop.remove(); pop=null; } }
+  document.addEventListener('click', e=>{ if(pop && !pop.contains(e.target) && !e.target.classList.contains('blank')) closePop(); });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closePop(); });
+
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+  PEOPLE.forEach(group=>{
+    const h = document.createElement('h3');
+    h.className='group'; h.textContent = group.group;
+    pgWrap.appendChild(h);
+    const grid = document.createElement('div');
+    grid.className='pgrid';
+    pgWrap.appendChild(grid);
+
+    group.cards.forEach(card=>{
+      const div = document.createElement('div');
+      div.className='pcard';
+      let blanksInCard = 0;
+      const lis = card.lines.map(line=>{
+        const html = line.replace(/\{([^}]+)\}/g, (m, opts)=>{
+          const parts = opts.split('|');
+          state.blanksTotal++; blanksInCard++;
+          return '<button class="blank" data-answer="'+parts[0].replace(/"/g,'&quot;')+'" data-options="'+parts.join('|').replace(/"/g,'&quot;')+'" aria-label="Fill in the blank">_____</button>';
+        });
+        return '<li>'+html+'</li>';
+      }).join('');
+      div.innerHTML = '<h4>'+card.name+'</h4><ul>'+lis+'</ul>';
+      div.dataset.remaining = blanksInCard;
+      div.dataset.pname = card.name;
+      grid.appendChild(div);
+    });
+    if(group.note){
+      const n = document.createElement('p');
+      n.style.cssText='font-size:.85rem;color:var(--ink-soft);margin-top:8px';
+      n.textContent = '*Note: '+group.note;
+      pgWrap.appendChild(n);
+    }
+  });
+
+  $$('.blank').forEach(bl=>{
+    bl.addEventListener('click', e=>{
+      e.stopPropagation();
+      if(bl.classList.contains('filled')) return;
+      closePop();
+      pop = document.createElement('div');
+      pop.className='choice-pop';
+      const opts = shuffle(bl.dataset.options.split('|').slice());
+      opts.forEach(o=>{
+        const b = document.createElement('button');
+        b.textContent = o;
+        b.addEventListener('click', ()=>{
+          if(o===bl.dataset.answer){
+            bl.textContent = o;
+            bl.classList.add('filled');
+            bl.disabled = true;
+            state.blanksSolved++;
+            const card = bl.closest('.pcard');
+            card.dataset.remaining = (+card.dataset.remaining)-1;
+            if(+card.dataset.remaining===0){
+              card.classList.add('solved');
+              state.peopleSolved.add(card.dataset.pname);
+            }
+            closePop();
+            refresh();
+          }else{
+            bl.classList.remove('shake'); void bl.offsetWidth; bl.classList.add('shake');
+            b.disabled = true; b.style.opacity=.4;
+          }
+        });
+        pop.appendChild(b);
+      });
+      document.body.appendChild(pop);
+      const r = bl.getBoundingClientRect();
+      pop.style.left = Math.min(r.left + window.scrollX, window.scrollX + document.documentElement.clientWidth - pop.offsetWidth - 12)+'px';
+      pop.style.top = (r.bottom + window.scrollY + 6)+'px';
+    });
+  });
+
+  /* =================== REFLECTION =================== */
+  const rWrap = $('#reflList');
+  REFLECT.forEach(r=>{
+    const div = document.createElement('div');
+    div.className='refl-item';
+    div.innerHTML = '<div class="q">'+r.q+'</div>'+
+      '<label class="paper-check"><input type="checkbox" id="cb-'+r.id+'"> <span>\u270F I wrote my answer (2+ sentences) on my response sheet</span></label>';
+    rWrap.appendChild(div);
+    const cb = div.querySelector('input');
+    cb.addEventListener('change', ()=>{
+      state.refl[r.id] = cb.checked;
+      refresh();
+    });
+  });
+
+  refresh();
+})();
+</script>
+</body>
+</html>

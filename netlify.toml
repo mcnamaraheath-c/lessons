@@ -1,0 +1,9 @@
+# Static site: every lesson is a self-contained HTML file.
+[build]
+  publish = "."
+  command = ""
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
