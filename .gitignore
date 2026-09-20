@@ -2,3 +2,4 @@ desktop.ini
 Thumbs.db
 ~$*
 **/.claude/settings.local.json
+.netlify/
