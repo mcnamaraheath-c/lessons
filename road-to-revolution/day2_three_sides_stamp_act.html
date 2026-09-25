@@ -77,6 +77,13 @@
     font-size:9px; line-height:13px; text-align:center;
   }
 
+  /* language toggle: English and Spanish text both live in the page; body.es picks Spanish */
+  .l-es{display:none}
+  body.es .l-en{display:none}
+  body.es .l-es{display:inline}
+  .langbtn{border-color:var(--candle); color:var(--candle); font-weight:700; letter-spacing:.5px}
+  .langbtn:hover{background:rgba(185,127,36,.18)}
+
   main{max-width:1000px; margin:0 auto; padding:0 16px 80px}
 
   /* ---------- one part per page ---------- */
@@ -183,8 +190,7 @@
     }
     .hero-fig{margin:0}
     .hero-fig img{max-height:520px}
-    /* keep the caption on one line; it may extend a little past the image column on each side */
-    .hero-fig figcaption{white-space:nowrap; font-size:.8rem; margin:8px -60px 0}
+    .hero-fig figcaption{font-size:.8rem; margin:8px 0 0}
   }
 
   /* ---------- sections ---------- */
@@ -222,17 +228,29 @@
   }
   .gloss .gw{
     font-family:Georgia,serif; font-weight:700; color:var(--quill); white-space:nowrap;
-    min-width:110px;
+    flex:0 0 130px;   /* fixed word column so definitions line up across boxes */
   }
-  .gloss .es{font-style:italic; color:var(--ink-soft)}
+  /* side cards are narrow: stack the word above its meaning */
+  .side-card .gloss{flex-direction:column; gap:2px; margin:10px 0 0}
+  .side-card .gloss .gw{flex:none}
 
   /* ---------- side cards (Part I) ---------- */
-  .side-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+  .side-grid{display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(7,auto); gap:14px}
   @media(max-width:820px){.side-grid{grid-template-columns:1fr}}
   .side-card{
     background:var(--paper-card); border:1px solid var(--line); border-top:6px solid var(--line);
     border-radius:4px; box-shadow:var(--shadow); padding:16px 16px 14px; position:relative;
     display:flex; flex-direction:column;
+  }
+  /* fallback (no subgrid): push gloss + button to the bottom so at least those line up */
+  .side-card .gloss{margin-top:auto}
+  .side-card .readbtn{margin-top:12px}
+  /* preferred: each card shares the grid's 7 row tracks, so every row is the same height in all three cards */
+  @supports (grid-template-rows: subgrid){
+    .side-card{display:grid; grid-template-rows:subgrid; grid-row:span 7; align-content:start}
+    .side-card .gloss{margin-top:10px}
+    .side-card .readbtn{justify-self:center; align-self:start}
+    @media(max-width:820px){ .side-card{display:flex; flex-direction:column} .side-card .gloss{margin-top:auto} }
   }
   .side-card.patriot{border-top-color:var(--patriot)}
   .side-card.loyalist{border-top-color:var(--loyalist)}
@@ -248,8 +266,9 @@
     font-size:.72rem; letter-spacing:1px; text-transform:uppercase;
     background:var(--quill); color:var(--parchment); padding:2px 8px; border-radius:20px;
   }
+  body.es .side-card.read::after{content:'✓ leído'}
   .readbtn{
-    margin-top:auto; align-self:center;
+    align-self:center;
     font-family:inherit; font-size:.9rem; font-weight:700;
     background:transparent; border:1.5px solid var(--ink-soft); color:var(--ink);
     border-radius:3px; padding:7px 16px; cursor:pointer;
@@ -436,7 +455,7 @@
   }
   figure.plate img{max-width:100%; height:auto; display:block; margin:0 auto; border:1px solid var(--line); background:#fff}
   figure.plate figcaption{font-size:.85rem; color:var(--ink-soft); margin-top:9px; text-align:left}
-  figure.plate .src-tag{
+  .src-tag{
     display:inline-block; font-size:.68rem; letter-spacing:1px; text-transform:uppercase;
     padding:2px 9px; border-radius:20px; margin-right:8px; font-weight:700;
   }
@@ -447,6 +466,29 @@
   .read-row{display:grid; grid-template-columns:1fr 300px; gap:16px; align-items:start}
   @media(max-width:820px){.read-row{grid-template-columns:1fr}}
   .read-row figure.plate{margin:0}
+
+  /* ---------- tap to enlarge (the four historical images; not the Part I symbols) ---------- */
+  img[data-zoom]{cursor:zoom-in}
+  img[data-zoom]:focus-visible{outline:3px solid var(--candle); outline-offset:2px}
+  .zoom-hint{font-size:.75rem; color:var(--ink-soft); text-align:center; margin-top:6px; letter-spacing:.3px}
+  .lightbox{
+    position:fixed; inset:0; z-index:100; display:none; flex-direction:column; align-items:center; justify-content:center;
+    padding:56px 20px 20px; background:rgba(28,26,23,.94); cursor:zoom-out;
+  }
+  .lightbox.open{display:flex}
+  .lightbox img{
+    max-width:100%; max-height:calc(100vh - 140px); width:auto; height:auto;
+    background:#fff; border:2px solid var(--parchment); box-shadow:0 14px 44px rgba(0,0,0,.6);
+  }
+  .lightbox .lb-cap{color:var(--parchment); font-size:.9rem; margin-top:12px; text-align:center; max-width:820px; line-height:1.45}
+  .lightbox .lb-cap .src-tag{margin-bottom:4px}
+  .lb-close{
+    position:absolute; top:12px; right:14px; cursor:pointer;
+    font-family:inherit; font-size:.95rem; font-weight:700;
+    background:var(--parchment); color:var(--ink); border:none; border-radius:4px; padding:8px 14px;
+  }
+  .lb-close:hover{background:#fff}
+  .lb-close:focus-visible{outline:3px solid var(--candle); outline-offset:2px}
 
   @media (prefers-reduced-motion: reduce){
     *{animation:none !important; transition:none !important}
@@ -461,7 +503,8 @@ function sideImgFail(img,cls){
 function imgFail(img){
   var note=document.createElement('div');
   note.style.cssText='padding:26px 16px;background:#e7d9b8;border:1px dashed #b97f24;color:#4a4136;font-size:.85rem;text-align:center;border-radius:3px';
-  note.textContent='⚠ This historical image could not load. You can still finish every activity without it.';
+  note.innerHTML='<span class="l-en">⚠ This historical image could not load. You can still finish every activity without it.</span>'+
+    '<span class="l-es">⚠ Esta imagen histórica no se pudo cargar. Aún puedes terminar todas las actividades sin ella.</span>';
   img.replaceWith(note);
 }
 </script>
@@ -470,14 +513,15 @@ function imgFail(img){
 
 <div class="topbar" role="navigation" aria-label="Lesson sections">
   <div class="topbar-inner">
-    <span class="brand">Road to Revolution · Day 2</span>
-    <button class="navbtn" data-goto="part1" id="nav-part1"><span class="seal" aria-hidden="true"></span>I. Three Sides</button>
-    <button class="navbtn" data-goto="part2" id="nav-part2"><span class="seal" aria-hidden="true"></span>II. Who Said It?</button>
-    <button class="navbtn" data-goto="part3" id="nav-part3"><span class="seal" aria-hidden="true"></span>III. Stamp Act</button>
-    <button class="navbtn" data-goto="part4" id="nav-part4"><span class="seal" aria-hidden="true"></span>IV. Who Got Hit?</button>
-    <button class="navbtn" data-goto="part5" id="nav-part5"><span class="seal" aria-hidden="true"></span>V. Pay the Tax</button>
-    <button class="navbtn" data-goto="part6" id="nav-part6"><span class="seal" aria-hidden="true"></span>VI. Write It</button>
-    <button class="navbtn" data-goto="finish" id="nav-finish"><span class="seal" aria-hidden="true"></span>Finish</button>
+    <span class="brand"><span class="l-en">Road to Revolution · Day 2</span><span class="l-es">Camino a la Revolución · Día 2</span></span>
+    <button class="navbtn" data-goto="part1" id="nav-part1"><span class="seal" aria-hidden="true"></span><span class="l-en">I. Three Sides</span><span class="l-es">I. Tres lados</span></button>
+    <button class="navbtn" data-goto="part2" id="nav-part2"><span class="seal" aria-hidden="true"></span><span class="l-en">II. Who Said It?</span><span class="l-es">II. ¿Quién lo dijo?</span></button>
+    <button class="navbtn" data-goto="part3" id="nav-part3"><span class="seal" aria-hidden="true"></span><span class="l-en">III. Stamp Act</span><span class="l-es">III. Ley del Sello</span></button>
+    <button class="navbtn" data-goto="part4" id="nav-part4"><span class="seal" aria-hidden="true"></span><span class="l-en">IV. Who Got Hit?</span><span class="l-es">IV. ¿A quién afectó?</span></button>
+    <button class="navbtn" data-goto="part5" id="nav-part5"><span class="seal" aria-hidden="true"></span><span class="l-en">V. Pay the Tax</span><span class="l-es">V. Paga el impuesto</span></button>
+    <button class="navbtn" data-goto="part6" id="nav-part6"><span class="seal" aria-hidden="true"></span><span class="l-en">VI. Write It</span><span class="l-es">VI. Escríbelo</span></button>
+    <button class="navbtn" data-goto="finish" id="nav-finish"><span class="seal" aria-hidden="true"></span><span class="l-en">Finish</span><span class="l-es">Final</span></button>
+    <button class="navbtn langbtn" id="langBtn" type="button" aria-label="Cambiar a español">Español</button>
   </div>
 </div>
 
@@ -485,70 +529,71 @@ function imgFail(img){
 
   <!-- ================= HERO ================= -->
   <div class="hero page" id="hero">
-    <div class="rule-word">Road to Revolution · Day 2</div>
-    <h1>Three Sides + the Stamp Act</h1>
-    <div class="year fell">The American Colonies · 1765</div>
+    <div class="rule-word"><span class="l-en">Road to Revolution · Day 2</span><span class="l-es">Camino a la Revolución · Día 2</span></div>
+    <h1><span class="l-en">Three Sides + the Stamp Act</span><span class="l-es">Tres lados + la Ley del Sello</span></h1>
+    <div class="year fell"><span class="l-en">The American Colonies · 1765</span><span class="l-es">Las colonias americanas · 1765</span></div>
     <div class="hero-inner">
       <div class="hero-text parchment">
-        <p class="lede">You are a colonist. Look at your <strong>identity card</strong>. It tells you your job, your colony, and your side. Today you will meet all three sides, and you will find out what a new tax from Britain means for <em>you</em>.</p>
-        <p class="lede note">This lesson has six parts, one per page. Finish every tap on a page to unlock <strong>Next</strong>.</p>
-        <div class="objective"><strong>Today I can:</strong> explain what Patriots, Loyalists, and Neutralists believed, and describe the Stamp Act.</div>
+        <p class="lede"><span class="l-en">You are a colonist. Look at your <strong>identity card</strong>. It tells you your job, your colony, and your side. Today you will meet all three sides, and you will find out what a new tax from Britain means for <em>you</em>.</span><span class="l-es">Eres un colono. Mira tu <strong>tarjeta de identidad</strong>. Te dice tu trabajo, tu colonia y tu lado. Hoy vas a conocer los tres lados y vas a descubrir qué significa para <em>ti</em> un nuevo impuesto de Gran Bretaña.</span></p>
+        <p class="lede note"><span class="l-en">This lesson has six parts, one per page. Finish every tap on a page to unlock <strong>Next</strong>.</span><span class="l-es">Esta lección tiene seis partes, una por página. Completa cada toque en una página para desbloquear <strong>Siguiente</strong>.</span></p>
+        <div class="objective"><span class="l-en"><strong>Today I can:</strong> explain what Patriots, Loyalists, and Neutralists believed, and describe the Stamp Act.</span><span class="l-es"><strong>Hoy puedo:</strong> explicar qué creían los patriotas, los lealistas y los neutralistas, y describir la Ley del Sello.</span></div>
       </div>
       <figure class="hero-fig">
-        <img onerror="imgFail(this)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Pennsylvania_Journal%2C_Stamp_Act_announcement.jpg/500px-Pennsylvania_Journal%2C_Stamp_Act_announcement.jpg" alt="Front page of the Pennsylvania Journal newspaper from October 31, 1765, with a black border and a skull and crossbones where the tax stamp should go" loading="lazy">
-        <figcaption>Pennsylvania Journal, October 31, 1765. The printer shut down rather than pay the stamp tax.</figcaption>
+        <img onerror="imgFail(this)" data-zoom="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Pennsylvania_Journal%2C_Stamp_Act_announcement.jpg/1280px-Pennsylvania_Journal%2C_Stamp_Act_announcement.jpg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Pennsylvania_Journal%2C_Stamp_Act_announcement.jpg/500px-Pennsylvania_Journal%2C_Stamp_Act_announcement.jpg" alt="Front page of the Pennsylvania Journal newspaper from October 31, 1765, with a black border and a skull and crossbones where the tax stamp should go" data-alt-es="Primera página del periódico Pennsylvania Journal del 31 de octubre de 1765, con un borde negro y una calavera donde debería ir el sello del impuesto" loading="lazy">
+        <div class="zoom-hint">🔍 <span class="l-en">Tap the picture to see it bigger.</span><span class="l-es">Toca la imagen para verla más grande.</span></div>
+        <figcaption><span class="l-en">Pennsylvania Journal, October 31, 1765, the day before the tax began. The printer stopped printing for a while rather than pay the stamp tax.</span><span class="l-es">Pennsylvania Journal, 31 de octubre de 1765, el día antes de que empezara el impuesto. El impresor dejó de imprimir por un tiempo antes que pagar el impuesto del sello.</span></figcaption>
       </figure>
     </div>
-    <button class="start" data-goto="part1">Begin</button>
+    <button class="start" data-goto="part1"><span class="l-en">Begin</span><span class="l-es">Empezar</span></button>
   </div>
 
   <!-- ================= PART I : THREE SIDES ================= -->
   <section class="part page" id="part1">
-    <div class="part-label"><span class="roman">Part I</span><h2>Meet the Three Sides</h2></div>
-    <div class="part-task"><strong>Your task:</strong> Read all three cards. Tap <strong>I read this card</strong> under each one. Then tap the side that is on <strong>your</strong> identity card. When the part is done, the <strong>Next</strong> button at the bottom unlocks.</div>
+    <div class="part-label"><span class="roman"><span class="l-en">Part I</span><span class="l-es">Parte I</span></span><h2><span class="l-en">Meet the Three Sides</span><span class="l-es">Conoce los tres lados</span></h2></div>
+    <div class="part-task"><span class="l-en"><strong>Your task:</strong> Read all three cards. Tap <strong>I read this card</strong> under each one. Then tap the side that is on <strong>your</strong> identity card. When the part is done, the <strong>Next</strong> button at the bottom unlocks.</span><span class="l-es"><strong>Tu tarea:</strong> Lee las tres tarjetas. Toca <strong>Leí esta tarjeta</strong> debajo de cada una. Luego toca el lado que aparece en <strong>tu</strong> tarjeta de identidad. Cuando termines, se desbloquea el botón <strong>Siguiente</strong> de abajo.</span></div>
 
     <div class="side-grid">
       <div class="side-card patriot" data-side="Patriot">
-        <img class="side-img" src="data:image/png;base64,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" alt="A waving early American flag with thirteen stars in a circle" onerror="sideImgFail(this,'star')">
-        <h3>Patriot</h3>
-        <div class="tag">"The colonies should run themselves."</div>
-        <p>Patriots wanted the colonies to make their own laws. They believed Britain treated the colonies unfairly.</p>
-        <p>They said, "No new taxes unless we get a say!" Later, many Patriots wanted full <strong>independence</strong> from Britain.</p>
-        <div class="gloss"><span class="gw">independence</span><span>being free to rule yourself. <span class="es">Spanish: independencia</span></span></div>
-        <button class="readbtn" data-read="Patriot">I read this card</button>
+        <img class="side-img" src="data:image/png;base64,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" alt="A waving early American flag with thirteen stars in a circle" data-alt-es="Una bandera americana antigua ondeando, con trece estrellas en círculo" onerror="sideImgFail(this,'star')">
+        <h3><span class="l-en">Patriot</span><span class="l-es">Patriota</span></h3>
+        <div class="tag"><span class="l-en">"The colonies should run themselves."</span><span class="l-es">"Las colonias deben gobernarse solas."</span></div>
+        <p><span class="l-en">Patriots wanted the colonies to make their own laws. They believed Britain treated the colonies unfairly.</span><span class="l-es">Los patriotas querían que las colonias hicieran sus propias leyes. Creían que Gran Bretaña trataba a las colonias de forma injusta.</span></p>
+        <p><span class="l-en">They said, "No new taxes unless we get a say!" Later, many Patriots wanted full <strong>independence</strong> from Britain.</span><span class="l-es">Decían: "¡No más impuestos nuevos si no tenemos voz!" Más tarde, muchos patriotas querían la <strong>independencia</strong> total de Gran Bretaña.</span></p>
+        <div class="gloss"><span class="gw"><span class="l-en">independence</span><span class="l-es">independencia</span></span><span><span class="l-en">being free to rule yourself.</span><span class="l-es">ser libre para gobernarte a ti mismo.</span></span></div>
+        <button class="readbtn" data-read="Patriot"><span class="l-en">I read this card</span><span class="l-es">Leí esta tarjeta</span></button>
       </div>
 
       <div class="side-card loyalist" data-side="Loyalist">
-        <img class="side-img" src="data:image/png;base64,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" alt="A gold crown with jewels, the symbol of the British king" onerror="sideImgFail(this,'crown')">
-        <h3>Loyalist</h3>
-        <div class="tag">"We should stay British."</div>
-        <p>Loyalists wanted to stay part of Britain. They believed the king and Parliament kept the colonies safe.</p>
-        <p>They thought protests were dangerous and against the law. Many Loyalists had jobs that depended on Britain, so they stayed <strong>loyal</strong>.</p>
-        <div class="gloss"><span class="gw">loyal</span><span>staying true to someone, like a king. <span class="es">Spanish: leal</span></span></div>
-        <button class="readbtn" data-read="Loyalist">I read this card</button>
+        <img class="side-img" src="data:image/png;base64,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" alt="A gold crown with jewels, the symbol of the British king" data-alt-es="Una corona de oro con joyas, el símbolo del rey británico" onerror="sideImgFail(this,'crown')">
+        <h3><span class="l-en">Loyalist</span><span class="l-es">Lealista</span></h3>
+        <div class="tag"><span class="l-en">"We should stay British."</span><span class="l-es">"Debemos seguir siendo británicos."</span></div>
+        <p><span class="l-en">Loyalists wanted to stay part of Britain. They believed the king and Parliament kept the colonies safe.</span><span class="l-es">Los lealistas querían seguir siendo parte de Gran Bretaña. Creían que el rey y el Parlamento mantenían seguras a las colonias.</span></p>
+        <p><span class="l-en">They thought protests were dangerous and against the law. Many Loyalists had jobs that depended on Britain, so they stayed <strong>loyal</strong>.</span><span class="l-es">Pensaban que las protestas eran peligrosas y contra la ley. Muchos lealistas tenían trabajos que dependían de Gran Bretaña, así que se mantuvieron <strong>leales</strong>.</span></p>
+        <div class="gloss"><span class="gw"><span class="l-en">loyal</span><span class="l-es">leal</span></span><span><span class="l-en">staying true to someone, like a king.</span><span class="l-es">ser fiel a alguien, como a un rey.</span></span></div>
+        <button class="readbtn" data-read="Loyalist"><span class="l-en">I read this card</span><span class="l-es">Leí esta tarjeta</span></button>
       </div>
 
       <div class="side-card neutral" data-side="Neutralist">
-        <img class="side-img" src="data:image/png;base64,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" alt="A balance scale with both sides level, showing neither side is heavier" onerror="sideImgFail(this,'between')">
-        <h3>Neutralist</h3>
-        <div class="tag">"I am not picking a side."</div>
-        <p>Neutralists did not choose a side. They believed both sides had some good points, or they just wanted to be left alone.</p>
-        <p>Many worried about their farms, shops, and families. Neutralists asked questions instead of joining a fight. They stayed <strong>neutral</strong>.</p>
-        <div class="gloss"><span class="gw">neutral</span><span>not on either side. <span class="es">Spanish: neutral</span> (same word!)</span></div>
-        <button class="readbtn" data-read="Neutralist">I read this card</button>
+        <img class="side-img" src="data:image/png;base64,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" alt="A balance scale with both sides level, showing neither side is heavier" data-alt-es="Una balanza con los dos platos al mismo nivel, que muestra que ningún lado pesa más" onerror="sideImgFail(this,'between')">
+        <h3><span class="l-en">Neutralist</span><span class="l-es">Neutralista</span></h3>
+        <div class="tag"><span class="l-en">"I am not picking a side."</span><span class="l-es">"Yo no elijo un lado."</span></div>
+        <p><span class="l-en">Neutralists did not choose a side. They believed both sides had some good points, or they just wanted to be left alone.</span><span class="l-es">Los neutralistas no eligieron un lado. Creían que los dos lados tenían algo de razón, o solo querían que los dejaran en paz.</span></p>
+        <p><span class="l-en">Many worried about their farms, shops, and families. Neutralists asked questions instead of joining a fight. They stayed <strong>neutral</strong>.</span><span class="l-es">Muchos se preocupaban por sus granjas, tiendas y familias. Los neutralistas hacían preguntas en vez de unirse a una pelea. Se mantuvieron <strong>neutrales</strong>.</span></p>
+        <div class="gloss"><span class="gw"><span class="l-en">neutral</span><span class="l-es">neutral</span></span><span><span class="l-en">not on either side.</span><span class="l-es">no estar de ningún lado.</span></span></div>
+        <button class="readbtn" data-read="Neutralist"><span class="l-en">I read this card</span><span class="l-es">Leí esta tarjeta</span></button>
       </div>
     </div>
 
     <div class="you-line" style="margin-top:16px">
-      <strong>Think like a colonist:</strong> A blacksmith in Massachusetts might be a Patriot. A merchant who sells British cloth might be a Loyalist. A farmer far from any city might be a Neutralist. Any job could be on any side.
+      <span class="l-en"><strong>Think like a colonist:</strong> A blacksmith in Massachusetts might be a Patriot. A merchant who sells British cloth might be a Loyalist. A farmer far from any city might be a Neutralist. Any job could be on any side.</span><span class="l-es"><strong>Piensa como un colono:</strong> Un herrero de Massachusetts podría ser patriota. Un comerciante que vende tela británica podría ser lealista. Un granjero lejos de la ciudad podría ser neutralista. Cualquier trabajo podría estar en cualquier lado.</span>
     </div>
 
     <div class="pick-side">
-      <div class="q">Which side is on <em>your</em> identity card? Tap it.</div>
+      <div class="q"><span class="l-en">Which side is on <em>your</em> identity card? Tap it.</span><span class="l-es">¿Qué lado aparece en <em>tu</em> tarjeta de identidad? Tócalo.</span></div>
       <div class="side-btns">
-        <button class="sbtn" data-side="Patriot">Patriot</button>
-        <button class="sbtn" data-side="Loyalist">Loyalist</button>
-        <button class="sbtn" data-side="Neutralist">Neutralist</button>
+        <button class="sbtn" data-side="Patriot"><span class="l-en">Patriot</span><span class="l-es">Patriota</span></button>
+        <button class="sbtn" data-side="Loyalist"><span class="l-en">Loyalist</span><span class="l-es">Lealista</span></button>
+        <button class="sbtn" data-side="Neutralist"><span class="l-en">Neutralist</span><span class="l-es">Neutralista</span></button>
       </div>
       <div class="fb" id="sideFb" aria-live="polite"></div>
     </div>
@@ -556,194 +601,304 @@ function imgFail(img){
 
   <!-- ================= PART II : WHO WOULD SAY IT? ================= -->
   <section class="part page" id="part2">
-    <div class="part-label"><span class="roman">Part II</span><h2>Who Would Say It?</h2></div>
-    <div class="part-task"><strong>Your task:</strong> Read each statement. Tap the side that would say it. If you are wrong, read the hint and try again. Answer all ten. <br><span style="font-size:.9rem">✏ You will copy <strong>one statement for each side</strong> onto your paper later, so notice the ones you like.</span></div>
-    <div class="count-line" id="stmtCount">0 of 10 answered</div>
+    <div class="part-label"><span class="roman"><span class="l-en">Part II</span><span class="l-es">Parte II</span></span><h2><span class="l-en">Who Would Say It?</span><span class="l-es">¿Quién lo diría?</span></h2></div>
+    <div class="part-task"><span class="l-en"><strong>Your task:</strong> Read each statement. Tap the side that would say it. If you are wrong, read the hint and try again. Answer all ten. <br><span style="font-size:.9rem">✏ You will copy <strong>one statement for each side</strong> onto your paper later, so notice the ones you like.</span></span><span class="l-es"><strong>Tu tarea:</strong> Lee cada frase. Toca el lado que la diría. Si te equivocas, lee la pista y vuelve a intentarlo. Responde las diez. <br><span style="font-size:.9rem">✏ Más tarde copiarás <strong>una frase de cada lado</strong> en tu hoja, así que fíjate en las que te gusten.</span></span></div>
+    <div class="count-line" id="stmtCount"></div>
     <div id="stmtList"></div>
   </section>
 
   <!-- ================= PART III : THE STAMP ACT ================= -->
   <section class="part page" id="part3">
-    <div class="part-label"><span class="roman">Part III</span><h2>The Stamp Act, 1765</h2></div>
-    <div class="part-task"><strong>Your task:</strong> Read the three short chunks. Then fill every yellow blank in the <strong>Quick Check</strong> at the bottom.</div>
+    <div class="part-label"><span class="roman"><span class="l-en">Part III</span><span class="l-es">Parte III</span></span><h2><span class="l-en">The Stamp Act, 1765</span><span class="l-es">La Ley del Sello, 1765</span></h2></div>
+    <div class="part-task"><span class="l-en"><strong>Your task:</strong> Read the three short chunks. Then fill every yellow blank in the <strong>Quick Check</strong> at the bottom.</span><span class="l-es"><strong>Tu tarea:</strong> Lee los tres textos cortos. Luego llena cada espacio amarillo en el <strong>Repaso rápido</strong> de abajo.</span></div>
 
     <div class="read-row">
       <div class="reading">
-        <h3>1. What did it tax?</h3>
-        <p class="dropcap">In 1765, Parliament passed a new law called the <strong>Stamp Act</strong>. It put a <strong>tax</strong> on paper. Newspapers, legal papers, and even playing cards had to carry a special stamp. To get the stamp, you had to pay money to Britain.</p>
-        <div class="gloss"><span class="gw">tax</span><span>money people must pay to the government. <span class="es">Spanish: impuesto</span></span></div>
-        <div class="you-line"><strong>You:</strong> Do you use paper in your job? A printer, a lawyer, or a shopkeeper would pay this tax again and again.</div>
+        <h3><span class="l-en">1. What did it tax?</span><span class="l-es">1. ¿A qué le puso impuesto?</span></h3>
+        <p class="dropcap"><span class="l-en">In 1765, Parliament passed a new law called the <strong>Stamp Act</strong>. It put a <strong>tax</strong> on paper. Newspapers, legal papers, and even playing cards had to carry a special stamp. To get the stamp, you had to pay money to Britain.</span><span class="l-es">En 1765, el Parlamento aprobó una nueva ley llamada la <strong>Ley del Sello</strong>. Puso un <strong>impuesto</strong> al papel. Los periódicos, los documentos legales y hasta las cartas de jugar tenían que llevar un sello especial. Para conseguir el sello, había que pagarle dinero a Gran Bretaña.</span></p>
+        <div class="gloss"><span class="gw"><span class="l-en">tax</span><span class="l-es">impuesto</span></span><span><span class="l-en">money people must pay to the government.</span><span class="l-es">dinero que la gente debe pagar al gobierno.</span></span></div>
+        <div class="you-line"><span class="l-en"><strong>You:</strong> Do you use paper in your job? A printer, a lawyer, or a shopkeeper would pay this tax again and again.</span><span class="l-es"><strong>Tú:</strong> ¿Usas papel en tu trabajo? Un impresor, un abogado o un tendero pagarían este impuesto una y otra vez.</span></div>
       </div>
       <figure class="plate">
-        <img onerror="imgFail(this)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/1765_one_penny_stamp.jpg/250px-1765_one_penny_stamp.jpg" alt="A one-penny tax stamp from 1765 showing a crown and the words One Penny" loading="lazy" style="max-width:200px">
-        <figcaption><span class="src-tag primary">Primary Source · 1765</span>A real one-penny tax stamp made for the Stamp Act. Public domain, via Wikimedia Commons.</figcaption>
+        <img onerror="imgFail(this)" data-zoom="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/1765_one_penny_stamp.jpg/1280px-1765_one_penny_stamp.jpg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/1765_one_penny_stamp.jpg/250px-1765_one_penny_stamp.jpg" alt="A one-penny tax stamp from 1765 showing a crown and the words One Penny" data-alt-es="Un sello de impuesto de un penique de 1765 con una corona y las palabras One Penny" loading="lazy" style="max-width:200px">
+        <div class="zoom-hint">🔍 <span class="l-en">Tap the picture to see it bigger.</span><span class="l-es">Toca la imagen para verla más grande.</span></div>
+        <figcaption><span class="l-en"><span class="src-tag primary">Primary Source · 1765</span>A real one-penny tax stamp made for the Stamp Act. Public domain, via Wikimedia Commons.</span><span class="l-es"><span class="src-tag primary">Fuente primaria · 1765</span>Un sello de impuesto real de un penique, hecho para la Ley del Sello. Dominio público, vía Wikimedia Commons.</span></figcaption>
       </figure>
     </div>
 
     <div class="reading">
-      <h3>2. Why did Parliament pass it?</h3>
-      <p>Britain had just won a long war in America called the <strong>French and Indian War</strong> (1754–1763). Wars cost a lot of money, and Britain owed a big <strong>debt</strong>. Britain said, "Our soldiers protected the colonies. The colonists should help pay." So Parliament made the colonists pay the new tax.</p>
-      <div class="gloss"><span class="gw">Parliament</span><span>the group in Britain that makes laws, like Congress in the U.S. today. <span class="es">Spanish: Parlamento</span></span></div>
-      <div class="gloss"><span class="gw">debt</span><span>money you owe and must pay back. <span class="es">Spanish: deuda</span></span></div>
+      <h3><span class="l-en">2. Why did Parliament pass it?</span><span class="l-es">2. ¿Por qué el Parlamento la aprobó?</span></h3>
+      <p><span class="l-en">Britain had just won a long war in America called the <strong>French and Indian War</strong> (1754–1763). The war cost so much that Britain was deep in <strong>debt</strong>. After the war, Britain also kept about 10,000 soldiers in America to guard the colonies. So Parliament passed the new tax and said, "Our soldiers protect you, so you should help pay."</span><span class="l-es">Gran Bretaña acababa de ganar una larga guerra en América llamada la <strong>Guerra Franco-India</strong> (1754–1763). La guerra costó tanto que Gran Bretaña quedó con una gran <strong>deuda</strong>. Después de la guerra, Gran Bretaña también dejó unos 10,000 soldados en América para cuidar a las colonias. Así que el Parlamento aprobó el nuevo impuesto y dijo: "Nuestros soldados los protegen, así que ustedes deben ayudar a pagar."</span></p>
+      <div class="gloss"><span class="gw"><span class="l-en">Parliament</span><span class="l-es">Parlamento</span></span><span><span class="l-en">the group in Britain that makes laws, like Congress in the U.S. today.</span><span class="l-es">el grupo que hace las leyes en Gran Bretaña, como el Congreso en los Estados Unidos hoy.</span></span></div>
+      <div class="gloss"><span class="gw"><span class="l-en">debt</span><span class="l-es">deuda</span></span><span><span class="l-en">money you owe and must pay back.</span><span class="l-es">dinero que debes y tienes que devolver.</span></span></div>
     </div>
 
     <div class="read-row">
       <div class="reading">
-        <h3>3. Why were colonists angry?</h3>
-        <p>Colonists did not get to vote for anyone in Parliament. Nobody there <strong>represented</strong> them. They said: "No taxation without representation!" That means: "Do not tax us if we have no say."</p>
-        <p>Colonists protested in the streets and stopped buying British goods. Many refused to buy the stamps. In March 1766, Parliament gave up and <strong>repealed</strong> the Stamp Act.</p>
-        <div class="gloss"><span class="gw">represent</span><span>to speak and vote for a group of people. <span class="es">Spanish: representar</span></span></div>
-        <div class="gloss"><span class="gw">repeal</span><span>to cancel a law. <span class="es">Spanish: revocar / anular</span></span></div>
+        <h3><span class="l-en">3. Why were colonists angry?</span><span class="l-es">3. ¿Por qué se enojaron los colonos?</span></h3>
+        <p><span class="l-en">Colonists did not get to vote for anyone in Parliament, so nobody there <strong>represented</strong> them. Britain said Parliament spoke for everyone in the empire, but colonists did not agree. They said, "No taxation without representation!" That means, "Do not tax us if we have no say."</span><span class="l-es">Los colonos no podían votar por nadie en el Parlamento, así que nadie allí los <strong>representaba</strong>. Gran Bretaña decía que el Parlamento hablaba por todos en el imperio, pero los colonos no estaban de acuerdo. Decían: "¡No hay impuestos sin representación!" Eso significa: "No nos cobren impuestos si no tenemos voz."</span></p>
+        <p><span class="l-en">Colonists protested in the streets, and many refused to buy the stamps. Merchants stopped buying British goods. In March 1766, Parliament gave in and <strong>repealed</strong> the Stamp Act. But at the same time, it passed a new law saying it still had the power to make laws for the colonies.</span><span class="l-es">Los colonos protestaron en las calles, y muchos se negaron a comprar los sellos. Los comerciantes dejaron de comprar productos británicos. En marzo de 1766, el Parlamento cedió y <strong>revocó</strong> la Ley del Sello. Pero al mismo tiempo, aprobó una nueva ley que decía que todavía tenía el poder de hacer leyes para las colonias.</span></p>
+        <div class="gloss"><span class="gw"><span class="l-en">represent</span><span class="l-es">representar</span></span><span><span class="l-en">to speak and vote for a group of people.</span><span class="l-es">hablar y votar en nombre de un grupo de personas.</span></span></div>
+        <div class="gloss"><span class="gw"><span class="l-en">repeal</span><span class="l-es">revocar</span></span><span><span class="l-en">to cancel a law.</span><span class="l-es">cancelar una ley.</span></span></div>
       </div>
       <figure class="plate">
-        <img onerror="imgFail(this)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Death_of_the_Stamp_Act_in_color.jpg/500px-Death_of_the_Stamp_Act_in_color.jpg" alt="A 1766 cartoon showing a funeral procession for the Stamp Act, with men carrying a small coffin" loading="lazy">
-        <figcaption><span class="src-tag primary">Primary Source · 1766</span>A cartoon from 1766 called "The Repeal." It shows a pretend funeral for the Stamp Act after Parliament canceled it. Public domain, via Wikimedia Commons.</figcaption>
+        <img onerror="imgFail(this)" data-zoom="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Death_of_the_Stamp_Act_in_color.jpg/1280px-Death_of_the_Stamp_Act_in_color.jpg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Death_of_the_Stamp_Act_in_color.jpg/500px-Death_of_the_Stamp_Act_in_color.jpg" alt="A 1766 cartoon showing a funeral procession for the Stamp Act, with men carrying a small coffin" data-alt-es="Una caricatura de 1766 que muestra un cortejo funerario para la Ley del Sello, con hombres cargando un ataúd pequeño" loading="lazy">
+        <div class="zoom-hint">🔍 <span class="l-en">Tap the picture to see it bigger.</span><span class="l-es">Toca la imagen para verla más grande.</span></div>
+        <figcaption><span class="l-en"><span class="src-tag primary">Primary Source · 1766</span>A cartoon from 1766 called "The Repeal." It was made in London and shows a pretend funeral for the Stamp Act after Parliament canceled it. Public domain, via Wikimedia Commons.</span><span class="l-es"><span class="src-tag primary">Fuente primaria · 1766</span>Una caricatura de 1766 llamada "The Repeal" (La revocación). Se hizo en Londres y muestra un funeral de mentira para la Ley del Sello después de que el Parlamento la canceló. Dominio público, vía Wikimedia Commons.</span></figcaption>
       </figure>
     </div>
 
     <div class="check-card" id="stampCheck">
-      <h3>Quick Check</h3>
-      <p>Tap each yellow blank and choose the right word.</p>
+      <h3><span class="l-en">Quick Check</span><span class="l-es">Repaso rápido</span></h3>
+      <p><span class="l-en">Tap each yellow blank and choose the right word.</span><span class="l-es">Toca cada espacio amarillo y elige la palabra correcta.</span></p>
       <p id="stampBlanks"></p>
-      <div class="hintline" style="font-size:.85rem;color:var(--ink-soft)">✏ These same three ideas go in the three boxes on the <strong>back</strong> of your paper.</div>
+      <div class="hintline" style="font-size:.85rem;color:var(--ink-soft)"><span class="l-en">✏ These same three ideas go in the three boxes on the <strong>back</strong> of your paper.</span><span class="l-es">✏ Estas mismas tres ideas van en las tres cajas al <strong>reverso</strong> de tu hoja.</span></div>
     </div>
   </section>
 
   <!-- ================= PART IV : WHO DID IT HIT? ================= -->
   <section class="part page" id="part4">
-    <div class="part-label"><span class="roman">Part IV</span><h2>Who Did It Hit?</h2></div>
-    <div class="part-task"><strong>Your task:</strong> The Stamp Act did not hit everyone the same way. For each job, tap <strong>hit hard</strong>, <strong>hit a little</strong>, or <strong>barely noticed</strong>. Read the feedback. Find the job closest to <em>your</em> job on your identity card.</div>
+    <div class="part-label"><span class="roman"><span class="l-en">Part IV</span><span class="l-es">Parte IV</span></span><h2><span class="l-en">Who Did It Hit?</span><span class="l-es">¿A quién afectó?</span></h2></div>
+    <div class="part-task"><span class="l-en"><strong>Your task:</strong> The Stamp Act did not hit everyone the same way. For each job, tap <strong>hit hard</strong>, <strong>hit a little</strong>, or <strong>barely noticed</strong>. Read the feedback. Find the job closest to <em>your</em> job on your identity card.</span><span class="l-es"><strong>Tu tarea:</strong> La Ley del Sello no afectó a todos por igual. Para cada trabajo, toca <strong>le afectó mucho</strong>, <strong>le afectó un poco</strong> o <strong>casi no lo notó</strong>. Lee la explicación. Busca el trabajo más parecido a <em>tu</em> trabajo en tu tarjeta de identidad.</span></div>
 
     <div class="job-grid" id="jobGrid"></div>
 
     <figure class="plate" style="max-width:520px; margin:22px auto 0">
-      <img onerror="imgFail(this)" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Bostonians_Reading_the_Stamp_Act.jpg/500px-Bostonians_Reading_the_Stamp_Act.jpg" alt="Engraving of a crowd of colonists gathered in a Boston street reading a posted copy of the Stamp Act" loading="lazy">
-      <figcaption><span class="src-tag later">Later Depiction · 1882</span>An artist's idea of colonists in Boston reading the Stamp Act, drawn more than 100 years later. Public domain, via Wikimedia Commons. Which of these people do you think is a printer? A farmer?</figcaption>
+      <img onerror="imgFail(this)" data-zoom="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Bostonians_Reading_the_Stamp_Act.jpg/1280px-Bostonians_Reading_the_Stamp_Act.jpg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Bostonians_Reading_the_Stamp_Act.jpg/500px-Bostonians_Reading_the_Stamp_Act.jpg" alt="Engraving of a crowd of colonists gathered in a Boston street reading a posted copy of the Stamp Act" data-alt-es="Grabado de una multitud de colonos reunidos en una calle de Boston leyendo una copia pegada de la Ley del Sello" loading="lazy">
+        <div class="zoom-hint">🔍 <span class="l-en">Tap the picture to see it bigger.</span><span class="l-es">Toca la imagen para verla más grande.</span></div>
+      <figcaption><span class="l-en"><span class="src-tag later">Later Depiction · 1882</span>An artist's idea of colonists in Boston reading the Stamp Act, drawn more than 100 years later. Public domain, via Wikimedia Commons. Which of these people do you think is a printer? A farmer?</span><span class="l-es"><span class="src-tag later">Imagen posterior · 1882</span>La idea de un artista de colonos en Boston leyendo la Ley del Sello, dibujada más de 100 años después. Dominio público, vía Wikimedia Commons. ¿Cuál de estas personas crees que es un impresor? ¿Y un granjero?</span></figcaption>
     </figure>
   </section>
 
   <!-- ================= PART V : PAY THE TAX ================= -->
   <section class="part page" id="part5">
-    <div class="part-label"><span class="roman">Part V</span><h2>Pay the Tax</h2></div>
-    <div class="part-task"><strong>Your task:</strong> Get out your <strong>ledger strip</strong> (the paper stapled to your identity card). Fill in the two rows below, then check the box.</div>
+    <div class="part-label"><span class="roman"><span class="l-en">Part V</span><span class="l-es">Parte V</span></span><h2><span class="l-en">Pay the Tax</span><span class="l-es">Paga el impuesto</span></h2></div>
+    <div class="part-task"><span class="l-en"><strong>Your task:</strong> Get out your <strong>ledger strip</strong> (the paper stapled to your identity card). Fill in the two rows below, then check the box.</span><span class="l-es"><strong>Tu tarea:</strong> Saca tu <strong>tira de cuentas</strong> (el papel engrapado a tu tarjeta de identidad). Llena las dos filas de abajo y luego marca la casilla.</span></div>
 
     <div class="ledger-card">
-      <p>Every colonist in this class pays the same simple amount today, no matter your job. (Real life was messier, as you saw in Part IV.)</p>
+      <p><span class="l-en">Today, everyone in class pays the same amount, no matter what your job is. (Real life was messier, as you saw in Part IV.)</span><span class="l-es">Hoy todos en la clase pagan la misma cantidad, sin importar cuál sea tu trabajo. (La vida real era más complicada, como viste en la Parte IV.)</span></p>
       <div class="ledger-big">
         <span class="num">− 2</span>
-        <span class="cap">pounds. Stamp Act, 1765. Write it on your ledger strip.</span>
+        <span class="cap"><span class="l-en">pounds. Stamp Act, 1765. Write it on your ledger strip.</span><span class="l-es">libras. Ley del Sello, 1765. Escríbelo en tu tira de cuentas.</span></span>
       </div>
       <div class="ledger-rows" aria-label="Ledger rows to fill in today">
-        <div class="now"><span>Row 1 · My salary</span><span class="val">copy the number from your identity card</span></div>
-        <div class="now"><span>Row 2 · Stamp Act (Day 2)</span><span class="val">− 2</span></div>
-        <div><span>Row 3 · Townshend Acts (Day 5)</span><span class="val">leave blank for now</span></div>
-        <div><span>Row 4 · Tea Act (Day 5)</span><span class="val">leave blank for now</span></div>
-        <div><span>Row 5 · Intolerable Acts (Day 6)</span><span class="val">leave blank for now</span></div>
-        <div><span>Row 6 · What I have left</span><span class="val">leave blank for now</span></div>
+        <div class="now"><span><span class="l-en">Row 1 · My salary</span><span class="l-es">Fila 1 · Mi salario</span></span><span class="val"><span class="l-en">copy the number from your identity card</span><span class="l-es">copia el número de tu tarjeta de identidad</span></span></div>
+        <div class="now"><span><span class="l-en">Row 2 · Stamp Act (Day 2)</span><span class="l-es">Fila 2 · Ley del Sello (Día 2)</span></span><span class="val">− 2</span></div>
+        <div><span><span class="l-en">Row 3 · Townshend Acts (Day 5)</span><span class="l-es">Fila 3 · Leyes Townshend (Día 5)</span></span><span class="val"><span class="l-en">leave blank for now</span><span class="l-es">déjalo en blanco por ahora</span></span></div>
+        <div><span><span class="l-en">Row 4 · Tea Act (Day 5)</span><span class="l-es">Fila 4 · Ley del Té (Día 5)</span></span><span class="val"><span class="l-en">leave blank for now</span><span class="l-es">déjalo en blanco por ahora</span></span></div>
+        <div><span><span class="l-en">Row 5 · Intolerable Acts (Day 6)</span><span class="l-es">Fila 5 · Leyes Intolerables (Día 6)</span></span><span class="val"><span class="l-en">leave blank for now</span><span class="l-es">déjalo en blanco por ahora</span></span></div>
+        <div><span><span class="l-en">Row 6 · What I have left</span><span class="l-es">Fila 6 · Lo que me queda</span></span><span class="val"><span class="l-en">leave blank for now</span><span class="l-es">déjalo en blanco por ahora</span></span></div>
       </div>
-      <div class="you-line"><strong>Think:</strong> Is 2 pounds a lot for you? Compare it to your salary. A rich merchant and a poor farmhand would feel this very differently.</div>
-      <label class="paper-check"><input type="checkbox" id="cb-ledger"> <span>✏ I filled in Row 1 (my salary) and Row 2 (− 2) on my ledger strip.</span></label>
+      <div class="you-line"><span class="l-en"><strong>Think:</strong> Is 2 pounds a lot for you? Compare it to your salary. A rich merchant and a poor farmhand would feel this very differently.</span><span class="l-es"><strong>Piensa:</strong> ¿2 libras es mucho para ti? Compáralo con tu salario. Un comerciante rico y un peón pobre sentirían esto de manera muy diferente.</span></div>
+      <label class="paper-check"><input type="checkbox" id="cb-ledger"> <span><span class="l-en">✏ I filled in Row 1 (my salary) and Row 2 (− 2) on my ledger strip.</span><span class="l-es">✏ Llené la Fila 1 (mi salario) y la Fila 2 (− 2) en mi tira de cuentas.</span></span></label>
     </div>
   </section>
 
   <!-- ================= PART VI : WRITE IT DOWN ================= -->
   <section class="part page" id="part6">
-    <div class="part-label"><span class="roman">Part VI</span><h2>Write It Down</h2></div>
-    <div class="part-task"><strong>Your task:</strong> Do these two tasks on your <strong>paper response sheet</strong>, in pencil. Use the word banks on the sheet. Check each box here after you finish it on paper.</div>
+    <div class="part-label"><span class="roman"><span class="l-en">Part VI</span><span class="l-es">Parte VI</span></span><h2><span class="l-en">Write It Down</span><span class="l-es">Escríbelo</span></h2></div>
+    <div class="part-task"><span class="l-en"><strong>Your task:</strong> Do these two tasks on your <strong>paper response sheet</strong>, in pencil. Use the word banks on the sheet. Check each box here after you finish it on paper.</span><span class="l-es"><strong>Tu tarea:</strong> Haz estas dos tareas en tu <strong>hoja de respuestas</strong> de papel, con lápiz. Usa los bancos de palabras de la hoja. Marca cada casilla aquí después de terminarla en el papel.</span></div>
 
     <div class="task-item">
-      <div class="q">Task 1 (front of sheet): The Three Sides organizer</div>
-      <div class="frame">For each side, finish the frames: <em>They wanted…</em> and <em>They believed…</em>. Then copy <strong>one statement from Part II</strong> into each column. To look at Part II again, tap <strong>II. Who Said It?</strong> at the top, then tap <strong>VI. Write It</strong> to come back.</div>
-      <label class="paper-check"><input type="checkbox" id="cb-task1"> <span>✏ I finished Task 1 on my paper.</span></label>
+      <div class="q"><span class="l-en">Task 1 (front of sheet): The Three Sides organizer</span><span class="l-es">Tarea 1 (frente de la hoja): El organizador de los tres lados</span></div>
+      <div class="frame"><span class="l-en">For each side, finish the frames: <em>They wanted…</em> and <em>They believed…</em>. Then copy <strong>one statement from Part II</strong> into each column. To look at Part II again, tap <strong>II. Who Said It?</strong> at the top, then tap <strong>VI. Write It</strong> to come back.</span><span class="l-es">Para cada lado, completa las frases de la hoja: <em>They wanted…</em> (Querían…) y <em>They believed…</em> (Creían…). Luego copia <strong>una frase de la Parte II</strong> en cada columna. Para ver la Parte II otra vez, toca <strong>II. ¿Quién lo dijo?</strong> arriba, y luego toca <strong>VI. Escríbelo</strong> para volver.</span></div>
+      <label class="paper-check"><input type="checkbox" id="cb-task1"> <span><span class="l-en">✏ I finished Task 1 on my paper.</span><span class="l-es">✏ Terminé la Tarea 1 en mi hoja.</span></span></label>
     </div>
 
     <div class="task-item">
-      <div class="q">Task 2 (back of sheet): Stamp Act summary + my opinion</div>
-      <div class="frame">Fill the three boxes: <em>What it taxed</em> · <em>Why Parliament passed it</em> · <em>How colonists responded</em>. Then finish: <em>"I think the Stamp Act was fair / unfair because ____. A ____ (job) would feel ____ because ____."</em></div>
-      <label class="paper-check"><input type="checkbox" id="cb-task2"> <span>✏ I finished Task 2 on my paper.</span></label>
+      <div class="q"><span class="l-en">Task 2 (back of sheet): Stamp Act summary + my opinion</span><span class="l-es">Tarea 2 (reverso de la hoja): Resumen de la Ley del Sello + mi opinión</span></div>
+      <div class="frame"><span class="l-en">Fill the three boxes: <em>What it taxed</em> · <em>Why Parliament passed it</em> · <em>How colonists responded</em>. Then finish: <em>"I think the Stamp Act was fair / unfair because ____. A ____ (job) would feel ____ because ____."</em></span><span class="l-es">Llena las tres cajas de la hoja: <em>What it taxed</em> (a qué le puso impuesto) · <em>Why Parliament passed it</em> (por qué el Parlamento la aprobó) · <em>How colonists responded</em> (cómo respondieron los colonos). Luego completa: <em>"I think the Stamp Act was fair / unfair because ____. A ____ (job) would feel ____ because ____."</em> (Creo que la Ley del Sello fue justa / injusta porque ____. Un ____ (trabajo) se sentiría ____ porque ____.)</span></div>
+      <label class="paper-check"><input type="checkbox" id="cb-task2"> <span><span class="l-en">✏ I finished Task 2 on my paper.</span><span class="l-es">✏ Terminé la Tarea 2 en mi hoja.</span></span></label>
     </div>
   </section>
 
   <!-- ================= FINISH ================= -->
   <section class="part page" id="finish">
-    <div class="part-label"><span class="roman">Finish</span><h2>Seal the Letter</h2></div>
+    <div class="part-label"><span class="roman"><span class="l-en">Finish</span><span class="l-es">Final</span></span><h2><span class="l-en">Seal the Letter</span><span class="l-es">Sella la carta</span></h2></div>
     <div class="finish-card">
-      <div class="bigseal" aria-hidden="true"><span class="quill">Day 2</span><span class="yr">1765</span></div>
-      <h3 id="finishTitle">Done for today?</h3>
+      <div class="bigseal" aria-hidden="true"><span class="quill"><span class="l-en">Day 2</span><span class="l-es">Día 2</span></span><span class="yr">1765</span></div>
+      <h3 id="finishTitle"></h3>
       <p id="finishSide"></p>
-      <p>When every part below shows <strong>Complete</strong>, show your screen to your teacher, then turn in your paper sheet. The paper is what gets graded. Tap any part at the top to look at it again.</p>
+      <p><span class="l-en">When every part below shows <strong>Complete</strong>, show your screen to your teacher, then turn in your paper sheet. The paper is what gets graded. Tap any part at the top to look at it again.</span><span class="l-es">Cuando cada parte de abajo diga <strong>Completa</strong>, muéstrale tu pantalla a tu maestro y luego entrega tu hoja de papel. El papel es lo que se califica. Toca cualquier parte arriba para verla otra vez.</span></p>
       <ul class="check" id="checkList"></ul>
-      <p style="font-size:.85rem; color:var(--ink-soft); margin-top:14px">Heads up: if you close or refresh this page, your on-screen progress disappears. Finish in one sitting. Your paper work is safe.</p>
+      <p style="font-size:.85rem; color:var(--ink-soft); margin-top:14px"><span class="l-en">Heads up: the browser’s Back button takes you to the previous part, not out of the lesson. But if you close or refresh this page, your on-screen progress disappears. Finish in one sitting. Your paper work is safe.</span><span class="l-es">Atención: el botón Atrás del navegador te lleva a la parte anterior, no fuera de la lección. Pero si cierras o recargas esta página, tu progreso en la pantalla desaparece. Termina todo de una vez. Tu trabajo en papel está a salvo.</span></p>
     </div>
   </section>
 
 </main>
 
+<!-- enlarged-image view: opened by tapping any historical picture; tap anywhere or press Esc to close -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged picture">
+  <button class="lb-close" type="button">✕ <span class="l-en">Close</span><span class="l-es">Cerrar</span></button>
+  <img alt="">
+  <div class="lb-cap"></div>
+</div>
+
 <script>
 (function(){
   'use strict';
 
+  /* =================== LANGUAGE =================== */
+  /* Every student-facing string exists in English and Spanish. Static text uses
+     <span class="l-en"> / <span class="l-es"> pairs in the HTML; text built here uses bi(). 
+     The body class "es" picks which one shows. No storage: reloading returns to English. */
+  let lang = 'en';
+  const bi = (en, es) => '<span class="l-en">'+en+'</span><span class="l-es">'+es+'</span>';
+
+  const TITLES = {en:'Day 2 — Three Sides + the Stamp Act', es:'Día 2 — Tres lados + la Ley del Sello'};
+  function setLang(l){
+    lang = l;
+    document.body.classList.toggle('es', l==='es');
+    document.documentElement.lang = l;
+    document.title = TITLES[l];
+    const btn = document.getElementById('langBtn');
+    btn.textContent = l==='es' ? 'English' : 'Español';
+    btn.setAttribute('aria-label', l==='es' ? 'Switch to English' : 'Cambiar a español');
+    document.querySelectorAll('img[data-alt-es]').forEach(im => {
+      if(!im.dataset.altEn) im.dataset.altEn = im.alt;
+      im.alt = l==='es' ? im.dataset.altEs : im.dataset.altEn;
+    });
+  }
+  document.getElementById('langBtn').addEventListener('click', () => setLang(lang==='es' ? 'en' : 'es'));
+
   /* =================== DATA =================== */
 
   const SIDES = ['Patriot','Loyalist','Neutralist'];
+  const SIDE_NAME = {
+    Patriot:   {en:'Patriot',    es:'Patriota'},
+    Loyalist:  {en:'Loyalist',   es:'Lealista'},
+    Neutralist:{en:'Neutralist', es:'Neutralista'}
+  };
+  const sideBtns = () => SIDES.map(s => '<button class="sbtn" data-side="'+s+'">'+bi(SIDE_NAME[s].en, SIDE_NAME[s].es)+'</button>').join('');
 
   /* Part II statements. side = correct answer. hint = shown after a wrong tap. why = shown after the right tap. */
   const STATEMENTS = [
-    {say:'The king is our king. We should obey the laws Parliament makes.', side:'Loyalist',
+    {side:'Loyalist',
+     say:'The king is our ruler. We should obey the laws Parliament makes.',
+     say_es:'El rey es nuestro gobernante. Debemos obedecer las leyes que hace el Parlamento.',
      why:'Loyalists believed in obeying the king and Parliament.',
-     hint:'Who wants to obey the king no matter what?'},
-    {say:'Parliament cannot tax us. Nobody there speaks for us.', side:'Patriot',
+     why_es:'Los lealistas creían en obedecer al rey y al Parlamento.',
+     hint:'Who wants to obey the king no matter what?',
+     hint_es:'¿Quién quiere obedecer al rey pase lo que pase?'},
+    {side:'Patriot',
+     say:'Parliament cannot tax us. Nobody there speaks for us.',
+     say_es:'El Parlamento no puede cobrarnos impuestos. Nadie allí habla por nosotros.',
      why:'"No taxation without representation" was the big Patriot idea.',
-     hint:'Who is angry about taxes with no say?'},
-    {say:'I do not care who wins. I just want to sell my crops and feed my family.', side:'Neutralist',
+     why_es:'"No hay impuestos sin representación" era la gran idea patriota.',
+     hint:'Who is angry about taxes with no say?',
+     hint_es:'¿Quién está enojado por pagar impuestos sin tener voz?'},
+    {side:'Neutralist',
+     say:'I do not care who wins. I just want to sell my crops and feed my family.',
+     say_es:'No me importa quién gane. Solo quiero vender mis cosechas y alimentar a mi familia.',
      why:'Neutralists cared most about their own work and family.',
-     hint:'Who does not want to pick a side?'},
-    {say:'Let us stop buying British goods until they listen to us.', side:'Patriot',
+     why_es:'A los neutralistas les importaba más su propio trabajo y su familia.',
+     hint:'Who does not want to pick a side?',
+     hint_es:'¿Quién no quiere elegir un lado?'},
+    {side:'Patriot',
+     say:'We should stop buying British goods until they listen to us.',
+     say_es:'Debemos dejar de comprar productos británicos hasta que nos escuchen.',
      why:'Patriots used protests like this to push back against Britain.',
-     hint:'Who wants to fight back against Britain?'},
-    {say:'British soldiers protected us in the war. Paying a little back is fair.', side:'Loyalist',
-     why:'Loyalists agreed with Britain that the colonies should help pay the war debt.',
-     hint:'Who thinks Britain has a good point?'},
-    {say:'Both sides shout too much. Let us wait and see what happens.', side:'Neutralist',
+     why_es:'Los patriotas usaban protestas como esta para resistir a Gran Bretaña.',
+     hint:'Who wants to fight back against Britain?',
+     hint_es:'¿Quién quiere resistir a Gran Bretaña?'},
+    {side:'Loyalist',
+     say:'British soldiers protected us in the war. Paying a little back is fair.',
+     say_es:'Los soldados británicos nos protegieron en la guerra. Es justo pagar un poco a cambio.',
+     why:'Loyalists agreed with Britain that the colonies should help pay for the war and the soldiers.',
+     why_es:'Los lealistas estaban de acuerdo con Gran Bretaña en que las colonias debían ayudar a pagar la guerra y los soldados.',
+     hint:'Who thinks Britain has a good point?',
+     hint_es:'¿Quién piensa que Gran Bretaña tiene razón?'},
+    {side:'Neutralist',
+     say:'Both sides shout too much. I will wait and see what happens.',
+     say_es:'Los dos lados gritan demasiado. Voy a esperar a ver qué pasa.',
      why:'Neutralists often waited and asked questions instead of choosing.',
-     hint:'Who wants to wait instead of choosing?'},
-    {say:'The people who protest the Stamp Act are heroes!', side:'Patriot',
+     why_es:'Los neutralistas a menudo esperaban y hacían preguntas en vez de elegir.',
+     hint:'Who wants to wait instead of choosing?',
+     hint_es:'¿Quién quiere esperar en vez de elegir?'},
+    {side:'Patriot',
+     say:'The people who protest the Stamp Act are heroes!',
+     say_es:'¡Las personas que protestan contra la Ley del Sello son héroes!',
      why:'Patriots admired the protesters, like the Sons of Liberty.',
-     hint:'Who likes the protesters?'},
-    {say:'Breaking the law and scaring tax collectors is wrong.', side:'Loyalist',
+     why_es:'Los patriotas admiraban a los que protestaban, como los Hijos de la Libertad.',
+     hint:'Who likes the protesters?',
+     hint_es:'¿A quién le gustan los que protestan?'},
+    {side:'Loyalist',
+     say:'Breaking the law and scaring tax collectors is wrong.',
+     say_es:'Romper la ley y asustar a los cobradores de impuestos está mal.',
      why:'Loyalists thought protests were dangerous and against the law.',
-     hint:'Who thinks the protests are wrong?'},
-    {say:'I have friends on both sides. I will not choose between them.', side:'Neutralist',
+     why_es:'Los lealistas pensaban que las protestas eran peligrosas y contra la ley.',
+     hint:'Who thinks the protests are wrong?',
+     hint_es:'¿Quién piensa que las protestas están mal?'},
+    {side:'Neutralist',
+     say:'I have friends on both sides. I will not choose between them.',
+     say_es:'Tengo amigos en los dos lados. No voy a elegir entre ellos.',
      why:'Many Neutralists had family and friends on both sides.',
-     hint:'Who refuses to choose?'},
-    {say:'One day the colonies should rule themselves.', side:'Patriot',
+     why_es:'Muchos neutralistas tenían familia y amigos en los dos lados.',
+     hint:'Who refuses to choose?',
+     hint_es:'¿Quién se niega a elegir?'},
+    {side:'Patriot',
+     say:'One day the colonies should rule themselves.',
+     say_es:'Un día las colonias deberían gobernarse solas.',
      why:'Wanting the colonies to rule themselves is the heart of being a Patriot.',
-     hint:'Who wants independence?'}
+     why_es:'Querer que las colonias se gobiernen solas es el corazón de ser patriota.',
+     hint:'Who wants independence?',
+     hint_es:'¿Quién quiere la independencia?'}
   ];
 
-  /* Part III quick check. {answer|wrong|wrong} - first option is correct. */
-  const STAMP_BLANKS =
-    'The Stamp Act (1765) put a tax on {paper|food|land}, like newspapers and playing cards. ' +
-    'Parliament passed it because Britain owed money from the {French and Indian War|King’s birthday party|Boston Tea Party}. ' +
-    'Colonists were angry because they had no {representatives|soldiers|newspapers} in Parliament. ' +
-    'In 1766, Parliament {repealed|doubled|hid} the Stamp Act.';
+  /* Part III quick check. {0}..{3} are blanks; option 0 in each list is the correct answer. */
+  const STAMP_TEXT = {
+    en:'The Stamp Act (1765) put a tax on {0}, like newspapers and playing cards. ' +
+       'Parliament passed it because Britain owed money from the {1}. ' +
+       'Colonists were angry because they had no {2} in Parliament. ' +
+       'In 1766, Parliament {3} the Stamp Act.',
+    es:'La Ley del Sello (1765) puso un impuesto al {0}, como los periódicos y las cartas de jugar. ' +
+       'El Parlamento la aprobó porque Gran Bretaña debía dinero por la {1}. ' +
+       'Los colonos se enojaron porque no tenían {2} en el Parlamento. ' +
+       'En 1766, el Parlamento {3} la Ley del Sello.'
+  };
+  const STAMP_OPTIONS = [
+    {en:['paper','food','land'],                                              es:['papel','comida','tierra']},
+    {en:['French and Indian War','King’s birthday party','Boston Tea Party'], es:['Guerra Franco-India','fiesta de cumpleaños del rey','Fiesta del Té de Boston']},
+    {en:['representatives','soldiers','newspapers'],                          es:['representantes','soldados','periódicos']},
+    {en:['repealed','doubled','hid'],                                         es:['revocó','duplicó','escondió']}
+  ];
 
   /* Part IV jobs. hit = correct answer: hard / little / barely */
   const JOBS = [
-    {name:'Printer', desc:'You print newspapers and pamphlets every day. Every single sheet needs a stamp.', hit:'hard',
+    {name:'Printer', name_es:'Impresor', hit:'hard',
+     desc:'You print newspapers and pamphlets every day. Every single sheet needs a stamp.',
+     desc_es:'Imprimes periódicos y folletos todos los días. Cada hoja necesita un sello.',
      why:'Printers were hit hardest. Every newspaper page needed a stamp, so the tax ate their profits. That is why so many printers became Patriots.',
-     hint:'Think: a printer uses paper all day long.'},
-    {name:'Lawyer', desc:'You write wills, contracts, and court papers for your neighbors.', hit:'hard',
-     why:'Lawyers were hit hard. Every legal paper needed a stamp, and the stamps for legal papers cost the most.',
-     hint:'Think: does a lawyer’s work use a lot of official paper?'},
-    {name:'Merchant', desc:'You buy and sell goods. Sometimes you sign contracts and shipping papers.', hit:'little',
-     why:'Merchants were hit a little. They paid for stamps on contracts and shipping papers, but not every day. Many merchants were more upset about the idea of the tax than the cost.',
-     hint:'Think: a merchant uses some papers, but not all day like a printer.'},
-    {name:'Farmer', desc:'You grow crops and raise animals. You rarely buy a newspaper or sign a legal paper.', hit:'barely',
-     why:'Most farmers barely noticed. They rarely bought stamped items. But farmers still heard the anger from their neighbors in town.',
-     hint:'Think: how often does a farmer buy a newspaper or sign a contract?'}
+     why_es:'A los impresores les afectó más que a nadie. Cada página de periódico necesitaba un sello, así que el impuesto se comía sus ganancias. Por eso tantos impresores se hicieron patriotas.',
+     hint:'Think: a printer uses paper all day long.',
+     hint_es:'Piensa: un impresor usa papel todo el día.'},
+    {name:'Lawyer', name_es:'Abogado', hit:'hard',
+     desc:'You write wills, contracts, and court papers for your neighbors.',
+     desc_es:'Escribes testamentos, contratos y documentos de la corte para tus vecinos.',
+     why:'Lawyers were hit hard. Every legal paper needed a stamp, and some of the most expensive stamps were for legal papers.',
+     why_es:'A los abogados les afectó mucho. Cada documento legal necesitaba un sello, y algunos de los sellos más caros eran para documentos legales.',
+     hint:'Think: does a lawyer’s work use a lot of official paper?',
+     hint_es:'Piensa: ¿el trabajo de un abogado usa muchos documentos oficiales?'},
+    {name:'Merchant', name_es:'Comerciante', hit:'little',
+     desc:'You buy and sell goods. Sometimes you sign contracts and shipping papers.',
+     desc_es:'Compras y vendes mercancías. A veces firmas contratos y papeles de envío.',
+     why:'Merchants were hit a little at a time. They paid for stamps on contracts and ship papers, and big shipping merchants paid again and again. Many merchants fought back by refusing to buy British goods.',
+     why_es:'A los comerciantes les afectó un poco cada vez. Pagaban sellos en contratos y papeles de barco, y los grandes comerciantes de barcos pagaban una y otra vez. Muchos comerciantes se defendieron dejando de comprar productos británicos.',
+     hint:'Think: a merchant uses some papers, but not all day like a printer.',
+     hint_es:'Piensa: un comerciante usa algunos papeles, pero no todo el día como un impresor.'},
+    {name:'Farmer', name_es:'Granjero', hit:'barely',
+     desc:'You grow crops and raise animals. You rarely buy a newspaper or sign a legal paper.',
+     desc_es:'Cultivas la tierra y crías animales. Casi nunca compras un periódico ni firmas un documento legal.',
+     why:'Most farmers barely noticed. They rarely bought stamped items, unless they bought land or went to court. But farmers still heard the anger from their neighbors in town.',
+     why_es:'La mayoría de los granjeros casi no lo notaron. Casi nunca compraban cosas con sello, a menos que compraran tierra o fueran a la corte. Pero igual oían el enojo de sus vecinos del pueblo.',
+     hint:'Think: how often does a farmer buy a newspaper or sign a contract?',
+     hint_es:'Piensa: ¿cada cuánto compra un granjero un periódico o firma un contrato?'}
   ];
-  const HIT_LABELS = {hard:'Hit hard', little:'Hit a little', barely:'Barely noticed'};
+  const HIT_LABELS = {
+    hard:  {en:'Hit hard',       es:'Le afectó mucho'},
+    little:{en:'Hit a little',   es:'Le afectó un poco'},
+    barely:{en:'Barely noticed', es:'Casi no lo notó'}
+  };
 
   /* =================== STATE (in memory only; lost on refresh) =================== */
   const state = {
@@ -771,16 +926,36 @@ function imgFail(img){
     while(i < PAGES.length-1 && s[PAGES[i]]) i++;
     return i;
   }
-  function goTo(id){
-    const s = sectionStatus();
-    const idx = PAGES.indexOf(id);
-    if(idx < 0) return;
-    if(idx > maxUnlocked(s)) return;
+  function show(id){
     current = id;
     PAGES.forEach(p => document.getElementById(p).classList.toggle('active', p===id));
     window.scrollTo(0,0);
     refresh();
   }
+  function unlocked(id){
+    const idx = PAGES.indexOf(id);
+    return idx >= 0 && idx <= maxUnlocked(sectionStatus());
+  }
+  function goTo(id){
+    if(!unlocked(id)) return;
+    show(id);
+    // Each page change becomes a browser history entry (the URL hash), so the browser's
+    // Back button steps to the previous part instead of leaving the lesson. Nothing is
+    // stored: progress still lives only in the state object and is lost on reload.
+    if(location.hash !== '#'+id){ try{ location.hash = id; }catch(e){} }
+  }
+  window.addEventListener('hashchange', () => {
+    const id = location.hash.slice(1) || 'hero';
+    if(id === current) return;
+    if(!unlocked(id)){ try{ location.replace('#'+current); }catch(e){} return; }
+    show(id);
+  });
+  // Leaving or reloading the page wipes progress, so ask first once any work has been done.
+  window.addEventListener('beforeunload', e => {
+    const started = state.cardsRead.size || state.mySide || Object.keys(state.stmt).length ||
+                    state.blanksSolved || Object.keys(state.jobs).length || state.ledger || state.task1 || state.task2;
+    if(started){ e.preventDefault(); e.returnValue = ''; }
+  });
   $$('[data-goto]').forEach(b => b.addEventListener('click', () => goTo(b.dataset.goto)));
 
   // build Back / Next pagers on every part page
@@ -790,13 +965,13 @@ function imgFail(img){
     const div = document.createElement('div');
     div.className = 'pager';
     div.innerHTML =
-      '<button class="pgbtn back" data-pg-back>\u2190 Back</button>'+
+      '<button class="pgbtn back" data-pg-back>'+bi('← Back','← Atrás')+'</button>'+
       '<span class="pg-hint" data-pg-hint></span>'+
-      (next ? '<button class="pgbtn" data-pg-next>Next \u2192</button>' : '<span></span>');
+      (next ? '<button class="pgbtn" data-pg-next>'+bi('Next →','Siguiente →')+'</button>' : '<span></span>');
     sec.appendChild(div);
     const pc = document.createElement('div');
     pc.className = 'page-count';
-    pc.textContent = id==='finish' ? 'Finish' : 'Page '+(i+1)+' of 6';
+    pc.innerHTML = id==='finish' ? bi('Finish','Final') : bi('Page '+(i+1)+' of 6', 'Página '+(i+1)+' de 6');
     sec.appendChild(pc);
     div.querySelector('[data-pg-back]').addEventListener('click', () => goTo(prev));
     const nb = div.querySelector('[data-pg-next]');
@@ -811,7 +986,9 @@ function imgFail(img){
       if(!nb) { hint.textContent = ''; return; }
       const ok = !GATE || !!s[id];
       nb.disabled = !ok;
-      hint.textContent = ok ? '\u2713 This part is complete.' : 'Finish every tap on this page to unlock Next.';
+      hint.innerHTML = ok
+        ? bi('✓ This part is complete.', '✓ Esta parte está completa.')
+        : bi('Finish every tap on this page to unlock Next.', 'Completa cada toque en esta página para desbloquear Siguiente.');
       hint.className = 'pg-hint'+(ok?' ok':'');
     });
     const mx = maxUnlocked(s);
@@ -843,15 +1020,24 @@ function imgFail(img){
     const allDone = Object.keys(s).every(k=>s[k]);
     document.getElementById('nav-finish').classList.toggle('done', allDone);
     refreshPagers(s);
-    $('#finishTitle').textContent = allDone ? 'All six parts complete!' : 'Done for today?';
-    $('#finishSide').textContent = state.mySide ? 'Today you read as a '+state.mySide+'.' : '';
+    $('#finishTitle').innerHTML = allDone ? bi('All six parts complete!','¡Las seis partes completas!') : bi('Done for today?','¿Terminaste por hoy?');
+    $('#finishSide').innerHTML = state.mySide
+      ? bi('Today you read as a '+SIDE_NAME[state.mySide].en+'.', 'Hoy leíste como '+SIDE_NAME[state.mySide].es.toLowerCase()+'.')
+      : '';
     renderChecklist(s);
   }
 
   function renderChecklist(s){
-    const names = {part1:'Part I — Meet the Three Sides', part2:'Part II — Who Would Say It?', part3:'Part III — The Stamp Act', part4:'Part IV — Who Did It Hit?', part5:'Part V — Pay the Tax (ledger)', part6:'Part VI — Write It Down (paper)'};
+    const names = {
+      part1:bi('Part I — Meet the Three Sides','Parte I — Conoce los tres lados'),
+      part2:bi('Part II — Who Would Say It?','Parte II — ¿Quién lo diría?'),
+      part3:bi('Part III — The Stamp Act','Parte III — La Ley del Sello'),
+      part4:bi('Part IV — Who Did It Hit?','Parte IV — ¿A quién afectó?'),
+      part5:bi('Part V — Pay the Tax (ledger)','Parte V — Paga el impuesto (tira de cuentas)'),
+      part6:bi('Part VI — Write It Down (paper)','Parte VI — Escríbelo (papel)')
+    };
     $('#checkList').innerHTML = Object.keys(names).map(k =>
-      '<li><span>'+names[k]+'</span><span class="state '+(s[k]?'yes':'no')+'">'+(s[k]?'Complete':'Not yet')+'</span></li>'
+      '<li><span>'+names[k]+'</span><span class="state '+(s[k]?'yes':'no')+'">'+(s[k]?bi('Complete','Completa'):bi('Not yet','Todavía no'))+'</span></li>'
     ).join('');
   }
 
@@ -861,7 +1047,7 @@ function imgFail(img){
   $$('.readbtn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       state.cardsRead.add(btn.dataset.read);
-      btn.textContent = '✓ Read';
+      btn.innerHTML = bi('✓ Read','✓ Leído');
       btn.disabled = true;
       btn.closest('.side-card').classList.add('read');
       refresh();
@@ -869,13 +1055,16 @@ function imgFail(img){
   });
 
   const SIDE_LINES = {
-    Patriot:'Today you read as a <strong>Patriot</strong>. You want the colonies to have a say. Watch how the Stamp Act makes you feel.',
-    Loyalist:'Today you read as a <strong>Loyalist</strong>. You trust the king and Parliament. Watch whether the Stamp Act tests that trust.',
-    Neutralist:'Today you read as a <strong>Neutralist</strong>. You are not picking a side yet. Watch which side’s ideas make the most sense to you.'
+    Patriot:   bi('Today you read as a <strong>Patriot</strong>. You want the colonies to have a say. Watch how the Stamp Act makes you feel.',
+                  'Hoy lees como <strong>patriota</strong>. Quieres que las colonias tengan voz. Fíjate en cómo te hace sentir la Ley del Sello.'),
+    Loyalist:  bi('Today you read as a <strong>Loyalist</strong>. You trust the king and Parliament. Watch whether the Stamp Act tests that trust.',
+                  'Hoy lees como <strong>lealista</strong>. Confías en el rey y en el Parlamento. Fíjate si la Ley del Sello pone a prueba esa confianza.'),
+    Neutralist:bi('Today you read as a <strong>Neutralist</strong>. You are not picking a side yet. Watch which side’s ideas make the most sense to you.',
+                  'Hoy lees como <strong>neutralista</strong>. Todavía no eliges un lado. Fíjate en qué ideas te parecen más sensatas.')
   };
-  $$('.sbtn').forEach(b=>{
+  $$('.pick-side .sbtn').forEach(b=>{
     b.addEventListener('click', ()=>{
-      $$('.sbtn').forEach(x=>x.classList.remove('picked'));
+      $$('.pick-side .sbtn').forEach(x=>x.classList.remove('picked'));
       b.classList.add('picked');
       state.mySide = b.dataset.side;
       $('#sideFb').innerHTML = SIDE_LINES[state.mySide];
@@ -885,13 +1074,22 @@ function imgFail(img){
 
   /* =================== PART II : statements =================== */
   const stmtList = $('#stmtList'), stmtCount = $('#stmtCount');
+  function paintCount(){
+    const n = Object.keys(state.stmt).length;
+    stmtCount.innerHTML = n===10
+      ? bi('All 10 answered. Remember: you will copy one statement per side onto your paper in Part VI.',
+           'Las 10 respondidas. Recuerda: en la Parte VI copiarás una frase de cada lado en tu hoja.')
+      : bi(n+' of 10 answered', n+' de 10 respondidas');
+    stmtCount.className = 'count-line'+(n===10?' ok':'');
+  }
+  paintCount();
   STATEMENTS.forEach((st,i)=>{
     const div = document.createElement('div');
     div.className = 'stmt';
     div.innerHTML =
-      '<div class="num">Statement '+(i+1)+' of 10</div>'+
-      '<div class="say">“'+st.say+'”</div>'+
-      '<div class="side-btns">'+SIDES.map(s=>'<button class="sbtn" data-side="'+s+'">'+s+'</button>').join('')+'</div>'+
+      '<div class="num">'+bi('Statement '+(i+1)+' of 10', 'Frase '+(i+1)+' de 10')+'</div>'+
+      '<div class="say">“'+bi(st.say, st.say_es)+'”</div>'+
+      '<div class="side-btns">'+sideBtns()+'</div>'+
       '<div class="fb" aria-live="polite"></div>';
     stmtList.appendChild(div);
     const fb = div.querySelector('.fb');
@@ -903,17 +1101,14 @@ function imgFail(img){
           b.classList.add('picked');
           div.classList.add('solved');
           div.querySelectorAll('.sbtn').forEach(o=>{ o.disabled=true; });
-          fb.textContent = '✓ '+st.side+'. '+st.why;
+          fb.innerHTML = bi('✓ '+SIDE_NAME[st.side].en+'. '+st.why, '✓ '+SIDE_NAME[st.side].es+'. '+st.why_es);
           fb.className = 'fb good';
         }else{
           b.disabled = true; b.style.opacity = .4;
-          fb.textContent = 'Not quite. '+st.hint+' Try again.';
+          fb.innerHTML = bi('Not quite. '+st.hint+' Try again.', 'Casi. '+st.hint_es+' Inténtalo otra vez.');
           fb.className = 'fb try';
         }
-        const n = Object.keys(state.stmt).length;
-        stmtCount.textContent = n+' of 10 answered';
-        stmtCount.className = 'count-line'+(n===10?' ok':'');
-        if(n===10) stmtCount.textContent = 'All 10 answered. Remember: you will copy one statement per side onto your paper in Part VI.';
+        paintCount();
         refresh();
       });
     });
@@ -922,28 +1117,40 @@ function imgFail(img){
   /* =================== PART III : fill-in blanks =================== */
   let pop = null;
   function closePop(){ if(pop){ pop.remove(); pop=null; } }
-  document.addEventListener('click', e=>{ if(pop && !pop.contains(e.target) && !e.target.classList.contains('blank')) closePop(); });
+  document.addEventListener('click', e=>{ if(pop && !pop.contains(e.target) && !e.target.closest('.blank')) closePop(); });
   document.addEventListener('keydown', e=>{ if(e.key==='Escape') closePop(); });
 
-  $('#stampBlanks').innerHTML = STAMP_BLANKS.replace(/\{([^}]+)\}/g, (m, opts)=>{
-    const parts = opts.split('|');
-    state.blanksTotal++;
-    return '<button class="blank" data-answer="'+parts[0].replace(/"/g,'&quot;')+'" data-options="'+parts.join('|').replace(/"/g,'&quot;')+'" aria-label="Fill in the blank">_____</button>';
-  });
+  // Each blank is one button holding both languages; the sentence around it is a bilingual pair.
+  const blankBtn = i => '<button class="blank" data-i="'+i+'" aria-label="Fill in the blank">_____</button>';
+  const fillText = (tpl) => tpl.replace(/\{(\d)\}/g, (m,i) => '\u0000'+i+'\u0000');
+  // Build the sentence: split each language on the blank markers, then interleave so one button serves both.
+  (function buildBlanks(){
+    const en = fillText(STAMP_TEXT.en).split('\u0000');
+    const es = fillText(STAMP_TEXT.es).split('\u0000');
+    // en/es alternate: text, index, text, index, ... and share the same blank order
+    let html = '';
+    for(let k=0; k<en.length; k++){
+      if(k%2===0){ html += bi(en[k], es[k]); }
+      else { html += blankBtn(en[k]); state.blanksTotal++; }
+    }
+    $('#stampBlanks').innerHTML = html;
+  })();
 
   $$('.blank').forEach(bl=>{
+    const i = +bl.dataset.i;
+    const opts = STAMP_OPTIONS[i];
     bl.addEventListener('click', e=>{
       e.stopPropagation();
       if(bl.classList.contains('filled')) return;
       closePop();
       pop = document.createElement('div');
       pop.className='choice-pop';
-      shuffle(bl.dataset.options.split('|').slice()).forEach(o=>{
+      shuffle(opts.en.map((_,j)=>j)).forEach(j=>{
         const b = document.createElement('button');
-        b.textContent = o;
+        b.innerHTML = bi(opts.en[j], opts.es[j]);
         b.addEventListener('click', ()=>{
-          if(o===bl.dataset.answer){
-            bl.textContent = o;
+          if(j===0){
+            bl.innerHTML = bi(opts.en[0], opts.es[0]);
             bl.classList.add('filled');
             bl.disabled = true;
             state.blanksSolved++;
@@ -970,8 +1177,8 @@ function imgFail(img){
     const div = document.createElement('div');
     div.className = 'job';
     div.innerHTML =
-      '<h3>'+job.name+'</h3><p class="desc">'+job.desc+'</p>'+
-      '<div class="hit-btns">'+Object.keys(HIT_LABELS).map(k=>'<button class="hbtn" data-hit="'+k+'">'+HIT_LABELS[k]+'</button>').join('')+'</div>'+
+      '<h3>'+bi(job.name, job.name_es)+'</h3><p class="desc">'+bi(job.desc, job.desc_es)+'</p>'+
+      '<div class="hit-btns">'+Object.keys(HIT_LABELS).map(k=>'<button class="hbtn" data-hit="'+k+'">'+bi(HIT_LABELS[k].en, HIT_LABELS[k].es)+'</button>').join('')+'</div>'+
       '<div class="fb" aria-live="polite"></div>';
     jobGrid.appendChild(div);
     const fb = div.querySelector('.fb');
@@ -983,11 +1190,11 @@ function imgFail(img){
           b.classList.add('correct');
           div.classList.add('solved');
           div.querySelectorAll('.hbtn').forEach(o=>{ o.disabled=true; });
-          fb.textContent = '✓ '+job.why;
+          fb.innerHTML = bi('✓ '+job.why, '✓ '+job.why_es);
           fb.className='fb good';
         }else{
           b.classList.add('wrong'); b.disabled=true;
-          fb.textContent = 'Not quite. '+job.hint+' Try again.';
+          fb.innerHTML = bi('Not quite. '+job.hint+' Try again.', 'Casi. '+job.hint_es+' Inténtalo otra vez.');
           fb.className='fb try';
         }
         refresh();
@@ -995,12 +1202,43 @@ function imgFail(img){
     });
   });
 
+  /* =================== TAP TO ENLARGE =================== */
+  const lb = $('#lightbox'), lbImg = lb.querySelector('img'), lbCap = lb.querySelector('.lb-cap');
+  function openZoom(img){
+    const cap = img.closest('figure') && img.closest('figure').querySelector('figcaption');
+    lbCap.innerHTML = cap ? cap.innerHTML : '';
+    lbImg.alt = img.alt;
+    // try the large version; if it will not load, fall back to the picture already on the page
+    lbImg.onerror = () => { lbImg.onerror = null; lbImg.src = img.currentSrc || img.src; };
+    lbImg.src = img.dataset.zoom || img.src;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    lb.querySelector('.lb-close').focus();
+  }
+  function closeZoom(){
+    if(!lb.classList.contains('open')) return;
+    lb.classList.remove('open');
+    lbImg.removeAttribute('src');
+    document.body.style.overflow = '';
+  }
+  $$('img[data-zoom]').forEach(img => {
+    img.tabIndex = 0;
+    img.setAttribute('role','button');
+    img.addEventListener('click', () => openZoom(img));
+    img.addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openZoom(img); } });
+  });
+  lb.addEventListener('click', closeZoom);
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeZoom(); });
+
   /* =================== PART V + VI : paper checkboxes =================== */
   $('#cb-ledger').addEventListener('change', e=>{ state.ledger = e.target.checked; refresh(); });
   $('#cb-task1').addEventListener('change', e=>{ state.task1 = e.target.checked; refresh(); });
   $('#cb-task2').addEventListener('change', e=>{ state.task2 = e.target.checked; refresh(); });
 
   document.getElementById('hero').classList.add('active');
+  // A stale hash from an earlier visit means nothing after a reload (state is gone), so start at the intro.
+  if(location.hash && location.hash !== '#hero'){ try{ location.replace('#hero'); }catch(e){} }
+  setLang('en');
   refresh();
 })();
 </script>
