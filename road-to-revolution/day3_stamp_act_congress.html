@@ -1187,7 +1187,7 @@ function imgFail(img){
         partTask(bi('<strong>Your task:</strong> Read your proposal. Tap the question you want to ask. Copy it onto the front of your paper and fill in the blank with your own words.',
                     '<strong>Tu tarea:</strong> Lee tu propuesta. Toca la pregunta que quieres hacer. Cópiala en el frente de tu hoja y llena el espacio con tus propias palabras.'))+
         propCard(p, L.prop)+
-        '<div class="card"><h3>'+bi('Tap one question','Toca una pregunta')+'</h3>'+
+        '<div class="card"><h3>'+bi('Questions a Neutralist might ask','Preguntas que un neutralista podría hacer')+'</h3>'+
         p.stems.map((s,k) => '<button class="reason q" type="button" data-stem="'+k+'">'+B(s)+'<span class="idea">'+bi('Idea: '+s.idea.en,'Idea: '+s.idea.es)+'</span></button>').join('')+
         '<div class="speech" id="speech"></div></div>';
       body.querySelectorAll('[data-stem]').forEach(b => b.addEventListener('click', () => {
@@ -1201,7 +1201,7 @@ function imgFail(img){
         partTask(bi('<strong>Your task:</strong> Read your proposal. Tap the <strong>two</strong> reasons you think are strongest. The screen builds your speech. Copy it onto the front of your paper.',
                     '<strong>Tu tarea:</strong> Lee tu propuesta. Toca las <strong>dos</strong> razones que te parecen más fuertes. La pantalla arma tu discurso. Cópialo en el frente de tu hoja.'))+
         propCard(p, L.prop)+
-        '<div class="card"><h3>'+(L.side==='Patriot' ? bi('Patriot reasons (vote yes)','Razones patriotas (votar sí)') : bi('Loyalist reasons (vote no)','Razones lealistas (votar no)'))+'</h3>'+
+        '<div class="card"><h3>'+(L.side==='Patriot' ? bi('Reasons why Patriots vote yes','Razones por las que los patriotas votan sí') : bi('Reasons why Loyalists vote no','Razones por las que los lealistas votan no'))+'</h3>'+
         mine.map((l,k) => '<button class="reason" type="button" data-r="'+k+'">'+B(l)+'</button>').join('')+
         '<div class="pick-count" id="liveCount"></div>'+
         '<details class="other"><summary>'+bi('What will the other side say? (Be ready!)','¿Qué dirá el otro lado? (¡Prepárate!)')+'</summary><ul>'+
