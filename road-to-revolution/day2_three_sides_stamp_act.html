@@ -494,6 +494,13 @@
     *{animation:none !important; transition:none !important}
     html{scroll-behavior:auto}
   }
+  .save-note{font-size:.85rem; color:var(--ink-soft); margin:12px 0 0}
+  .restart{
+    display:inline-block; margin-top:12px; font:inherit; font-size:.85rem; cursor:pointer;
+    background:transparent; border:1px dashed var(--ink-soft); color:var(--ink-soft); border-radius:4px; padding:6px 14px;
+  }
+  .restart:hover{border-color:var(--ink); color:var(--ink)}
+  [hidden]{display:none !important}
 </style>
 <script>
 function sideImgFail(img,cls){
@@ -545,6 +552,8 @@ function imgFail(img){
       </figure>
     </div>
     <button class="start" data-goto="part1"><span class="l-en">Begin</span><span class="l-es">Empezar</span></button>
+    <p class="save-note"><span class="l-en">Your taps are saved in this browser. If you close the lesson, open it again on the same Chromebook to pick up where you left off.</span><span class="l-es">Tus toques se guardan en este navegador. Si cierras la lección, ábrela otra vez en la misma Chromebook para seguir donde te quedaste.</span></p>
+    <button class="restart" id="startOver" type="button" hidden>↺ <span class="l-en">Start over (erase my taps on this screen)</span><span class="l-es">Empezar de nuevo (borrar mis toques en esta pantalla)</span></button>
   </div>
 
   <!-- ================= PART I : THREE SIDES ================= -->
@@ -721,7 +730,7 @@ function imgFail(img){
       <p id="finishSide"></p>
       <p><span class="l-en">When every part below shows <strong>Complete</strong>, show your screen to your teacher, then turn in your paper sheet. The paper is what gets graded. Tap any part at the top to look at it again.</span><span class="l-es">Cuando cada parte de abajo diga <strong>Completa</strong>, muéstrale tu pantalla a tu maestro y luego entrega tu hoja de papel. El papel es lo que se califica. Toca cualquier parte arriba para verla otra vez.</span></p>
       <ul class="check" id="checkList"></ul>
-      <p style="font-size:.85rem; color:var(--ink-soft); margin-top:14px"><span class="l-en">Heads up: the browser’s Back button takes you to the previous part, not out of the lesson. But if you close or refresh this page, your on-screen progress disappears. Finish in one sitting. Your paper work is safe.</span><span class="l-es">Atención: el botón Atrás del navegador te lleva a la parte anterior, no fuera de la lección. Pero si cierras o recargas esta página, tu progreso en la pantalla desaparece. Termina todo de una vez. Tu trabajo en papel está a salvo.</span></p>
+      <p style="font-size:.85rem; color:var(--ink-soft); margin-top:14px"><span class="l-en">Heads up: the browser’s Back button takes you to the previous part, not out of the lesson. Your taps are saved in this browser, so you can close the lesson and come back. Your paper is what gets graded.</span><span class="l-es">Atención: el botón Atrás del navegador te lleva a la parte anterior, no fuera de la lección. Tus toques se guardan en este navegador, así que puedes cerrar la lección y volver. Tu hoja es lo que se califica.</span></p>
     </div>
   </section>
 
@@ -759,7 +768,7 @@ function imgFail(img){
       im.alt = l==='es' ? im.dataset.altEs : im.dataset.altEn;
     });
   }
-  document.getElementById('langBtn').addEventListener('click', () => setLang(lang==='es' ? 'en' : 'es'));
+  document.getElementById('langBtn').addEventListener('click', () => { setLang(lang==='es' ? 'en' : 'es'); refresh(); });
 
   /* =================== DATA =================== */
 
@@ -900,16 +909,38 @@ function imgFail(img){
     barely:{en:'Barely noticed', es:'Casi no lo notó'}
   };
 
-  /* =================== STATE (in memory only; lost on refresh) =================== */
+  /* =================== STATE (saved in this browser after every tap) =================== */
   const state = {
     cardsRead:new Set(),   // Part I cards
     mySide:null,           // Part I side tapped
     stmt:{},               // Part II index -> true when correct
     blanksTotal:0, blanksSolved:0,   // Part III
+    blankDone:{},          // Part III blank index -> true when filled
     jobs:{},               // Part IV name -> true when correct
     ledger:false,          // Part V checkbox
     task1:false, task2:false   // Part VI checkboxes
   };
+
+  /* Storage can be blocked (some Guest or managed setups); then the lesson still works, it just doesn't remember. */
+  const SAVE_KEY = 'rtr-day2-student';
+  let saved = null;
+  try{ saved = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null'); }catch(e){}
+  if(saved && saved.v===1 && saved.state){
+    const d = saved.state;
+    state.cardsRead = new Set(d.cardsRead || []);
+    state.mySide = d.mySide || null;
+    state.stmt = d.stmt || {}; state.blankDone = d.blankDone || {}; state.jobs = d.jobs || {};
+    state.ledger = !!d.ledger; state.task1 = !!d.task1; state.task2 = !!d.task2;
+  }
+  function save(){
+    try{
+      localStorage.setItem(SAVE_KEY, JSON.stringify({v:1, page:current, lang, state:{
+        cardsRead:[...state.cardsRead], mySide:state.mySide, stmt:state.stmt, blankDone:state.blankDone,
+        jobs:state.jobs, ledger:state.ledger, task1:state.task1, task2:state.task2}}));
+    }catch(e){}
+  }
+  const started = () => state.cardsRead.size || state.mySide || Object.keys(state.stmt).length ||
+                        state.blanksSolved || Object.keys(state.jobs).length || state.ledger || state.task1 || state.task2;
 
   /* =================== HELPERS =================== */
   const $ = s => document.querySelector(s);
@@ -940,8 +971,7 @@ function imgFail(img){
     if(!unlocked(id)) return;
     show(id);
     // Each page change becomes a browser history entry (the URL hash), so the browser's
-    // Back button steps to the previous part instead of leaving the lesson. Nothing is
-    // stored: progress still lives only in the state object and is lost on reload.
+    // Back button steps to the previous part instead of leaving the lesson.
     if(location.hash !== '#'+id){ try{ location.hash = id; }catch(e){} }
   }
   window.addEventListener('hashchange', () => {
@@ -949,12 +979,6 @@ function imgFail(img){
     if(id === current) return;
     if(!unlocked(id)){ try{ location.replace('#'+current); }catch(e){} return; }
     show(id);
-  });
-  // Leaving or reloading the page wipes progress, so ask first once any work has been done.
-  window.addEventListener('beforeunload', e => {
-    const started = state.cardsRead.size || state.mySide || Object.keys(state.stmt).length ||
-                    state.blanksSolved || Object.keys(state.jobs).length || state.ledger || state.task1 || state.task2;
-    if(started){ e.preventDefault(); e.returnValue = ''; }
   });
   $$('[data-goto]').forEach(b => b.addEventListener('click', () => goTo(b.dataset.goto)));
 
@@ -1025,6 +1049,8 @@ function imgFail(img){
       ? bi('Today you read as a '+SIDE_NAME[state.mySide].en+'.', 'Hoy leíste como '+SIDE_NAME[state.mySide].es.toLowerCase()+'.')
       : '';
     renderChecklist(s);
+    $('#startOver').hidden = !started();
+    save();
   }
 
   function renderChecklist(s){
@@ -1045,11 +1071,15 @@ function imgFail(img){
 
   /* =================== PART I : cards + pick side =================== */
   $$('.readbtn').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      state.cardsRead.add(btn.dataset.read);
+    const markRead = () => {
       btn.innerHTML = bi('✓ Read','✓ Leído');
       btn.disabled = true;
       btn.closest('.side-card').classList.add('read');
+    };
+    if(state.cardsRead.has(btn.dataset.read)) markRead();
+    btn.addEventListener('click', ()=>{
+      state.cardsRead.add(btn.dataset.read);
+      markRead();
       refresh();
     });
   });
@@ -1062,6 +1092,10 @@ function imgFail(img){
     Neutralist:bi('Today you read as a <strong>Neutralist</strong>. You are not picking a side yet. Watch which side’s ideas make the most sense to you.',
                   'Hoy lees como <strong>neutralista</strong>. Todavía no eliges un lado. Fíjate en qué ideas te parecen más sensatas.')
   };
+  if(state.mySide){
+    $$('.pick-side .sbtn').forEach(x => x.classList.toggle('picked', x.dataset.side===state.mySide));
+    $('#sideFb').innerHTML = SIDE_LINES[state.mySide];
+  }
   $$('.pick-side .sbtn').forEach(b=>{
     b.addEventListener('click', ()=>{
       $$('.pick-side .sbtn').forEach(x=>x.classList.remove('picked'));
@@ -1093,16 +1127,20 @@ function imgFail(img){
       '<div class="fb" aria-live="polite"></div>';
     stmtList.appendChild(div);
     const fb = div.querySelector('.fb');
+    const markSolved = () => {
+      div.querySelector('.sbtn[data-side="'+st.side+'"]').classList.add('picked');
+      div.classList.add('solved');
+      div.querySelectorAll('.sbtn').forEach(o=>{ o.disabled=true; });
+      fb.innerHTML = bi('✓ '+SIDE_NAME[st.side].en+'. '+st.why, '✓ '+SIDE_NAME[st.side].es+'. '+st.why_es);
+      fb.className = 'fb good';
+    };
+    if(state.stmt[i]) markSolved();
     div.querySelectorAll('.sbtn').forEach(b=>{
       b.addEventListener('click', ()=>{
         if(state.stmt[i]) return;
         if(b.dataset.side===st.side){
           state.stmt[i]=true;
-          b.classList.add('picked');
-          div.classList.add('solved');
-          div.querySelectorAll('.sbtn').forEach(o=>{ o.disabled=true; });
-          fb.innerHTML = bi('✓ '+SIDE_NAME[st.side].en+'. '+st.why, '✓ '+SIDE_NAME[st.side].es+'. '+st.why_es);
-          fb.className = 'fb good';
+          markSolved();
         }else{
           b.disabled = true; b.style.opacity = .4;
           fb.innerHTML = bi('Not quite. '+st.hint+' Try again.', 'Casi. '+st.hint_es+' Inténtalo otra vez.');
@@ -1139,6 +1177,12 @@ function imgFail(img){
   $$('.blank').forEach(bl=>{
     const i = +bl.dataset.i;
     const opts = STAMP_OPTIONS[i];
+    if(state.blankDone[i]){
+      bl.innerHTML = bi(opts.en[0], opts.es[0]);
+      bl.classList.add('filled');
+      bl.disabled = true;
+      state.blanksSolved++;
+    }
     bl.addEventListener('click', e=>{
       e.stopPropagation();
       if(bl.classList.contains('filled')) return;
@@ -1153,6 +1197,7 @@ function imgFail(img){
             bl.innerHTML = bi(opts.en[0], opts.es[0]);
             bl.classList.add('filled');
             bl.disabled = true;
+            state.blankDone[i] = true;
             state.blanksSolved++;
             if(state.blanksSolved===state.blanksTotal) $('#stampCheck').classList.add('solved');
             closePop();
@@ -1182,16 +1227,20 @@ function imgFail(img){
       '<div class="fb" aria-live="polite"></div>';
     jobGrid.appendChild(div);
     const fb = div.querySelector('.fb');
+    const markSolved = () => {
+      div.querySelector('.hbtn[data-hit="'+job.hit+'"]').classList.add('correct');
+      div.classList.add('solved');
+      div.querySelectorAll('.hbtn').forEach(o=>{ o.disabled=true; });
+      fb.innerHTML = bi('✓ '+job.why, '✓ '+job.why_es);
+      fb.className='fb good';
+    };
+    if(state.jobs[job.name]) markSolved();
     div.querySelectorAll('.hbtn').forEach(b=>{
       b.addEventListener('click', ()=>{
         if(state.jobs[job.name]) return;
         if(b.dataset.hit===job.hit){
           state.jobs[job.name]=true;
-          b.classList.add('correct');
-          div.classList.add('solved');
-          div.querySelectorAll('.hbtn').forEach(o=>{ o.disabled=true; });
-          fb.innerHTML = bi('✓ '+job.why, '✓ '+job.why_es);
-          fb.className='fb good';
+          markSolved();
         }else{
           b.classList.add('wrong'); b.disabled=true;
           fb.innerHTML = bi('Not quite. '+job.hint+' Try again.', 'Casi. '+job.hint_es+' Inténtalo otra vez.');
@@ -1231,15 +1280,25 @@ function imgFail(img){
   document.addEventListener('keydown', e => { if(e.key==='Escape') closeZoom(); });
 
   /* =================== PART V + VI : paper checkboxes =================== */
+  $('#cb-ledger').checked = state.ledger; $('#cb-task1').checked = state.task1; $('#cb-task2').checked = state.task2;
   $('#cb-ledger').addEventListener('change', e=>{ state.ledger = e.target.checked; refresh(); });
   $('#cb-task1').addEventListener('change', e=>{ state.task1 = e.target.checked; refresh(); });
   $('#cb-task2').addEventListener('change', e=>{ state.task2 = e.target.checked; refresh(); });
 
-  document.getElementById('hero').classList.add('active');
-  // A stale hash from an earlier visit means nothing after a reload (state is gone), so start at the intro.
-  if(location.hash && location.hash !== '#hero'){ try{ location.replace('#hero'); }catch(e){} }
-  setLang('en');
-  refresh();
+  $('#startOver').addEventListener('click', () => {
+    if(!confirm(lang==='es' ? '¿Borrar todos tus toques en esta pantalla y empezar de nuevo? Tu hoja no cambia.'
+                            : 'Erase all your taps on this screen and start over? Your paper does not change.')) return;
+    try{ localStorage.removeItem(SAVE_KEY); }catch(e){}
+    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+    location.reload();
+  });
+
+  if(state.blanksTotal>0 && state.blanksSolved===state.blanksTotal) $('#stampCheck').classList.add('solved');
+  setLang(saved && saved.lang==='es' ? 'es' : 'en');
+  // Reopen where the student left off: the page in the address (after a refresh) or the saved page.
+  const startAt = location.hash.slice(1) || (saved && saved.page) || 'hero';
+  if(startAt !== 'hero' && unlocked(startAt)){ show(startAt); try{ location.replace('#'+startAt); }catch(e){} }
+  else { show('hero'); if(location.hash){ try{ location.replace('#hero'); }catch(e){} } }
 })();
 </script>
 </body>

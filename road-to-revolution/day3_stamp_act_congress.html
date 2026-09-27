@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Day 3 — The Stamp Act Congress</title>
+<style>
+  :root{
+    --ink:#1c1a17;
+    --ink-soft:#4a4136;
+    --parchment:#f2e9d3;
+    --parchment-deep:#e7d9b8;
+    --paper-card:#faf4e4;
+    --quill:#1f3b57;        /* ink-blue seal color */
+    --quill-dark:#122536;
+    --candle:#b97f24;
+    --moss:#4e5d3a;
+    --line:#c9b98f;
+    --patriot:#2b5a8a;
+    --loyalist:#8c2222;
+    --neutral:#5f6b3f;
+    --shadow:0 2px 0 rgba(33,26,20,.14), 0 10px 24px rgba(33,26,20,.10);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    /* flat tan is the fallback if the map never loads; the overlay lets the map show through as texture */
+    background-color:var(--parchment);
+    background-image:
+      linear-gradient(rgba(242,233,211,.93), rgba(242,233,211,.93)),
+      url("https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Mitchell_Map-06full2.jpg/1280px-Mitchell_Map-06full2.jpg");
+    background-size:cover, cover;
+    background-position:center center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:"Segoe UI", Arial, Helvetica, sans-serif;
+    font-size:18px;
+    line-height:1.55;
+  }
+  h1,h2,h3{font-family:Georgia, "Times New Roman", serif; font-variant:small-caps; font-weight:400; letter-spacing:.5px; margin:0 0 .35em}
+  em{font-style:italic}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky; top:0; z-index:50;
+    background:var(--ink); color:var(--parchment);
+    border-bottom:3px double var(--candle);
+  }
+  .topbar-inner{max-width:1000px; margin:0 auto; padding:8px 14px; display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+  .topbar .brand{font-family:Georgia,serif; font-variant:small-caps; font-size:1.05rem; letter-spacing:1px; margin-right:auto}
+  #navParts{display:contents}
+  .navbtn{
+    background:transparent; color:var(--parchment);
+    border:1px solid rgba(242,233,211,.35); border-radius:4px;
+    font-family:inherit; font-size:.8rem;
+    padding:5px 9px; cursor:pointer; display:flex; align-items:center; gap:6px;
+  }
+  .navbtn:hover{border-color:var(--candle)}
+  .navbtn.num{padding:5px 7px; gap:4px}
+  .navlabel{font-size:.8rem; opacity:.8; margin-left:4px}
+  .navbtn:focus-visible{outline:2px solid var(--candle); outline-offset:2px}
+  /* quill-ink seal: an empty ring that fills with blue ink when the part is done */
+  .seal{
+    width:14px;height:14px;border-radius:50%;
+    border:1.5px solid rgba(242,233,211,.5);
+    display:inline-block; position:relative; flex:none;
+    transition:all .3s;
+  }
+  .navbtn.done .seal{
+    background:radial-gradient(circle at 35% 30%, #4a7db5, var(--quill) 60%, var(--quill-dark));
+    border-color:var(--quill-dark);
+    box-shadow:0 0 0 2px rgba(31,59,87,.4);
+  }
+  .navbtn.done .seal::after{
+    content:'✓'; position:absolute; inset:0; color:var(--parchment);
+    font-size:9px; line-height:13px; text-align:center;
+  }
+
+  /* language toggle: English and Spanish text both live in the page; body.es picks Spanish */
+  .l-es{display:none}
+  body.es .l-en{display:none}
+  body.es .l-es{display:inline}
+  .langbtn{border-color:var(--candle); color:var(--candle); font-weight:700; letter-spacing:.5px}
+  .langbtn:hover{background:rgba(185,127,36,.18)}
+
+  main{max-width:1000px; margin:0 auto; padding:0 16px 80px}
+
+  /* ---------- one part per page ---------- */
+  .page{display:none}
+  .page.active{display:block}
+  .navbtn.locked{opacity:.45; cursor:not-allowed}
+  .navbtn.locked:hover{border-color:rgba(242,233,211,.35)}
+  .navbtn.current{border-color:var(--candle); background:rgba(185,127,36,.18)}
+  .pager{
+    display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+    margin:26px 0 8px; padding-top:16px; border-top:1px dashed var(--line);
+  }
+  .pager .pg-hint{font-size:.9rem; color:var(--ink-soft); flex:1; text-align:center; min-width:200px}
+  .pager .pg-hint.ok{color:var(--moss); font-weight:700}
+  .pgbtn{
+    font-family:Georgia,serif; font-variant:small-caps; font-size:1.05rem; letter-spacing:1px;
+    padding:10px 24px; border-radius:3px; cursor:pointer; border:2px solid var(--quill);
+    background:var(--quill); color:var(--parchment); box-shadow:var(--shadow);
+  }
+  .pgbtn.back{background:transparent; color:var(--quill); box-shadow:none}
+  .pgbtn:hover{background:var(--quill-dark); color:var(--parchment)}
+  .pgbtn:focus-visible{outline:3px solid var(--candle); outline-offset:2px}
+  .pgbtn:disabled{background:var(--parchment-deep); border-color:var(--line); color:var(--ink-soft); cursor:not-allowed; box-shadow:none}
+  .pgbtn:disabled:hover{background:var(--parchment-deep); color:var(--ink-soft)}
+  .page-count{font-size:.8rem; color:var(--ink-soft); text-align:right; margin-top:8px}
+
+  /* ---------- hero ---------- */
+  .hero{text-align:center; padding:40px 10px 36px; position:relative}
+  .hero .rule-word{font-family:Georgia,serif; font-style:italic; color:var(--quill); letter-spacing:2px; font-size:.95rem}
+  .hero h1{font-size:clamp(2.2rem, 6.5vw, 3.8rem); line-height:1.05; margin:.15em 0 .1em}
+  .hero .year{font-family:Georgia,serif; font-size:clamp(1.3rem,3.5vw,1.9rem); color:var(--ink-soft)}
+  .hero p.lede{margin:0 0 .9em; font-size:1.02rem}
+  .hero p.lede.note{font-size:.92rem; color:var(--ink-soft)}
+  .objective{
+    background:var(--paper-card); border:1px solid var(--line);
+    border-left:4px solid var(--quill); padding:10px 14px; text-align:left; font-size:.95rem; border-radius:0 4px 4px 0;
+  }
+  .objective strong{font-family:Georgia,serif; font-variant:small-caps; font-weight:400; letter-spacing:.5px}
+  .hero-inner{max-width:640px; margin:1.1em auto 0; text-align:left}
+  .hero-fig{margin:22px 0 0; text-align:center}
+  .hero-fig img{
+    display:block; margin:0 auto; max-width:100%; max-height:420px; width:auto; height:auto;
+    object-fit:contain; border:1px solid var(--line); background:#fff; box-shadow:var(--shadow);
+  }
+  .hero-fig figcaption{font-size:.85rem; color:var(--ink-soft); margin-top:8px; text-align:left}
+  /* ---------- parchment sheet under the intro text (CSS only) ---------- */
+  .parchment{
+    position:relative; isolation:isolate;
+    padding:18px; border-radius:3px;
+    box-shadow:0 3px 14px rgba(33,26,20,.20);
+  }
+  .parchment > *{position:relative; z-index:1}
+  .parchment::after{
+    content:''; position:absolute; inset:0; z-index:-1; border-radius:3px;
+    background:
+      radial-gradient(circle at 91% 9%, transparent 30px, rgba(140,100,45,.05) 31px 35px, transparent 36px),
+      radial-gradient(circle at 7% 93%, transparent 22px, rgba(140,100,45,.045) 23px 26px, transparent 27px),
+      radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(120,90,40,.06) 100%),
+      #f6eedb;
+    box-shadow:inset 0 0 8px rgba(120,95,50,.15), inset 0 1px 0 rgba(255,255,255,.7);
+    clip-path:polygon(
+      3px 0, 38% 2px, 71% 0, calc(100% - 2px) 4px,
+      100% 46%, calc(100% - 4px) 81%, calc(100% - 1px) 100%,
+      56% calc(100% - 3px), 22% 100%, 0 calc(100% - 5px), 3px 30%);
+  }
+  .parchment::before{
+    content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>");
+    mix-blend-mode:multiply; opacity:.05;
+    clip-path:polygon(
+      3px 0, 38% 2px, 71% 0, calc(100% - 2px) 4px,
+      100% 46%, calc(100% - 4px) 81%, calc(100% - 1px) 100%,
+      56% calc(100% - 3px), 22% 100%, 0 calc(100% - 5px), 3px 30%);
+  }
+  .parchment .objective{background:rgba(250,244,228,.96)}
+  .parchment .gloss{background:rgba(253,246,223,.96)}
+  @media(min-width:1100px){
+    .parchment{padding:28px}
+    .hero-inner{max-width:960px; display:grid; grid-template-columns:1fr 420px; gap:28px; align-items:start}
+    .hero-fig{margin:0}
+  }
+
+  /* ---------- mode select ---------- */
+  .mode-wrap{max-width:760px; margin:26px auto 0}
+  .mode-wrap .q{font-family:Georgia,serif; font-size:1.15rem; margin-bottom:10px}
+  .mode-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media(max-width:640px){.mode-grid{grid-template-columns:1fr}}
+  .mode-btn{
+    font:inherit; text-align:center; cursor:pointer;
+    background:var(--quill); color:var(--parchment); border:3px solid var(--quill);
+    border-radius:6px; padding:18px 16px; box-shadow:var(--shadow);
+  }
+  .mode-btn .big{display:block; font-family:Georgia,serif; font-variant:small-caps; font-size:1.6rem; letter-spacing:1px}
+  .mode-btn .small{display:block; font-size:.9rem; opacity:.9; margin-top:4px}
+  .mode-btn:hover{background:var(--quill-dark)}
+  .mode-btn:focus-visible{outline:3px solid var(--candle); outline-offset:3px}
+  .mode-btn.picked{border-color:var(--candle); box-shadow:0 0 0 4px rgba(185,127,36,.45)}
+  .teacher-link{
+    display:inline-block; margin-top:22px; font:inherit; font-size:.85rem; cursor:pointer;
+    background:transparent; border:1px dashed var(--ink-soft); color:var(--ink-soft); border-radius:4px; padding:6px 14px;
+  }
+  .teacher-link:hover{border-color:var(--ink); color:var(--ink)}
+
+  /* ---------- sections ---------- */
+  section.part{padding:36px 0 8px}
+  .part-label{display:flex; align-items:baseline; gap:12px; flex-wrap:wrap}
+  .part-label .roman{font-family:Georgia,serif; font-style:italic; color:var(--quill); font-size:1.1rem; letter-spacing:1px}
+  .part-label h2{font-size:clamp(1.6rem,4vw,2.3rem)}
+  .part-task{
+    background:var(--paper-card); border:1px solid var(--line); border-left:4px solid var(--candle);
+    padding:10px 14px; margin:10px 0 22px; font-size:.95rem; border-radius:0 4px 4px 0;
+  }
+  .part-task strong{font-family:Georgia,serif; font-variant:small-caps; letter-spacing:.5px; font-weight:400}
+  .card{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:4px; box-shadow:var(--shadow);
+    padding:16px 18px; margin-bottom:18px;
+  }
+  .card > .q{font-weight:700; margin-bottom:8px}
+  .card h3{font-size:1.3rem}
+  .you-line{
+    margin-top:12px; padding:8px 12px; background:var(--parchment-deep); border-radius:4px;
+    font-size:.95rem; border-left:3px solid var(--quill);
+  }
+  .you-line strong{color:var(--quill)}
+  .fb{margin-top:10px; font-size:.95rem; min-height:1.3em}
+  .fb strong{color:var(--quill)}
+  .fb.try{color:var(--loyalist)}
+
+  /* ---------- gloss boxes ---------- */
+  .gloss{
+    display:flex; gap:10px; align-items:flex-start;
+    background:#fdf6df; border:1px dashed var(--candle); border-radius:4px;
+    padding:8px 12px; margin:10px 0; font-size:.92rem;
+  }
+  .gloss .gw{
+    font-family:Georgia,serif; font-weight:700; color:var(--quill); white-space:nowrap;
+    flex:0 0 130px;
+  }
+
+  /* ---------- side buttons ---------- */
+  .side-btns{display:flex; gap:10px; flex-wrap:wrap}
+  .sbtn{
+    font-family:Georgia,serif; font-variant:small-caps; font-size:1.05rem; letter-spacing:.5px;
+    padding:8px 20px; border-radius:3px; cursor:pointer;
+    border:2px solid var(--ink-soft); background:transparent; color:var(--ink);
+  }
+  .sbtn:focus-visible{outline:2px solid var(--candle); outline-offset:2px}
+  .sbtn[data-side="Patriot"]:hover, .sbtn[data-side="Patriot"].picked{background:var(--patriot); border-color:var(--patriot); color:#fff}
+  .sbtn[data-side="Loyalist"]:hover, .sbtn[data-side="Loyalist"].picked{background:var(--loyalist); border-color:var(--loyalist); color:#fff}
+  .sbtn[data-side="Neutralist"]:hover, .sbtn[data-side="Neutralist"].picked{background:var(--neutral); border-color:var(--neutral); color:#fff}
+
+  /* ---------- proposal picker + proposal card ---------- */
+  .pbtn{
+    display:flex; gap:12px; align-items:center; width:100%; text-align:left;
+    font:inherit; font-size:1rem; background:#fff; color:var(--ink);
+    border:1.5px solid var(--line); border-radius:4px; padding:8px 12px; margin:6px 0; cursor:pointer;
+  }
+  .pbtn:hover{border-color:var(--quill)}
+  .pbtn:focus-visible{outline:2px solid var(--candle); outline-offset:2px}
+  .pn{
+    font-family:Georgia,serif; font-size:1.2rem; color:var(--quill); flex:none;
+    width:34px; height:34px; border-radius:50%; border:2px solid var(--quill);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pbtn.picked{background:var(--quill); color:#fff; border-color:var(--quill)}
+  .pbtn.picked .pn{color:#fff; border-color:#fff}
+  .prop-card{
+    background:var(--paper-card); border:1px solid var(--line); border-left:6px solid var(--quill);
+    border-radius:4px; box-shadow:var(--shadow); padding:16px 20px; margin-bottom:18px;
+  }
+  .prop-card .pnum{font-family:Georgia,serif; font-style:italic; color:var(--quill); font-size:1rem}
+  .prop-card .ptext{font-family:Georgia,serif; font-size:clamp(1.35rem,3vw,1.75rem); line-height:1.25; margin:2px 0 8px}
+  .prop-card .means{margin:.3em 0}
+
+  /* ---------- reason and question chips ---------- */
+  .reason{
+    display:block; width:100%; text-align:left; position:relative;
+    font:inherit; font-size:.98rem; color:var(--ink); line-height:1.4;
+    background:#fff; border:1.5px solid var(--line); border-radius:4px;
+    padding:9px 12px 9px 42px; margin:7px 0; cursor:pointer;
+  }
+  .reason::before{
+    content:''; position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    width:20px; height:20px; border:2px solid var(--ink-soft); border-radius:3px; background:#fff;
+    font-size:14px; line-height:17px; text-align:center; color:#fff;
+  }
+  .reason:hover{border-color:var(--quill)}
+  .reason:focus-visible{outline:2px solid var(--candle); outline-offset:2px}
+  .reason.on{border-color:var(--quill); background:#e9eff6}
+  .reason.on::before{content:'✓'; background:var(--quill); border-color:var(--quill)}
+  .reason.q::before{border-radius:50%}
+  .reason.q.on::before{content:'●'; font-size:10px}
+  .reason .idea{display:block; font-size:.85rem; color:var(--ink-soft); font-style:italic; margin-top:2px}
+  .pick-count{font-size:.9rem; color:var(--ink-soft); margin-top:4px}
+  .pick-count.ok{color:var(--moss); font-weight:700}
+  details.other{margin-top:12px; font-size:.95rem}
+  details.other summary{cursor:pointer; color:var(--quill); font-weight:700}
+  details.other ul{margin:8px 0 0; padding-left:22px}
+
+  /* the assembled speech (always English, since that is what goes on the paper) */
+  .speech{
+    background:#fff; border:2px solid var(--quill); border-radius:4px; padding:14px 16px; margin:16px 0 4px;
+    font-family:Georgia,serif; font-size:1.12rem; line-height:1.6;
+  }
+  .speech .sp-label{
+    display:block; font-family:"Segoe UI",Arial,sans-serif; font-size:.75rem; letter-spacing:1px;
+    text-transform:uppercase; font-weight:700; color:var(--quill); margin-bottom:4px;
+  }
+  .speech .gap{display:inline-block; min-width:140px; border-bottom:2px solid var(--candle); color:var(--ink-soft)}
+  .speech mark{background:#fdf3cf; color:inherit; padding:0 2px}
+  .speech .sp-es{display:none; font-family:"Segoe UI",Arial,sans-serif; font-size:.9rem; color:var(--ink-soft); margin-top:10px; padding-top:8px; border-top:1px dotted var(--line)}
+  body.es .speech .sp-es{display:block}
+  .speech .sp-idea{display:block; font-family:"Segoe UI",Arial,sans-serif; font-size:.9rem; color:var(--ink-soft); margin-top:8px}
+
+  /* ---------- self-paced: both sides ---------- */
+  .sides2{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media(max-width:760px){.sides2{grid-template-columns:1fr}}
+  .col{background:var(--paper-card); border:1px solid var(--line); border-top:6px solid; border-radius:4px; box-shadow:var(--shadow); padding:12px 14px}
+  .col.pat{border-top-color:var(--patriot)}
+  .col.loy{border-top-color:var(--loyalist)}
+  .col h3{font-size:1.2rem; margin-bottom:2px}
+  .col.pat h3{color:var(--patriot)}
+  .col.loy h3{color:var(--loyalist)}
+  .neut-ask{
+    margin:14px 0 18px; padding:10px 14px; border-radius:4px; background:#eef0e2;
+    border-left:4px solid var(--neutral); font-size:.98rem;
+  }
+  .neut-ask strong{color:var(--neutral)}
+  .r2-help{display:block; font-size:.88rem; font-style:normal; color:var(--ink-soft); margin-top:6px}
+  .col ul.say{margin:8px 0 0; padding-left:20px}
+  .col ul.say li{margin:0 0 7px}
+  /* self-paced stepper: one step open at a time; the current one glows */
+  [hidden]{display:none !important}
+  .sp-step{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:4px; box-shadow:var(--shadow);
+    padding:14px 18px 16px; margin-bottom:16px;
+  }
+  .sp-step.now{border:2px solid var(--candle); box-shadow:0 0 0 4px rgba(184,134,46,.15), var(--shadow)}
+  .sp-head{display:flex; align-items:center; gap:10px; margin-bottom:10px}
+  .sp-head h3{margin:0; font-size:1.3rem}
+  .sp-num{
+    flex:none; width:30px; height:30px; border-radius:50%; background:var(--quill); color:var(--parchment);
+    display:flex; align-items:center; justify-content:center; font-family:Georgia,serif; font-weight:700;
+  }
+  .sp-step.did .sp-num{background:var(--moss); font-size:0}
+  .sp-step.did .sp-num::after{content:'✓'; font-size:1rem}
+  .sp-step .prop-card{box-shadow:none}
+  .sp-say{margin:0 0 8px; font-size:1.05rem}
+  .sp-restate{display:flex; align-items:center; gap:12px; font-family:Georgia,serif; font-size:1.35rem; line-height:1.25; padding:10px 14px; margin:0 0 12px; background:#fff; border-left:5px solid var(--quill); border-radius:3px}
+  .sp-restate .pn{flex:none}
+  .sp-go{
+    font-family:Georgia,serif; font-variant:small-caps; font-size:1.1rem; letter-spacing:1px;
+    padding:9px 24px; border-radius:3px; cursor:pointer; border:2px solid var(--quill); background:var(--quill); color:#fff;
+  }
+  .sp-go:focus-visible{outline:2px solid var(--candle); outline-offset:2px}
+  .sp-step .reason{margin-bottom:8px}
+  .sp-paper{font-size:1.1rem; line-height:1.9; padding:10px 14px; background:#fdf6df; border:1px dashed var(--candle); border-radius:4px}
+  .sp-paper::before{content:'✏ '}
+  .circ{display:inline-block; padding:0 8px; border:2px solid var(--ink); border-radius:50%/60%; font-weight:700; line-height:1.4}
+  .vote-btns{display:flex; gap:12px; flex-wrap:wrap; margin-top:6px}
+  .vbtn{
+    font-family:Georgia,serif; font-variant:small-caps; font-size:1.3rem; letter-spacing:1px;
+    padding:8px 30px; border-radius:3px; cursor:pointer; background:#fff; border:2px solid var(--ink-soft); color:var(--ink);
+  }
+  .vbtn:focus-visible{outline:2px solid var(--candle); outline-offset:2px}
+  .vbtn[data-v="yea"]:hover, .vbtn[data-v="yea"].picked{background:var(--moss); border-color:var(--moss); color:#fff}
+  .vbtn[data-v="nay"]:hover, .vbtn[data-v="nay"].picked{background:var(--loyalist); border-color:var(--loyalist); color:#fff}
+  .vbtn:disabled{cursor:default}
+  .yn-note{font-size:.85rem; color:var(--ink-soft); margin-left:4px}
+  .reveal-btn{
+    font-family:Georgia,serif; font-variant:small-caps; font-size:1.05rem; letter-spacing:1px;
+    padding:9px 22px; border-radius:3px; cursor:pointer; border:2px solid var(--candle);
+    background:var(--candle); color:#fff;
+  }
+  .reveal-btn:disabled{background:var(--parchment-deep); border-color:var(--line); color:var(--ink-soft); cursor:not-allowed}
+  .reveal{
+    display:none; background:#fff; border:2px solid var(--candle); border-radius:4px; padding:14px 16px;
+  }
+  .reveal.open{display:block}
+  .reveal .compare{font-family:Georgia,serif; font-size:1.1rem; margin-bottom:6px}
+  .reveal .next{font-size:.95rem; color:var(--ink-soft); margin-top:6px}
+  .reveal-row{display:grid; grid-template-columns:1fr 220px; gap:16px; align-items:start}
+  @media(max-width:760px){.reveal-row{grid-template-columns:1fr}}
+  .badge{display:inline-block; font-size:.72rem; letter-spacing:1px; text-transform:uppercase; font-weight:700; padding:2px 10px; border-radius:20px; vertical-align:middle}
+  .badge.passed{background:var(--moss); color:#fff}
+  .badge.notvoted{background:var(--candle); color:#fff}
+  .badge.yea{background:var(--moss); color:#fff}
+  .badge.nay{background:var(--loyalist); color:#fff}
+
+  /* results list (Live Part IV and Self-Paced Results) */
+  .res{background:var(--paper-card); border:1px solid var(--line); border-radius:4px; box-shadow:var(--shadow); padding:12px 16px; margin-bottom:12px}
+  .res .rhead{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+  .res .rtext{font-family:Georgia,serif; font-size:1.1rem}
+  .res p{margin:.35em 0; font-size:.95rem}
+  .res .mine{font-size:.92rem; margin-top:4px}
+  .summary{font-family:Georgia,serif; font-size:1.15rem; text-align:center; margin:4px 0 16px}
+
+  /* ---------- paper checkboxes ---------- */
+  .paper-check{
+    display:flex; align-items:center; gap:10px; cursor:pointer;
+    background:var(--paper-card); border:1px dashed var(--candle); border-radius:4px;
+    padding:9px 12px; font-size:.95rem; margin-top:10px;
+  }
+  .paper-check input{width:20px;height:20px;accent-color:var(--quill); cursor:pointer; flex:none}
+  .paper-check:has(input:checked){border-style:solid; border-color:var(--moss); background:#eef1e4}
+  .task-item{margin-bottom:22px}
+  .task-item .q{font-weight:700; margin-bottom:4px}
+  .task-item .frame{
+    background:#fff; border:1px solid var(--line); border-radius:4px; padding:8px 12px; font-size:.95rem; font-family:Georgia,serif;
+  }
+
+  /* ---------- finish ---------- */
+  .finish-card{
+    background:var(--paper-card); border:1px solid var(--line); border-radius:4px;
+    box-shadow:var(--shadow); padding:26px; text-align:center;
+  }
+  .finish-card .bigseal{
+    width:96px;height:96px;border-radius:50%;
+    margin:0 auto 14px; flex-direction:column; line-height:1.1;
+    background:radial-gradient(circle at 35% 30%, #4a7db5, var(--quill) 55%, var(--quill-dark));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--parchment); font-family:Georgia,serif; font-size:.9rem; letter-spacing:1px;
+    box-shadow:0 3px 0 var(--quill-dark), 0 10px 22px rgba(31,59,87,.35);
+    border:3px solid var(--quill-dark);
+  }
+  .finish-card .bigseal .quill{font-size:.75rem; letter-spacing:2px; text-transform:uppercase}
+  .finish-card .bigseal .yr{font-size:1.4rem}
+  .finish-card ul.check{list-style:none; padding:0; margin:14px auto; max-width:460px; text-align:left}
+  .finish-card ul.check li{padding:5px 0; border-bottom:1px dotted var(--line); display:flex; justify-content:space-between; gap:10px; font-size:.95rem}
+  .finish-card .state{font-weight:700}
+  .finish-card .state.yes{color:var(--moss)}
+  .finish-card .state.no{color:var(--loyalist)}
+
+  /* ---------- figures ---------- */
+  figure.plate{
+    margin:18px 0; background:var(--paper-card); border:1px solid var(--line);
+    border-radius:4px; box-shadow:var(--shadow); padding:12px; text-align:center;
+  }
+  figure.plate img{max-width:100%; height:auto; display:block; margin:0 auto; border:1px solid var(--line); background:#fff}
+  figure.plate figcaption{font-size:.85rem; color:var(--ink-soft); margin-top:9px; text-align:left}
+  .reveal-row figure.plate{margin:0}
+  .src-tag{
+    display:inline-block; font-size:.68rem; letter-spacing:1px; text-transform:uppercase;
+    padding:2px 9px; border-radius:20px; margin-right:8px; font-weight:700;
+  }
+  .src-tag.primary{background:var(--quill); color:var(--parchment)}
+  .src-tag.later{background:var(--parchment-deep); color:var(--ink-soft); border:1px solid var(--line)}
+
+  /* ---------- tap to enlarge ---------- */
+  img[data-zoom]{cursor:zoom-in}
+  img[data-zoom]:focus-visible{outline:3px solid var(--candle); outline-offset:2px}
+  .zoom-hint{font-size:.75rem; color:var(--ink-soft); text-align:center; margin-top:6px; letter-spacing:.3px}
+  .lightbox{
+    position:fixed; inset:0; z-index:100; display:none; flex-direction:column; align-items:center; justify-content:center;
+    padding:56px 20px 20px; background:rgba(28,26,23,.94); cursor:zoom-out;
+  }
+  .lightbox.open{display:flex}
+  .lightbox img{
+    max-width:100%; max-height:calc(100vh - 140px); width:auto; height:auto;
+    background:#fff; border:2px solid var(--parchment); box-shadow:0 14px 44px rgba(0,0,0,.6);
+  }
+  .lightbox .lb-cap{color:var(--parchment); font-size:.9rem; margin-top:12px; text-align:center; max-width:820px; line-height:1.45}
+  .lb-close{
+    position:absolute; top:12px; right:14px; cursor:pointer;
+    font-family:inherit; font-size:.95rem; font-weight:700;
+    background:var(--parchment); color:var(--ink); border:none; border-radius:4px; padding:8px 14px;
+  }
+
+  /* ================= CONGRESS BOARD (teacher projector view, English only) ================= */
+  .board{display:none}
+  body.boardmode .topbar, body.boardmode main{display:none}
+  body.boardmode .board{display:block}
+  .bhead{
+    background:var(--ink); color:var(--parchment); border-bottom:3px double var(--candle);
+    display:flex; align-items:center; gap:12px; padding:10px 20px; flex-wrap:wrap;
+  }
+  .bhead .btitle{font-family:Georgia,serif; font-variant:small-caps; font-size:1.25rem; letter-spacing:1px; margin-right:auto}
+  .bscore{font-family:Georgia,serif; font-size:1.35rem; letter-spacing:.5px}
+  .bscore .p{color:#9cc0e6} .bscore .l{color:#eaa3a3}
+  .btab{
+    font:inherit; font-size:.95rem; cursor:pointer; background:transparent; color:var(--parchment);
+    border:1px solid rgba(242,233,211,.4); border-radius:4px; padding:5px 11px;
+  }
+  .btab.cur{border-color:var(--candle); background:rgba(185,127,36,.25)}
+  .btab.rec{border-color:#8fb58a}
+  .bbody{max-width:1240px; margin:0 auto; padding:16px 22px 40px}
+  .bprop-num{font-family:Georgia,serif; font-style:italic; color:var(--quill); font-size:1.3rem}
+  .bprop-text{font-family:Georgia,serif; font-size:clamp(2rem,4.2vw,3.1rem); line-height:1.12; margin:2px 0 6px}
+  .bmeans{font-size:1.15rem; color:var(--ink-soft); margin:0}
+  .bspeak{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:16px 0}
+  .spk{background:var(--paper-card); border:1px solid var(--line); border-top:7px solid; border-radius:4px; padding:10px 12px; text-align:center; box-shadow:var(--shadow)}
+  .spk.p{border-top-color:var(--patriot)} .spk.l{border-top-color:var(--loyalist)} .spk.n{border-top-color:var(--neutral)}
+  .spk .who{font-family:Georgia,serif; font-variant:small-caps; font-size:1.45rem; line-height:1.1}
+  .spk .role{font-size:.9rem; color:var(--ink-soft)}
+  .spk .clock{font-family:Georgia,serif; font-size:3.3rem; line-height:1.05}
+  .spk.running{box-shadow:0 0 0 5px var(--candle)}
+  .spk.timeup .clock{color:var(--loyalist)}
+  .spk.spoke .clock{color:var(--moss)}
+  .bbtn{
+    font-family:Georgia,serif; font-variant:small-caps; font-size:1.1rem; letter-spacing:.5px; cursor:pointer;
+    padding:8px 18px; border-radius:3px; border:2px solid var(--quill); background:var(--quill); color:#fff;
+  }
+  .bbtn:hover{background:var(--quill-dark)}
+  .bbtn.ghost{background:transparent; color:var(--quill)}
+  .bbtn.ghost:hover{background:#e9eff6}
+  .bbtn.sel{background:var(--candle); border-color:var(--candle); color:#fff}
+  .bbtn:disabled{opacity:.4; cursor:not-allowed}
+  .bvote{display:grid; grid-template-columns:1fr 1fr 1.25fr; gap:14px; align-items:stretch}
+  .tally{background:var(--paper-card); border:1px solid var(--line); border-radius:4px; padding:10px; text-align:center; box-shadow:var(--shadow)}
+  .tally .lbl{font-family:Georgia,serif; font-variant:small-caps; font-size:1.6rem; line-height:1}
+  .tally .n{font-family:Georgia,serif; font-size:3.2rem; line-height:1.05}
+  .tally .row{display:flex; gap:6px; justify-content:center}
+  .tally button{font:inherit; font-size:1.15rem; font-weight:700; min-width:54px; padding:5px 8px; border-radius:4px; cursor:pointer; border:1.5px solid var(--ink-soft); background:#fff}
+  .tally.yea .lbl{color:var(--moss)} .tally.nay .lbl{color:var(--loyalist)}
+  .bside{display:flex; flex-direction:column; gap:10px}
+  .bres{font-family:Georgia,serif; font-size:1.8rem; padding:8px 12px; border-radius:4px; text-align:center; line-height:1.15}
+  .bres small{display:block; font-size:1rem; font-family:"Segoe UI",Arial,sans-serif}
+  .bres.pass{background:var(--moss); color:#fff}
+  .bres.fail{background:var(--loyalist); color:#fff}
+  .bres.wait{background:var(--parchment-deep); color:var(--ink-soft); font-size:1.1rem}
+  .bneut{margin-top:14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; font-size:1.1rem}
+  .bneut .lab{font-family:Georgia,serif; font-variant:small-caps; color:var(--neutral); font-size:1.3rem}
+  .b1765{margin-top:14px; background:#fff; border:2px solid var(--candle); border-radius:4px; padding:12px 16px; font-size:1.15rem}
+  .bfoot{display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:16px; flex-wrap:wrap}
+  .bwarn{font-size:.85rem; color:var(--ink-soft)}
+  table.btable{width:100%; border-collapse:collapse; background:var(--paper-card); font-size:1.1rem; box-shadow:var(--shadow)}
+  table.btable th, table.btable td{border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top}
+  table.btable th{background:var(--parchment-deep); font-family:Georgia,serif; font-variant:small-caps; font-weight:400; font-size:1.15rem}
+  .bwin{font-family:Georgia,serif; font-size:2.2rem; text-align:center; margin:6px 0 14px}
+  .bnote{font-size:1.1rem; margin-top:14px}
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important}
+    html{scroll-behavior:auto}
+  }
+</style>
+<script>
+function imgFail(img){
+  var note=document.createElement('div');
+  note.style.cssText='padding:26px 16px;background:#e7d9b8;border:1px dashed #b97f24;color:#4a4136;font-size:.85rem;text-align:center;border-radius:3px';
+  note.innerHTML='<span class="l-en">⚠ This historical image could not load. You can still finish every activity without it.</span>'+
+    '<span class="l-es">⚠ Esta imagen histórica no se pudo cargar. Aún puedes terminar todas las actividades sin ella.</span>';
+  var hint=img.parentNode && img.parentNode.querySelector('.zoom-hint');
+  if(hint) hint.remove();
+  img.replaceWith(note);
+}
+</script>
+</head>
+<body>
+
+<div class="topbar" role="navigation" aria-label="Lesson sections">
+  <div class="topbar-inner">
+    <span class="brand"><span class="l-en">Road to Revolution · Day 3</span><span class="l-es">Camino a la Revolución · Día 3</span></span>
+    <div id="navParts"></div>
+    <button class="navbtn langbtn" id="langBtn" type="button" aria-label="Cambiar a español">Español</button>
+  </div>
+</div>
+
+<main id="main">
+
+  <!-- ================= HERO + MODE SELECT ================= -->
+  <div class="hero page" id="hero">
+    <div class="rule-word"><span class="l-en">Road to Revolution · Day 3</span><span class="l-es">Camino a la Revolución · Día 3</span></div>
+    <h1><span class="l-en">The Stamp Act Congress</span><span class="l-es">El Congreso de la Ley del Sello</span></h1>
+    <div class="year"><span class="l-en">New York City · October 1765</span><span class="l-es">Nueva York · octubre de 1765</span></div>
+    <div class="hero-inner">
+      <div class="parchment">
+        <p class="lede"><span class="l-en">Last time, Parliament passed the Stamp Act, a tax on paper. Colonists were angry because they had no say in Parliament.</span><span class="l-es">La última vez, el Parlamento aprobó la Ley del Sello, un impuesto al papel. Los colonos se enojaron porque no tenían voz en el Parlamento.</span></p>
+        <p class="lede"><span class="l-en">In October 1765, 27 <strong>delegates</strong> from 9 colonies met in New York City to decide what to do. This meeting was the <strong>Stamp Act Congress</strong>. Four colonies did not send anyone. In three of those colonies, the royal governor stopped the assembly from choosing delegates.</span><span class="l-es">En octubre de 1765, 27 <strong>delegados</strong> de 9 colonias se reunieron en Nueva York para decidir qué hacer. Esa reunión fue el <strong>Congreso de la Ley del Sello</strong>. Cuatro colonias no mandaron a nadie. En tres de esas colonias, el gobernador real impidió que la asamblea escogiera delegados.</span></p>
+        <p class="lede"><span class="l-en">Today <em>you</em> are a delegate. Whether you are a printer in New York, a farmer in Pennsylvania, or a merchant in Massachusetts, you will argue, listen, and vote on five <strong>proposals</strong>.</span><span class="l-es">Hoy <em>tú</em> eres delegado. Ya seas impresor en Nueva York, granjero en Pensilvania o comerciante en Massachusetts, vas a argumentar, escuchar y votar sobre cinco <strong>propuestas</strong>.</span></p>
+        <div class="gloss"><span class="gw"><span class="l-en">delegate</span><span class="l-es">delegado</span></span><span><span class="l-en">a person chosen to speak and vote for a group.</span><span class="l-es">una persona escogida para hablar y votar por un grupo.</span></span></div>
+        <div class="gloss"><span class="gw"><span class="l-en">proposal</span><span class="l-es">propuesta</span></span><span><span class="l-en">an idea that a group votes on.</span><span class="l-es">una idea sobre la que un grupo vota.</span></span></div>
+        <div class="objective"><span class="l-en"><strong>Today I can:</strong> argue for or against a proposal and vote as a delegate.</span><span class="l-es"><strong>Hoy puedo:</strong> argumentar a favor o en contra de una propuesta y votar como delegado.</span></div>
+      </div>
+      <figure class="hero-fig">
+        <img onerror="imgFail(this)" data-zoom="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Flickr_-_USCapitol_-_New_York%2C_1765.jpg/1280px-Flickr_-_USCapitol_-_New_York%2C_1765.jpg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Flickr_-_USCapitol_-_New_York%2C_1765.jpg/500px-Flickr_-_USCapitol_-_New_York%2C_1765.jpg" alt="A painting of New York's old City Hall, a two-story brick building with a small tower, labeled New York 1765" data-alt-es="Una pintura del antiguo Ayuntamiento de Nueva York, un edificio de ladrillo de dos pisos con una torre pequeña, con la etiqueta New York 1765">
+        <div class="zoom-hint">🔍 <span class="l-en">Tap the picture to see it bigger.</span><span class="l-es">Toca la imagen para verla más grande.</span></div>
+        <figcaption><span class="l-en"><span class="src-tag later">Later Depiction · 1974</span>Old City Hall in New York, where the Stamp Act Congress met. Painted by Allyn Cox for the U.S. Capitol. Public domain, via Wikimedia Commons.</span><span class="l-es"><span class="src-tag later">Imagen posterior · 1974</span>El antiguo Ayuntamiento de Nueva York, donde se reunió el Congreso de la Ley del Sello. Pintado por Allyn Cox para el Capitolio de los Estados Unidos. Dominio público, vía Wikimedia Commons.</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="mode-wrap">
+      <div class="q"><span class="l-en">Your teacher will tell you which button to press.</span><span class="l-es">Tu maestro te dirá qué botón presionar.</span></div>
+      <div class="mode-grid">
+        <button class="mode-btn" data-mode="live" type="button"><span class="big"><span class="l-en">Live Congress</span><span class="l-es">Congreso en vivo</span></span><span class="small"><span class="l-en">Prepare a speech, then debate and vote with the whole class.</span><span class="l-es">Prepara un discurso y luego debate y vota con toda la clase.</span></span></button>
+        <button class="mode-btn" data-mode="self" type="button"><span class="big"><span class="l-en">Self-Paced Congress</span><span class="l-es">Congreso a tu ritmo</span></span><span class="small"><span class="l-en">Read both sides of each proposal and cast your own votes.</span><span class="l-es">Lee los dos lados de cada propuesta y da tus propios votos.</span></span></button>
+      </div>
+      <p class="lede note" style="margin-top:14px"><span class="l-en">Your taps are saved in this browser. If you close the lesson, open it again on the same Chromebook to pick up where you left off.</span><span class="l-es">Tus toques se guardan en este navegador. Si cierras la lección, ábrela otra vez en la misma Chromebook para seguir donde te quedaste.</span></p>
+      <button class="teacher-link" id="startOver" type="button" hidden>↺ <span class="l-en">Start over (erase my taps on this screen)</span><span class="l-es">Empezar de nuevo (borrar mis toques en esta pantalla)</span></button>
+      <button class="teacher-link" id="openBoard" type="button">🏛 <span class="l-en">Teacher: open Congress Board (for the projector)</span><span class="l-es">Maestro: abrir el tablero del Congreso (para el proyector)</span></button>
+    </div>
+  </div>
+
+  <!-- mode pages are built from the PROPOSALS data below -->
+  <div id="modePages"></div>
+
+</main>
+
+<!-- ================= CONGRESS BOARD ================= -->
+<div class="board" id="board" lang="en"></div>
+
+<!-- enlarged-image view -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged picture">
+  <button class="lb-close" type="button">✕ <span class="l-en">Close</span><span class="l-es">Cerrar</span></button>
+  <img alt="">
+  <div class="lb-cap"></div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* =================== LANGUAGE =================== */
+  /* Student text exists in English and Spanish: <span class="l-en"> / <span class="l-es"> pairs,
+     built here with bi(). The Congress Board is English only. No storage: reloading returns to English. */
+  let lang = 'en';
+  const bi = (en, es) => '<span class="l-en">'+en+'</span><span class="l-es">'+es+'</span>';
+  const B = o => bi(o.en, o.es);
+  const TITLES = {en:'Day 3 — The Stamp Act Congress', es:'Día 3 — El Congreso de la Ley del Sello'};
+  function setLang(l){
+    lang = l;
+    document.body.classList.toggle('es', l==='es');
+    document.documentElement.lang = l;
+    document.title = TITLES[l];
+    const btn = document.getElementById('langBtn');
+    btn.textContent = l==='es' ? 'English' : 'Español';
+    btn.setAttribute('aria-label', l==='es' ? 'Switch to English' : 'Cambiar a español');
+    document.querySelectorAll('img[data-alt-es]').forEach(im => {
+      if(!im.dataset.altEn) im.dataset.altEn = im.alt;
+      im.alt = l==='es' ? im.dataset.altEs : im.dataset.altEn;
+    });
+  }
+  document.getElementById('langBtn').addEventListener('click', () => { setLang(lang==='es' ? 'en' : 'es'); refresh(); });
+
+  /* =================== DATA: the five proposals (one place for all content) ===================
+     pat / loy: six lines each; star:true = the three shown in Self-Paced mode.
+     stems: Neutralist questions, one blank each, with an idea hint.
+     result: 'passed' or 'notvoted' (the 1765 Congress did not vote on it; colonists did it anyway). */
+  const PROPOSALS = [
+    { short:{en:'1. Taxation', es:'1. Impuestos'},
+      text:{en:'No taxation without representation.', es:'No hay impuestos sin representación.'},
+      means:{en:'We colonists cannot vote for anyone in Parliament. We elect our own assemblies, so only our assemblies should tax us, not Parliament.',
+             es:'Nosotros, los colonos, no podemos votar por nadie en el Parlamento. Elegimos nuestras propias asambleas, así que solo nuestras asambleas deberían cobrarnos impuestos, no el Parlamento.'},
+      gloss:{w:{en:'representation', es:'representación'}, d:{en:'having someone who speaks and votes for you.', es:'tener a alguien que hable y vote por ti.'}},
+      pat:[
+        {star:true, en:'We cannot vote for anyone in Parliament, so Parliament should not tax us.', es:'No podemos votar por nadie en el Parlamento, así que el Parlamento no debe cobrarnos impuestos.'},
+        {star:true, en:'Our own colonial assemblies have always set our taxes.', es:'Nuestras propias asambleas coloniales siempre han decidido nuestros impuestos.'},
+        {star:true, en:'As British citizens, we have the same rights as people in England.', es:'Como ciudadanos británicos, tenemos los mismos derechos que la gente de Inglaterra.'},
+        {en:'Parliament is 3,000 miles away and does not know our lives.', es:'El Parlamento está a 3,000 millas y no conoce nuestra vida.'},
+        {en:'If Parliament can tax paper today, it can tax anything tomorrow.', es:'Si el Parlamento puede cobrar impuestos al papel hoy, mañana puede cobrarlos a cualquier cosa.'},
+        {en:'People in England would never accept a tax they did not vote for.', es:'La gente de Inglaterra nunca aceptaría un impuesto por el que no votó.'}
+      ],
+      loy:[
+        {star:true, en:'Parliament makes laws for the whole British Empire, including us.', es:'El Parlamento hace las leyes para todo el Imperio británico, incluidos nosotros.'},
+        {star:true, en:'Most people in England cannot vote either, and they still pay taxes.', es:'La mayoría de la gente en Inglaterra tampoco puede votar, y aun así paga impuestos.'},
+        {star:true, en:'People in England pay much higher taxes than we do.', es:'La gente de Inglaterra paga impuestos mucho más altos que nosotros.'},
+        {en:'Members of Parliament speak for everyone in the British Empire, even people far away like us.', es:'Los miembros del Parlamento hablan por todos en el Imperio británico, incluso por gente lejana como nosotros.'},
+        {en:'The tax pays for soldiers who guard our colonies.', es:'El impuesto paga a los soldados que cuidan nuestras colonias.'},
+        {en:'The colonies are too far away to send members to Parliament.', es:'Las colonias están demasiado lejos para mandar miembros al Parlamento.'}
+      ],
+      stems:[
+        {en:'What would happen if we refuse to pay and Britain sends ____?', es:'¿Qué pasaría si nos negamos a pagar y Gran Bretaña manda ____?', idea:{en:'more soldiers', es:'más soldados'}},
+        {en:'How would this affect a ____ like me?', es:'¿Cómo afectaría esto a un ____ como yo?', idea:{en:'farmer, shopkeeper', es:'granjero, tendero'}},
+        {en:'Why should we trust ____ to spend our tax money?', es:'¿Por qué deberíamos confiar en ____ para gastar el dinero de nuestros impuestos?', idea:{en:'our own assemblies, Parliament', es:'nuestras asambleas, el Parlamento'}},
+        {en:'Isn’t it true that ____?', es:'¿No es cierto que ____?', idea:{en:'most people in England cannot vote either', es:'la mayoría en Inglaterra tampoco puede votar'}}
+      ],
+      ask:{en:'If we win this fight, will our taxes really go down?', es:'Si ganamos esta pelea, ¿de verdad bajarán nuestros impuestos?'},
+      result:'passed',
+      outcome:{en:'This was the main idea of the Declaration of Rights and Grievances, a list of complaints the Congress sent to Britain.',
+               es:'Esta fue la idea principal de la Declaración de Derechos y Agravios, una lista de quejas que el Congreso envió a Gran Bretaña.'},
+      next:{en:'Parliament never accepted this idea. The fight over who could tax the colonies went on for ten more years.',
+            es:'El Parlamento nunca aceptó esta idea. La pelea sobre quién podía cobrarles impuestos a las colonias siguió diez años más.'}
+    },
+    { short:{en:'2. Jury', es:'2. Jurado'},
+      text:{en:'Trial by jury is a right of all British citizens.', es:'El juicio con jurado es un derecho de todos los ciudadanos británicos.'},
+      means:{en:'Under the Stamp Act, a person accused of breaking the law could be judged by one judge, with no jury. Colonists said every British citizen has the right to be judged by a jury of ordinary people.',
+             es:'Con la Ley del Sello, a una persona acusada de romper la ley la podía juzgar un solo juez, sin jurado. Los colonos decían que todo ciudadano británico tiene derecho a que lo juzgue un jurado de gente común.'},
+      gloss:{w:{en:'jury', es:'jurado'}, d:{en:'a group of ordinary citizens who decide if someone is guilty.', es:'un grupo de ciudadanos comunes que deciden si alguien es culpable.'}},
+      pat:[
+        {star:true, en:'A jury of our neighbors is fairer than one judge chosen by the king.', es:'Un jurado de nuestros vecinos es más justo que un juez escogido por el rey.'},
+        {star:true, en:'People in England get juries, so we should too.', es:'La gente de Inglaterra tiene jurados, así que nosotros también debemos tenerlos.'},
+        {star:true, en:'The Stamp Act could send us to a court far away in Halifax, hundreds of miles from home.', es:'La Ley del Sello podría mandarnos a una corte lejana en Halifax, a cientos de millas de casa.'},
+        {en:'Trial by jury has been an English right for hundreds of years.', es:'El juicio con jurado ha sido un derecho inglés por cientos de años.'},
+        {en:'One judge alone has too much power over a person’s life.', es:'Un solo juez tiene demasiado poder sobre la vida de una persona.'},
+        {en:'Without juries, we cannot protect ourselves from unfair laws.', es:'Sin jurados, no podemos protegernos de las leyes injustas.'}
+      ],
+      loy:[
+        {star:true, en:'Colonial juries let smugglers go free even when they are guilty.', es:'Los jurados coloniales dejan libres a los contrabandistas aunque sean culpables.'},
+        {star:true, en:'Only tax and trade cases have no jury, and we still have juries for everything else.', es:'Solo los casos de impuestos y comercio no tienen jurado, y todavía tenemos jurados para todo lo demás.'},
+        {star:true, en:'A trained judge knows the law better than a jury.', es:'Un juez preparado conoce la ley mejor que un jurado.'},
+        {en:'Courts without juries already handle cases about ships and trade.', es:'Las cortes sin jurado ya se encargan de casos de barcos y comercio.'},
+        {en:'If juries ignore the law, the law means nothing.', es:'Si los jurados ignoran la ley, la ley no vale nada.'},
+        {en:'Parliament decides how courts work in the empire.', es:'El Parlamento decide cómo funcionan las cortes en el imperio.'}
+      ],
+      stems:[
+        {en:'What would happen if a jury lets a ____ go free?', es:'¿Qué pasaría si un jurado deja libre a un ____?', idea:{en:'smuggler, thief', es:'contrabandista, ladrón'}},
+        {en:'How would this affect a ____ who gets taken to court?', es:'¿Cómo afectaría esto a un ____ que llevan a la corte?', idea:{en:'merchant, sailor', es:'comerciante, marinero'}},
+        {en:'Why should we trust one ____ to decide alone?', es:'¿Por qué deberíamos confiar en que un solo ____ decida?', idea:{en:'judge', es:'juez'}},
+        {en:'Isn’t it true that juries ____?', es:'¿No es cierto que los jurados ____?', idea:{en:'sometimes protect their friends', es:'a veces protegen a sus amigos'}}
+      ],
+      ask:{en:'Would a jury in my town be fair to a stranger?', es:'¿Sería justo con un forastero un jurado de mi pueblo?'},
+      result:'passed',
+      outcome:{en:'The Declaration of Rights and Grievances said trial by jury is a right of every British citizen in the colonies.',
+               es:'La Declaración de Derechos y Agravios dijo que el juicio con jurado es un derecho de todo ciudadano británico en las colonias.'},
+      next:{en:'Britain kept using courts without juries for trade cases. Colonists complained about them for years.',
+            es:'Gran Bretaña siguió usando cortes sin jurado para los casos de comercio. Los colonos se quejaron de ellas por años.'}
+    },
+    { short:{en:'3. Obey?', es:'3. ¿Obedecer?'},
+      text:{en:'We will not obey the Stamp Act.', es:'No obedeceremos la Ley del Sello.'},
+      means:{en:'Colonists would refuse to buy stamps and would keep doing business without them. The law was supposed to start on November 1, 1765.',
+             es:'Los colonos se negarían a comprar sellos y seguirían haciendo negocios sin ellos. La ley iba a empezar el 1 de noviembre de 1765.'},
+      gloss:{w:{en:'obey', es:'obedecer'}, d:{en:'to follow a rule or law.', es:'seguir una regla o una ley.'}},
+      pat:[
+        {star:true, en:'An unfair law does not deserve to be obeyed.', es:'Una ley injusta no merece que la obedezcamos.'},
+        {star:true, en:'If we all refuse together, Britain cannot punish everyone.', es:'Si todos nos negamos juntos, Gran Bretaña no puede castigar a todos.'},
+        {star:true, en:'Paying even once tells Parliament it can tax us again.', es:'Pagar aunque sea una vez le dice al Parlamento que puede cobrarnos otra vez.'},
+        {en:'The stamp sellers have already quit, so there is no one to buy stamps from.', es:'Los vendedores de sellos ya renunciaron, así que no hay a quién comprarle sellos.'},
+        {en:'Courts and ports can keep working without stamps.', es:'Las cortes y los puertos pueden seguir funcionando sin sellos.'},
+        {en:'Parliament was unfair to us first.', es:'El Parlamento fue injusto con nosotros primero.'}
+      ],
+      loy:[
+        {star:true, en:'Breaking the law makes us criminals, not heroes.', es:'Romper la ley nos hace criminales, no héroes.'},
+        {star:true, en:'Ships cannot legally leave port without stamped papers, so trade will stop.', es:'Los barcos no pueden salir del puerto legalmente sin papeles sellados, así que el comercio se detendrá.'},
+        {star:true, en:'We should ask Parliament politely to change the law instead.', es:'Mejor debemos pedirle al Parlamento con respeto que cambie la ley.'},
+        {en:'If we pick which laws to obey, soon no one will obey any law.', es:'Si escogemos qué leyes obedecer, pronto nadie obedecerá ninguna ley.'},
+        {en:'Britain could send more soldiers to make us obey.', es:'Gran Bretaña podría mandar más soldados para obligarnos a obedecer.'},
+        {en:'A court may say papers without stamps are not legal, so we could lose money on our business deals.', es:'Una corte puede decir que los papeles sin sello no son legales, así que podríamos perder dinero en nuestros negocios.'}
+      ],
+      stems:[
+        {en:'What would happen if the ____ closes because nobody has stamps?', es:'¿Qué pasaría si ____ cierra porque nadie tiene sellos?', idea:{en:'port, court', es:'el puerto, la corte'}},
+        {en:'How would this affect a ____ who needs to ship goods?', es:'¿Cómo afectaría esto a un ____ que necesita enviar mercancías?', idea:{en:'merchant, sailor', es:'comerciante, marinero'}},
+        {en:'Why should we trust that Britain will not send ____?', es:'¿Por qué deberíamos confiar en que Gran Bretaña no mandará ____?', idea:{en:'soldiers', es:'soldados'}},
+        {en:'Isn’t it true that without stamps, ____?', es:'¿No es cierto que sin sellos ____?', idea:{en:'our contracts may not be legal', es:'nuestros contratos quizá no sean legales'}}
+      ],
+      ask:{en:'If the courts close, who will decide arguments between neighbors?', es:'Si cierran las cortes, ¿quién resolverá los pleitos entre vecinos?'},
+      result:'notvoted',
+      outcome:{en:'The Congress’s Declaration promised to stay loyal to the king, so it did not tell people to break the law. But colonists refused anyway: crowds forced the stamp sellers to quit before November 1. Georgia was the only colony where stamps were ever sold, and only for a short time.',
+               es:'La Declaración del Congreso prometió seguir siendo leal al rey, así que no les dijo a las personas que rompieran la ley. Pero los colonos se negaron de todos modos: multitudes obligaron a los vendedores de sellos a renunciar antes del 1 de noviembre. Georgia fue la única colonia donde se vendieron sellos, y solo por poco tiempo.'},
+      next:{en:'By early 1766, many ports and courts were open again, working without stamps.',
+            es:'A principios de 1766, muchos puertos y cortes ya estaban abiertos otra vez, funcionando sin sellos.'}
+    },
+    { short:{en:'4. Boycott', es:'4. Boicot'},
+      text:{en:'We will stop buying British goods.', es:'Dejaremos de comprar productos británicos.'},
+      means:{en:'Colonists would refuse to buy cloth, tools, and other goods made in Britain. British merchants would lose money and might push Parliament to change the law.',
+             es:'Los colonos se negarían a comprar tela, herramientas y otros productos hechos en Gran Bretaña. Los comerciantes británicos perderían dinero y podrían presionar al Parlamento para cambiar la ley.'},
+      gloss:{w:{en:'boycott', es:'boicot'}, d:{en:'refusing to buy something as a protest.', es:'negarse a comprar algo como protesta.'}},
+      pat:[
+        {star:true, en:'British merchants will lose money and push Parliament to cancel the tax.', es:'Los comerciantes británicos perderán dinero y presionarán al Parlamento para cancelar el impuesto.'},
+        {star:true, en:'A boycott is peaceful, and no one gets hurt.', es:'Un boicot es pacífico, y nadie sale herido.'},
+        {star:true, en:'We can make our own cloth and goods at home.', es:'Podemos hacer nuestra propia tela y nuestros productos en casa.'},
+        {en:'If everyone joins, Britain will have to listen.', es:'Si todos se unen, Gran Bretaña tendrá que escuchar.'},
+        {en:'Our money should help our own colonies, not Britain.', es:'Nuestro dinero debe ayudar a nuestras colonias, no a Gran Bretaña.'},
+        {en:'Wearing homemade clothes shows Britain that we stand together.', es:'Usar ropa hecha en casa le muestra a Gran Bretaña que estamos unidos.'}
+      ],
+      loy:[
+        {star:true, en:'Merchants here who sell British goods will lose their jobs.', es:'Los comerciantes de aquí que venden productos británicos perderán su trabajo.'},
+        {star:true, en:'The colonies are already poor after the war, and a boycott will make it worse.', es:'Las colonias ya están pobres después de la guerra, y un boicot lo empeorará.'},
+        {star:true, en:'Some people will be bullied into joining the boycott.', es:'A algunas personas las van a intimidar para que se unan al boicot.'},
+        {en:'Homemade cloth is rough and takes a lot of work.', es:'La tela hecha en casa es áspera y cuesta mucho trabajo.'},
+        {en:'Britain buys our tobacco, fish, and lumber, and it could stop buying from us too.', es:'Gran Bretaña compra nuestro tabaco, pescado y madera, y también podría dejar de comprarnos.'},
+        {en:'Trade with Britain has helped the colonies grow for 100 years.', es:'El comercio con Gran Bretaña ha ayudado a crecer a las colonias por 100 años.'}
+      ],
+      stems:[
+        {en:'What would happen if Britain stops buying our ____?', es:'¿Qué pasaría si Gran Bretaña deja de comprar nuestro ____?', idea:{en:'tobacco, fish, lumber', es:'tabaco, pescado, madera'}},
+        {en:'How would this affect a ____ who sells British goods?', es:'¿Cómo afectaría esto a un ____ que vende productos británicos?', idea:{en:'shopkeeper, merchant', es:'tendero, comerciante'}},
+        {en:'Why should we trust that everyone will ____?', es:'¿Por qué deberíamos confiar en que todos van a ____?', idea:{en:'keep the boycott', es:'cumplir el boicot'}},
+        {en:'Isn’t it true that homemade cloth ____?', es:'¿No es cierto que la tela hecha en casa ____?', idea:{en:'costs more work', es:'cuesta más trabajo'}}
+      ],
+      ask:{en:'Where will my family get needles, pots, and cloth if we stop buying British goods?', es:'¿De dónde sacará mi familia agujas, ollas y tela si dejamos de comprar productos británicos?'},
+      result:'notvoted',
+      outcome:{en:'But colonists did it anyway: about 200 New York merchants signed a boycott agreement on October 31, 1765, and merchants in Philadelphia and Boston followed.',
+               es:'Pero los colonos lo hicieron de todos modos: unos 200 comerciantes de Nueva York firmaron un acuerdo de boicot el 31 de octubre de 1765, y los comerciantes de Filadelfia y Boston los siguieron.'},
+      next:{en:'British merchants lost so much business that they begged Parliament to cancel the tax.',
+            es:'Los comerciantes británicos perdieron tantos negocios que le rogaron al Parlamento que cancelara el impuesto.'},
+      img:{
+        src:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Burns%27_Coffee_House%2C_in_which_the_first_non-importation_agreement_of_the_colonies_was_signed_on_the_31st_of_October%2C_1765%2C_by_the_merchants_of_the_City_of_New_York_%28NYPL_b12349156-424271%29.jpg/500px-Burns%27_Coffee_House%2C_in_which_the_first_non-importation_agreement_of_the_colonies_was_signed_on_the_31st_of_October%2C_1765%2C_by_the_merchants_of_the_City_of_New_York_%28NYPL_b12349156-424271%29.jpg',
+        zoom:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/81/Burns%27_Coffee_House%2C_in_which_the_first_non-importation_agreement_of_the_colonies_was_signed_on_the_31st_of_October%2C_1765%2C_by_the_merchants_of_the_City_of_New_York_%28NYPL_b12349156-424271%29.jpg/1280px-Burns%27_Coffee_House%2C_in_which_the_first_non-importation_agreement_of_the_colonies_was_signed_on_the_31st_of_October%2C_1765%2C_by_the_merchants_of_the_City_of_New_York_%28NYPL_b12349156-424271%29.jpg',
+        alt:{en:'An engraving of Burns’ Coffee House, a three-story building on a New York street', es:'Un grabado del café Burns, un edificio de tres pisos en una calle de Nueva York'},
+        tag:{cls:'later', en:'Later Depiction · 1800s', es:'Imagen posterior · siglo XIX'},
+        cap:{en:'Burns’ Coffee House in New York, where the merchants signed the boycott agreement. Public domain, via Wikimedia Commons.',
+             es:'El café Burns en Nueva York, donde los comerciantes firmaron el acuerdo de boicot. Dominio público, vía Wikimedia Commons.'}
+      }
+    },
+    { short:{en:'5. Repeal', es:'5. Revocar'},
+      text:{en:'Parliament must repeal the Stamp Act.', es:'El Parlamento debe revocar la Ley del Sello.'},
+      means:{en:'The Congress would send letters, called petitions, asking the king and Parliament to cancel the law. In the letters, the colonists would say they were still loyal to the king.',
+             es:'El Congreso mandaría cartas, llamadas peticiones, para pedirle al rey y al Parlamento que cancelaran la ley. En las cartas, los colonos dirían que seguían siendo leales al rey.'},
+      gloss:{w:{en:'repeal', es:'revocar'}, d:{en:'to cancel a law.', es:'cancelar una ley.'}},
+      pat:[
+        {star:true, en:'The tax must be paid in silver coins, and we have very few.', es:'El impuesto se tiene que pagar con monedas de plata, y tenemos muy pocas.'},
+        {star:true, en:'Business has been slow since the war, and this tax makes it worse.', es:'Los negocios han estado lentos desde la guerra, y este impuesto lo empeora.'},
+        {star:true, en:'Britain earns more from trading with us than it ever will from this tax.', es:'Gran Bretaña gana más comerciando con nosotros de lo que jamás ganará con este impuesto.'},
+        {en:'If all the colonies speak together, Parliament will have to listen.', es:'Si todas las colonias hablan juntas, el Parlamento tendrá que escuchar.'},
+        {en:'Canceling the tax would bring peace back between Britain and the colonies.', es:'Cancelar el impuesto traería de vuelta la paz entre Gran Bretaña y las colonias.'},
+        {en:'A bad law should be fixed, not kept.', es:'Una mala ley se debe arreglar, no mantener.'}
+      ],
+      loy:[
+        {star:true, en:'Parliament never agreed to this congress, so each colony should ask on its own.', es:'El Parlamento nunca aprobó este congreso, así que cada colonia debe pedirlo por su cuenta.'},
+        {star:true, en:'Parliament decides which laws to keep, not the colonies.', es:'El Parlamento decide qué leyes mantener, no las colonias.'},
+        {star:true, en:'The soldiers who protect us still need to be paid.', es:'A los soldados que nos protegen todavía hay que pagarles.'},
+        {en:'People in England pay stamp taxes too.', es:'La gente de Inglaterra también paga impuestos de sello.'},
+        {en:'If Parliament gives in to riots, there will be more riots.', es:'Si el Parlamento cede ante los disturbios, habrá más disturbios.'},
+        {en:'Telling Parliament what it “must” do is disrespectful.', es:'Decirle al Parlamento lo que “debe” hacer es una falta de respeto.'}
+      ],
+      stems:[
+        {en:'What would happen if Parliament says ____?', es:'¿Qué pasaría si el Parlamento dice ____?', idea:{en:'no', es:'que no'}},
+        {en:'How would this affect ____ if the tax is canceled?', es:'¿Cómo afectaría esto a ____ si se cancela el impuesto?', idea:{en:'printers, lawyers', es:'los impresores, los abogados'}},
+        {en:'Why should we trust that Parliament will not ____?', es:'¿Por qué deberíamos confiar en que el Parlamento no va a ____?', idea:{en:'pass a new tax', es:'aprobar un impuesto nuevo'}},
+        {en:'Isn’t it true that people in England ____?', es:'¿No es cierto que la gente de Inglaterra ____?', idea:{en:'pay stamp taxes too', es:'también paga impuestos de sello'}}
+      ],
+      ask:{en:'If they cancel this tax, what stops them from making a new one?', es:'Si cancelan este impuesto, ¿qué les impide crear uno nuevo?'},
+      result:'passed',
+      outcome:{en:'Petitions went to the king and Parliament. Even the Congress’s leader, Timothy Ruggles, refused to sign. He later became a Loyalist.',
+               es:'Se enviaron peticiones al rey y al Parlamento. Hasta el líder del Congreso, Timothy Ruggles, se negó a firmar. Más tarde se hizo lealista.'},
+      next:{en:'Parliament repealed the Stamp Act in March 1766. A big reason was that British merchants were losing money from the boycott, so they demanded it. But Parliament also passed a law saying it could still make any law it wanted for the colonies.',
+            es:'El Parlamento revocó la Ley del Sello en marzo de 1766. Una gran razón fue que los comerciantes británicos estaban perdiendo dinero por el boicot, así que lo exigieron. Pero el Parlamento también aprobó una ley que decía que todavía podía hacer cualquier ley que quisiera para las colonias.'},
+      img:{
+        src:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Timothy_Ruggles.jpg/250px-Timothy_Ruggles.jpg',
+        zoom:'https://upload.wikimedia.org/wikipedia/commons/6/60/Timothy_Ruggles.jpg',
+        alt:{en:'A black-and-white portrait of Timothy Ruggles in a white wig and a coat with large buttons', es:'Un retrato en blanco y negro de Timothy Ruggles con peluca blanca y un saco con botones grandes'},
+        tag:{cls:'later', en:'Portrait', es:'Retrato'},
+        cap:{en:'Timothy Ruggles of Massachusetts led the Stamp Act Congress but refused to sign its petitions. Public domain, via Wikimedia Commons.',
+             es:'Timothy Ruggles, de Massachusetts, dirigió el Congreso de la Ley del Sello, pero se negó a firmar sus peticiones. Dominio público, vía Wikimedia Commons.'}
+      }
+    }
+  ];
+
+  const SIDES = ['Patriot','Loyalist','Neutralist'];
+  const SIDE_NAME = {
+    Patriot:   {en:'Patriot',    es:'Patriota'},
+    Loyalist:  {en:'Loyalist',   es:'Lealista'},
+    Neutralist:{en:'Neutralist', es:'Neutralista'}
+  };
+  const RESULT_BADGE = {
+    passed:  bi('Passed in 1765','Aprobada en 1765'),
+    notvoted:bi('Not voted · colonists did it anyway','No se votó · los colonos lo hicieron igual')
+  };
+  // the exact words printed in the 1765 column of the paper vote tracker
+  const PAPER_1765 = {passed:{en:'Passed'}, notvoted:{en:'Not voted'}};
+  const VOTE_NAME = {yea:{en:'Yay', es:'Yay (sí)'}, nay:{en:'Nay', es:'Nay (no)'}};
+
+  /* =================== STATE (in memory only; lost on refresh) =================== */
+  const state = {
+    mode:null,   // 'live' or 'self'
+    live:{prop:null, side:null, reasons:[], stem:null, cbSpeech:false, cbTracker:false, cb1765:false, cbR1:false, cbR2:false},
+    self:{read:{}, vote:{}, reasons:{}, revealed:{}, strong:null, cbSpeech:false, cbTracker:false, cbR1:false, cbR2:false}
+  };
+
+  /* =================== SAVE / RESTORE (this browser only) ===================
+     Student taps and the teacher's Board tally are saved under separate keys, so
+     "Start over" and "New class" each clear only their own. Storage can be blocked
+     (some Guest or managed setups); then the lesson still works, it just doesn't remember. */
+  const SAVE_KEY = 'rtr-day3-student', BOARD_KEY = 'rtr-day3-board';
+  const readSave = k => { try{ return JSON.parse(localStorage.getItem(k) || 'null'); }catch(e){ return null; } };
+  const writeSave = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
+  const clearSave = k => { try{ localStorage.removeItem(k); }catch(e){} };
+  const saved = readSave(SAVE_KEY);
+  if(saved && saved.v===1 && saved.state){
+    state.mode = saved.state.mode || null;
+    Object.assign(state.live, saved.state.live);
+    Object.assign(state.self, saved.state.self);
+  }
+
+  /* =================== HELPERS =================== */
+  const $ = s => document.querySelector(s);
+  const $$ = s => Array.from(document.querySelectorAll(s));
+  const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  // A reason becomes a clause after "because" / "Also," — drop the period and lowercase the
+  // first letter unless the line starts with a name.
+  const KEEP_CAP = /^(Parliament|Britain|British|England|Halifax|Georgia|Gran Bretaña|Inglaterra|Parlamento)\b/;
+  function clause(s){
+    s = s.replace(/\.\s*$/,'');
+    return KEEP_CAP.test(s) ? s : s.charAt(0).toLowerCase()+s.slice(1);
+  }
+  const partLabel = (roman, title) => '<div class="part-label"><span class="roman">'+roman+'</span><h2>'+title+'</h2></div>';
+  const partTask = html => '<div class="part-task">'+html+'</div>';
+  const glossBox = g => '<div class="gloss"><span class="gw">'+B(g.w)+'</span><span>'+B(g.d)+'</span></div>';
+  const paperCheck = (id, en, es) => '<label class="paper-check"><input type="checkbox" id="'+id+'"> <span>'+bi('✏ '+en, '✏ '+es)+'</span></label>';
+  function propCard(p, i){
+    return '<div class="prop-card"><div class="pnum">'+bi('Proposal '+(i+1), 'Propuesta '+(i+1))+'</div>'+
+      '<div class="ptext">'+B(p.text)+'</div><p class="means">'+B(p.means)+'</p>'+glossBox(p.gloss)+'</div>';
+  }
+  function figure(img){
+    return '<figure class="plate"><img onerror="imgFail(this)" data-zoom="'+img.zoom+'" src="'+img.src+'" alt="'+esc(img.alt.en)+'" data-alt-es="'+esc(img.alt.es)+'" loading="lazy" style="max-height:260px; width:auto">'+
+      '<div class="zoom-hint">🔍 '+bi('Tap the picture to see it bigger.','Toca la imagen para verla más grande.')+'</div>'+
+      '<figcaption>'+bi('<span class="src-tag '+img.tag.cls+'">'+img.tag.en+'</span>'+img.cap.en, '<span class="src-tag '+img.tag.cls+'">'+img.tag.es+'</span>'+img.cap.es)+'</figcaption></figure>';
+  }
+  const resultLine = p => p.result==='passed'
+    ? bi('<strong>Passed.</strong> ', '<strong>Aprobada.</strong> ')+B(p.outcome)
+    : bi('<strong>The Congress did not vote on this.</strong> ', '<strong>El Congreso no votó sobre esto.</strong> ')+B(p.outcome);
+
+  /* =================== PAGES =================== */
+  const LIVE = [
+    {id:'live1', nav:{en:'I. Assignment', es:'I. Mi tarea'}},
+    {id:'live2', nav:{en:'II. My Speech', es:'II. Mi discurso'}},
+    {id:'live3', nav:{en:'III. Congress', es:'III. Congreso'}},
+    {id:'live4', nav:{en:'IV. Reflect', es:'IV. Reflexiona'}},
+    {id:'finish', nav:{en:'Finish', es:'Final'}}
+  ];
+  const SELF = PROPOSALS.map((p,i) => ({id:'self'+(i+1), nav:p.short, num:i+1}))
+    .concat([{id:'selfres', nav:{en:'Results', es:'Resultados'}}, {id:'selfwrite', nav:{en:'Write It', es:'Escríbelo'}}, {id:'finish', nav:{en:'Finish', es:'Final'}}]);
+  const seq = () => ['hero'].concat((state.mode==='live' ? LIVE : state.mode==='self' ? SELF : []).map(p => p.id));
+
+  let html = '';
+
+  /* Reflection 2, shared by Live Part IV and Self-Paced Write It. The English question must match the paper sheet word for word. */
+  const R2 = bi('<em>Based on your identity, would you be happy with what the Congress did in 1765? I would feel ____ because ____.</em>'+
+      '<span class="r2-help">Your identity = the job, colony, and side on your identity card. Remember: the Congress asked for no taxes without representation, jury trials, and an end to the Stamp Act (Proposals 1, 2, and 5). It did not vote on 3 and 4.</span>',
+    '<em>Based on your identity, would you be happy with what the Congress did in 1765? I would feel ____ because ____.</em> (Según tu identidad, ¿estarías contento con lo que hizo el Congreso en 1765? Me sentiría ____ porque ____.)'+
+      '<span class="r2-help">Tu identidad = el trabajo, la colonia y el lado de tu tarjeta de identidad. Recuerda: el Congreso pidió no pagar impuestos sin representación, juicios con jurado y el fin de la Ley del Sello (Propuestas 1, 2 y 5). No votó sobre la 3 ni la 4.</span>');
+
+  /* ---------- LIVE I: assignment ---------- */
+  html += '<section class="part page" id="live1">'+
+    partLabel(bi('Part I','Parte I'), bi('Your Assignment','Tu asignación'))+
+    partTask(bi('<strong>Your task:</strong> Tap the proposal number your teacher gave you. Then tap the side on your identity card.',
+                '<strong>Tu tarea:</strong> Toca el número de propuesta que te dio tu maestro. Luego toca el lado que aparece en tu tarjeta de identidad.'))+
+    '<div class="card"><div class="q">'+bi('1. Which proposal did your teacher give you?','1. ¿Qué propuesta te dio tu maestro?')+'</div>'+
+    PROPOSALS.map((p,i) => '<button class="pbtn" type="button" data-prop="'+i+'"><span class="pn">'+(i+1)+'</span><span>'+B(p.text)+'</span></button>').join('')+'</div>'+
+    '<div class="card"><div class="q">'+bi('2. Which side is on your identity card?','2. ¿Qué lado aparece en tu tarjeta de identidad?')+'</div>'+
+    '<div class="side-btns" id="liveSides">'+SIDES.map(s => '<button class="sbtn" type="button" data-side="'+s+'">'+B(SIDE_NAME[s])+'</button>').join('')+'</div>'+
+    '<div class="fb" id="liveFb" aria-live="polite"></div></div>'+
+    '<div class="you-line">'+bi('<strong>How the Congress works:</strong> Patriots speak <em>for</em> the proposal. Loyalists speak <em>against</em> it. Neutralists ask a hard question. Then everyone votes.',
+                                 '<strong>Cómo funciona el Congreso:</strong> Los patriotas hablan <em>a favor</em> de la propuesta. Los lealistas hablan <em>en contra</em>. Los neutralistas hacen una pregunta difícil. Luego todos votan.')+'</div>'+
+    '</section>';
+
+  /* ---------- LIVE II: speech (body rebuilt when proposal or side changes) ---------- */
+  html += '<section class="part page" id="live2">'+
+    partLabel(bi('Part II','Parte II'), bi('Your Speech','Tu discurso'))+
+    '<div id="live2Body"></div>'+
+    paperCheck('cb-l-speech','I wrote my speech or question on the front of my paper.','Escribí mi discurso o mi pregunta en el frente de mi hoja.')+
+    '</section>';
+
+  /* ---------- LIVE III: congress in session ---------- */
+  html += '<section class="part page" id="live3">'+
+    partLabel(bi('Part III','Parte III'), bi('Congress in Session','El Congreso en sesión'))+
+    partTask(bi('<strong>Your task:</strong> Look at the projector. For each proposal, listen to the Patriot, the Loyalist, and the Neutralist. Then vote by raising your hand. On your <strong>vote tracker</strong>, circle how <em>you</em> voted and whether our Congress passed it.',
+                '<strong>Tu tarea:</strong> Mira el proyector. En cada propuesta, escucha al patriota, al lealista y al neutralista. Luego vota levantando la mano. En tu <strong>registro de votos</strong>, encierra en un círculo cómo votaste <em>tú</em> y si nuestro Congreso la aprobó.'))+
+    '<div class="card">'+PROPOSALS.map((p,i) => '<div class="pbtn" style="cursor:default"><span class="pn">'+(i+1)+'</span><span>'+B(p.text)+'</span></div>').join('')+
+    '<p style="font-size:.9rem; margin:8px 0 0">'+bi('<strong>Yay</strong> = yes · <strong>Nay</strong> = no. A tie fails.','<strong>Yay</strong> = sí · <strong>Nay</strong> = no. Un empate no se aprueba.')+'</p></div>'+
+    '<div class="you-line">'+bi('<strong>When it is your turn:</strong> stand up and read your speech or question from your paper. You have 30 seconds.',
+                                 '<strong>Cuando sea tu turno:</strong> ponte de pie y lee tu discurso o tu pregunta de tu hoja. Tienes 30 segundos.')+'</div>'+
+    paperCheck('cb-l-tracker','On my vote tracker, I circled my vote and our Congress’s result for all five proposals.','En mi registro de votos, encerré mi voto y el resultado de nuestro Congreso en las cinco propuestas.')+
+    '</section>';
+
+  /* ---------- LIVE IV: what really happened + reflection ---------- */
+  html += '<section class="part page" id="live4">'+
+    partLabel(bi('Part IV','Parte IV'), bi('What Really Happened','Lo que pasó de verdad'))+
+    partTask(bi('<strong>Your task:</strong> Read what happened in 1765. Circle the 1765 result on your vote tracker. Then answer the two questions on the back of your paper.',
+                '<strong>Tu tarea:</strong> Lee lo que pasó en 1765. Encierra el resultado de 1765 en tu registro de votos. Luego contesta las dos preguntas al reverso de tu hoja.'))+
+    PROPOSALS.map((p,i) => '<div class="res"><div class="rhead"><span class="pn">'+(i+1)+'</span><span class="rtext">'+B(p.text)+'</span> <span class="badge '+p.result+'">'+RESULT_BADGE[p.result]+'</span></div>'+
+      '<p>'+resultLine(p)+'</p><p style="color:var(--ink-soft)">'+bi('<strong>Next:</strong> ','<strong>Después:</strong> ')+B(p.next)+'</p></div>').join('')+
+    paperCheck('cb-l-1765','I circled the 1765 result for all five proposals on my vote tracker.','Encerré el resultado de 1765 de las cinco propuestas en mi registro de votos.')+
+    '<div class="task-item" style="margin-top:22px"><div class="q">'+bi('Reflection 1 (back of sheet)','Reflexión 1 (reverso de la hoja)')+'</div>'+
+    '<div class="frame">'+bi('<em>Which proposal was hardest to decide? I think Proposal ___ was hardest because ____.</em>',
+                             '<em>Which proposal was hardest to decide? I think Proposal ___ was hardest because ____.</em> (¿Qué propuesta fue la más difícil de decidir? Creo que la Propuesta ___ fue la más difícil porque ____.)')+'</div>'+
+    paperCheck('cb-l-r1','I answered Reflection 1 on my paper.','Contesté la Reflexión 1 en mi hoja.')+'</div>'+
+    '<div class="task-item"><div class="q">'+bi('Reflection 2 (back of sheet)','Reflexión 2 (reverso de la hoja)')+'</div>'+
+    '<div class="frame">'+R2+'</div>'+
+    paperCheck('cb-l-r2','I answered Reflection 2 on my paper.','Contesté la Reflexión 2 en mi hoja.')+'</div>'+
+    '</section>';
+
+  /* ---------- SELF-PACED: one page per proposal ---------- */
+  /* Each proposal is five steps that open one at a time, so the next thing to do is always
+     right under the last thing the student tapped. */
+  const spStep = (n, title, body) =>
+    '<div class="sp-step" data-step="'+n+'"><div class="sp-head"><span class="sp-num">'+n+'</span><h3>'+title+'</h3></div>'+body+'</div>';
+  PROPOSALS.forEach((p,i) => {
+    const say = lines => '<ul class="say">'+lines.filter(l => l.star).map(l => '<li>'+B(l)+'</li>').join('')+'</ul>';
+    html += '<section class="part page self-prop" id="self'+(i+1)+'" data-i="'+i+'">'+
+      partLabel(bi('Proposal '+(i+1)+' of 5','Propuesta '+(i+1)+' de 5'), B(p.short).replace(/\d\. /g,''))+
+      partTask(bi('<strong>Your task:</strong> Do the steps in order. Each step opens when you finish the one before it.',
+                  '<strong>Tu tarea:</strong> Haz los pasos en orden. Cada paso se abre cuando terminas el anterior.'))+
+      spStep(1, bi('Read the proposal and both sides','Lee la propuesta y los dos lados'),
+        propCard(p,i)+
+        '<div class="sides2">'+
+          '<div class="col pat"><h3>'+bi('Patriots say','Los patriotas dicen')+'</h3><div class="yn-note">'+bi('They vote <strong>Yay</strong> (yes).','Votan <strong>Yay</strong> (sí).')+'</div>'+say(p.pat)+'</div>'+
+          '<div class="col loy"><h3>'+bi('Loyalists say','Los lealistas dicen')+'</h3><div class="yn-note">'+bi('They vote <strong>Nay</strong> (no).','Votan <strong>Nay</strong> (no).')+'</div>'+say(p.loy)+'</div>'+
+        '</div>'+
+        '<div class="neut-ask">'+bi('<strong>A Neutralist might ask:</strong> “'+p.ask.en+'”', '<strong>Un neutralista podría preguntar:</strong> “'+p.ask.es+'”')+'</div>'+
+        '<button class="sp-go" type="button" data-read>'+bi('I read both sides →','Leí los dos lados →')+'</button>')+
+      spStep(2, bi('Vote','Vota'),
+        '<p class="sp-say">'+bi('How do <em>you</em> vote on this proposal?','¿Cómo votas <em>tú</em> en esta propuesta?')+'</p>'+
+        '<div class="sp-restate"><span class="pn">'+(i+1)+'</span>'+B(p.text)+'</div>'+
+        '<div class="vote-btns"><button class="vbtn" type="button" data-v="yea">Yay</button><button class="vbtn" type="button" data-v="nay">Nay</button>'+
+        '<span class="yn-note" style="align-self:center">'+bi('Yay = yes · Nay = no','Yay = sí · Nay = no')+'</span></div>')+
+      spStep(3, bi('Why?','¿Por qué?'),
+        '<p class="sp-say" data-why></p><div data-reasons></div><div class="pick-count" data-count></div>')+
+      spStep(4, bi('What happened in 1765?','¿Qué pasó en 1765?'),
+        '<button class="reveal-btn" type="button">'+bi('Show me','Muéstrame')+'</button>'+
+        '<div class="reveal" aria-live="polite"></div>')+
+      spStep(5, bi('Now write it on your paper','Ahora escríbelo en tu hoja'),
+        '<div class="sp-paper" data-paper></div>')+
+      '</section>';
+  });
+
+  /* ---------- SELF-PACED: results + write it ---------- */
+  html += '<section class="part page" id="selfres">'+
+    partLabel(bi('Results','Resultados'), bi('You vs. 1765','Tú contra 1765'))+
+    partTask(bi('<strong>Your task:</strong> Compare your five votes to what really happened. Then go on to Write It.',
+                '<strong>Tu tarea:</strong> Compara tus cinco votos con lo que pasó de verdad. Luego sigue a Escríbelo.'))+
+    '<div class="summary" id="selfSummary"></div><div id="selfResList"></div></section>';
+
+  html += '<section class="part page" id="selfwrite">'+
+    partLabel(bi('Write It','Escríbelo'), bi('Finish Your Paper','Termina tu hoja'))+
+    partTask(bi('<strong>Your task:</strong> Do these tasks on your paper, in pencil. Check each box here after you finish it on paper.',
+                '<strong>Tu tarea:</strong> Haz estas tareas en tu hoja, con lápiz. Marca cada casilla aquí después de terminarla en el papel.'))+
+    '<div class="task-item"><div class="q">'+bi('Front of sheet: My strongest reason (frame A)','Frente de la hoja: Mi razón más fuerte (marco A)')+'</div>'+
+    '<p style="margin:0 0 8px">'+bi('Which proposal did you feel <strong>strongest</strong> about? Tap it. Your speech appears below, made from your vote and the two reasons you picked.',
+                                    '¿Sobre qué propuesta sentiste <strong>más fuerte</strong>? Tócala. Tu discurso aparece abajo, hecho con tu voto y las dos razones que escogiste.')+'</p>'+
+    '<div id="strongBtns"></div><div class="speech" id="strongSpeech" hidden></div>'+
+    paperCheck('cb-s-speech','I wrote my strongest reason on the front of my paper.','Escribí mi razón más fuerte en el frente de mi hoja.')+'</div>'+
+    '<div class="task-item"><div class="q">'+bi('Front of sheet: Vote tracker','Frente de la hoja: Registro de votos')+'</div>'+
+    '<div class="frame">'+bi('You circled one row after each proposal. Check that all five rows have “My vote” and “1765” circled. Leave “Our Congress” blank.','Encerraste una fila después de cada propuesta. Revisa que las cinco filas tengan “My vote” y “1765” encerrados. Deja “Our Congress” en blanco.')+'</div>'+
+    paperCheck('cb-s-tracker','I filled in my vote tracker for all five proposals.','Llené mi registro de votos para las cinco propuestas.')+'</div>'+
+    '<div class="task-item"><div class="q">'+bi('Reflection 1 (back of sheet)','Reflexión 1 (reverso de la hoja)')+'</div>'+
+    '<div class="frame">'+bi('<em>Which proposal was hardest to decide? I think Proposal ___ was hardest because ____.</em>',
+                             '<em>Which proposal was hardest to decide? I think Proposal ___ was hardest because ____.</em> (¿Qué propuesta fue la más difícil de decidir? Creo que la Propuesta ___ fue la más difícil porque ____.)')+'</div>'+
+    paperCheck('cb-s-r1','I answered Reflection 1 on my paper.','Contesté la Reflexión 1 en mi hoja.')+'</div>'+
+    '<div class="task-item"><div class="q">'+bi('Reflection 2 (back of sheet)','Reflexión 2 (reverso de la hoja)')+'</div>'+
+    '<div class="frame">'+R2+'</div>'+
+    paperCheck('cb-s-r2','I answered Reflection 2 on my paper.','Contesté la Reflexión 2 en mi hoja.')+'</div>'+
+    '</section>';
+
+  /* ---------- FINISH (shared) ---------- */
+  html += '<section class="part page" id="finish">'+
+    partLabel(bi('Finish','Final'), bi('Seal Your Vote','Sella tu voto'))+
+    '<div class="finish-card"><div class="bigseal" aria-hidden="true"><span class="quill">'+bi('Day 3','Día 3')+'</span><span class="yr">1765</span></div>'+
+    '<h3 id="finishTitle"></h3>'+
+    '<p>'+bi('When every part below shows <strong>Complete</strong>, show your screen to your teacher, then turn in your paper sheet. The paper is what gets graded.',
+             'Cuando cada parte de abajo diga <strong>Completa</strong>, muéstrale tu pantalla a tu maestro y luego entrega tu hoja. El papel es lo que se califica.')+'</p>'+
+    '<ul class="check" id="checkList"></ul>'+
+    '<p style="font-size:.85rem; color:var(--ink-soft); margin-top:14px">'+bi('Your taps are saved in this browser, so you can close the lesson and come back. Your paper is what gets graded.','Tus toques se guardan en este navegador, así que puedes cerrar la lección y volver. Tu hoja es lo que se califica.')+'</p>'+
+    '</div></section>';
+
+  $('#modePages').innerHTML = html;
+
+  /* =================== NAVIGATION + GATING =================== */
+  function complete(id){
+    const L = state.live, S = state.self;
+    if(id==='live1') return L.prop!==null && !!L.side;
+    if(id==='live2') return (L.side==='Neutralist' ? L.stem!==null : L.reasons.length===2) && L.cbSpeech;
+    if(id==='live3') return L.cbTracker;
+    if(id==='live4') return L.cb1765 && L.cbR1 && L.cbR2;
+    const m = /^self(\d)$/.exec(id);
+    if(m){ const i = +m[1]-1; return !!S.read[i] && !!S.vote[i] && (S.reasons[i]||[]).length===2 && !!S.revealed[i]; }
+    if(id==='selfres') return PROPOSALS.every((p,i) => complete('self'+(i+1)));
+    if(id==='selfwrite') return S.strong!==null && S.cbSpeech && S.cbTracker && S.cbR1 && S.cbR2;
+    return false;
+  }
+  function maxUnlocked(){
+    const s = seq();
+    if(s.length===1) return 0;
+    let i = 1;
+    while(i < s.length-1 && complete(s[i])) i++;
+    return i;
+  }
+  const unlocked = id => { const i = seq().indexOf(id); return i >= 0 && i <= maxUnlocked(); };
+  let current = 'hero';
+
+  function show(id){
+    closeBoard(true);
+    current = id;
+    $$('.page').forEach(p => p.classList.toggle('active', p.id===id));
+    window.scrollTo(0,0);
+    refresh();
+  }
+  function goTo(id){
+    if(id==='board'){ openBoard(); return; }
+    if(!unlocked(id)) return;
+    show(id);
+    // Each page change is a history entry, so the browser's Back button steps between parts.
+    if(location.hash !== '#'+id){ try{ location.hash = id; }catch(e){} }
+  }
+  window.addEventListener('hashchange', () => {
+    const id = location.hash.slice(1) || 'hero';
+    if(id==='board'){ openBoard(); return; }
+    if(id === current && !document.body.classList.contains('boardmode')) return;
+    if(!unlocked(id)){ try{ location.replace('#'+current); }catch(e){} return; }
+    show(id);
+  });
+
+  function buildNav(){
+    const list = state.mode==='live' ? LIVE : state.mode==='self' ? SELF : [];
+    $('#navParts').innerHTML =
+      '<button class="navbtn" type="button" data-nav="hero">⌂ '+bi('Start','Inicio')+'</button>'+
+      list.map(p => p.num
+        // Self-Paced proposals get small numbered buttons so the nav fits on one line
+        ? (p.num===1 ? '<span class="navlabel">'+bi('Proposals:','Propuestas:')+'</span>' : '')+
+          '<button class="navbtn num" type="button" data-nav="'+p.id+'" title="'+esc(p.nav.en)+'"><span class="seal" aria-hidden="true"></span>'+p.num+'</button>'
+        : '<button class="navbtn" type="button" data-nav="'+p.id+'"><span class="seal" aria-hidden="true"></span>'+B(p.nav)+'</button>').join('');
+    $$('#navParts [data-nav]').forEach(b => b.addEventListener('click', () => goTo(b.dataset.nav)));
+  }
+
+  // Back / Next pagers on every mode page
+  function addPagers(list){
+    const pages = list.map(p => p.id);
+    pages.forEach((id, k) => {
+      if(id==='finish') return;
+      const sec = document.getElementById(id);
+      const prev = k===0 ? 'hero' : pages[k-1], next = pages[k+1];
+      const div = document.createElement('div');
+      div.className = 'pager';
+      div.innerHTML = '<button class="pgbtn back" type="button">'+bi('← Back','← Atrás')+'</button>'+
+        '<span class="pg-hint" data-pg-hint></span>'+
+        '<button class="pgbtn" type="button" data-pg-next>'+bi('Next →','Siguiente →')+'</button>';
+      sec.appendChild(div);
+      const pc = document.createElement('div');
+      pc.className = 'page-count';
+      pc.innerHTML = bi('Page '+(k+1)+' of '+(pages.length-1), 'Página '+(k+1)+' de '+(pages.length-1));
+      sec.appendChild(pc);
+      div.querySelector('.back').addEventListener('click', () => goTo(prev));
+      div.querySelector('[data-pg-next]').addEventListener('click', () => goTo(next));
+    });
+  }
+  addPagers(LIVE); addPagers(SELF);
+  // Finish page: one Back button that returns to the last page of whichever mode is running
+  (function(){
+    const div = document.createElement('div');
+    div.className = 'pager';
+    div.innerHTML = '<button class="pgbtn back" type="button">'+bi('← Back','← Atrás')+'</button><span></span>';
+    $('#finish').appendChild(div);
+    div.querySelector('.back').addEventListener('click', () => { const s = seq(); goTo(s[s.length-2]); });
+  })();
+
+  function refresh(){
+    const s = seq(), mx = maxUnlocked();
+    $$('#navParts [data-nav]').forEach(b => {
+      const id = b.dataset.nav, i = s.indexOf(id);
+      b.classList.toggle('current', id===current);
+      if(id==='hero') return;
+      const locked = i > mx;
+      b.classList.toggle('locked', locked);
+      b.disabled = locked;
+      b.classList.toggle('done', id==='finish' ? s.slice(1,-1).every(complete) : complete(id));
+    });
+    $$('.pager [data-pg-next]').forEach(nb => {
+      const id = nb.closest('section').id, ok = complete(id);
+      nb.disabled = !ok;
+      const hint = nb.parentNode.querySelector('[data-pg-hint]');
+      hint.innerHTML = ok ? bi('✓ This part is complete.','✓ Esta parte está completa.') : bi('Finish every tap on this page to unlock Next.','Completa cada toque en esta página para desbloquear Siguiente.');
+      hint.className = 'pg-hint'+(ok?' ok':'');
+    });
+    $$('.mode-btn').forEach(b => b.classList.toggle('picked', b.dataset.mode===state.mode));
+    $('#startOver').hidden = !state.mode;
+    renderFinish();
+    writeSave(SAVE_KEY, {v:1, state, page:current, lang});
+  }
+
+  /* =================== MODE SELECT =================== */
+  $$('.mode-btn').forEach(b => b.addEventListener('click', () => {
+    state.mode = b.dataset.mode;
+    buildNav();
+    goTo(state.mode==='live' ? 'live1' : 'self1');
+  }));
+
+  /* =================== LIVE I =================== */
+  const LIVE_FB = {
+    Patriot:   n => bi('You are a <strong>Patriot</strong>. You will give a short speech <em>for</em> Proposal '+n+'. Patriots want it to pass.',
+                       'Eres <strong>patriota</strong>. Vas a dar un discurso corto <em>a favor</em> de la Propuesta '+n+'. Los patriotas quieren que se apruebe.'),
+    Loyalist:  n => bi('You are a <strong>Loyalist</strong>. You will give a short speech <em>against</em> Proposal '+n+'. Loyalists want it to fail.',
+                       'Eres <strong>lealista</strong>. Vas a dar un discurso corto <em>en contra</em> de la Propuesta '+n+'. Los lealistas quieren que no se apruebe.'),
+    Neutralist:n => bi('You are a <strong>Neutralist</strong>. You will ask one hard question about Proposal '+n+'. Then you decide how to vote.',
+                       'Eres <strong>neutralista</strong>. Vas a hacer una pregunta difícil sobre la Propuesta '+n+'. Luego decides cómo votar.')
+  };
+  function liveChanged(){
+    const L = state.live;
+    L.reasons = []; L.stem = null; L.cbSpeech = false;
+    $('#cb-l-speech').checked = false;
+    $('#liveFb').innerHTML = (L.prop!==null && L.side) ? LIVE_FB[L.side](L.prop+1) : '';
+    renderLive2();
+    refresh();
+  }
+  // after a restore, show the saved proposal and side as picked
+  $$('#live1 .pbtn').forEach(x => x.classList.toggle('picked', +x.dataset.prop===state.live.prop));
+  $$('#liveSides .sbtn').forEach(x => x.classList.toggle('picked', x.dataset.side===state.live.side));
+  if(state.live.prop!==null && state.live.side) $('#liveFb').innerHTML = LIVE_FB[state.live.side](state.live.prop+1);
+  $$('#live1 .pbtn').forEach(b => b.addEventListener('click', () => {
+    if(state.live.prop === +b.dataset.prop) return;
+    $$('#live1 .pbtn').forEach(x => x.classList.toggle('picked', x===b));
+    state.live.prop = +b.dataset.prop;
+    liveChanged();
+  }));
+  $$('#liveSides .sbtn').forEach(b => b.addEventListener('click', () => {
+    if(state.live.side === b.dataset.side) return;
+    $$('#liveSides .sbtn').forEach(x => x.classList.toggle('picked', x===b));
+    state.live.side = b.dataset.side;
+    liveChanged();
+  }));
+
+  /* =================== LIVE II: build the speech =================== */
+  function renderLive2(){
+    const L = state.live, body = $('#live2Body');
+    if(L.prop===null || !L.side){
+      body.innerHTML = partTask(bi('Go back to Part I and tap your proposal and your side.','Regresa a la Parte I y toca tu propuesta y tu lado.'));
+      return;
+    }
+    const p = PROPOSALS[L.prop], n = L.prop+1;
+    if(L.side==='Neutralist'){
+      body.innerHTML =
+        partTask(bi('<strong>Your task:</strong> Read your proposal. Tap the question you want to ask. Copy it onto the front of your paper and fill in the blank with your own words.',
+                    '<strong>Tu tarea:</strong> Lee tu propuesta. Toca la pregunta que quieres hacer. Cópiala en el frente de tu hoja y llena el espacio con tus propias palabras.'))+
+        propCard(p, L.prop)+
+        '<div class="card"><h3>'+bi('Tap one question','Toca una pregunta')+'</h3>'+
+        p.stems.map((s,k) => '<button class="reason q" type="button" data-stem="'+k+'">'+B(s)+'<span class="idea">'+bi('Idea: '+s.idea.en,'Idea: '+s.idea.es)+'</span></button>').join('')+
+        '<div class="speech" id="speech"></div></div>';
+      body.querySelectorAll('[data-stem]').forEach(b => b.addEventListener('click', () => {
+        L.stem = +b.dataset.stem;
+        body.querySelectorAll('[data-stem]').forEach(x => x.classList.toggle('on', x===b));
+        paintSpeech(); refresh();
+      }));
+    }else{
+      const mine = L.side==='Patriot' ? p.pat : p.loy, theirs = L.side==='Patriot' ? p.loy : p.pat;
+      body.innerHTML =
+        partTask(bi('<strong>Your task:</strong> Read your proposal. Tap the <strong>two</strong> reasons you think are strongest. The screen builds your speech. Copy it onto the front of your paper.',
+                    '<strong>Tu tarea:</strong> Lee tu propuesta. Toca las <strong>dos</strong> razones que te parecen más fuertes. La pantalla arma tu discurso. Cópialo en el frente de tu hoja.'))+
+        propCard(p, L.prop)+
+        '<div class="card"><h3>'+(L.side==='Patriot' ? bi('Patriot reasons (vote yes)','Razones patriotas (votar sí)') : bi('Loyalist reasons (vote no)','Razones lealistas (votar no)'))+'</h3>'+
+        mine.map((l,k) => '<button class="reason" type="button" data-r="'+k+'">'+B(l)+'</button>').join('')+
+        '<div class="pick-count" id="liveCount"></div>'+
+        '<details class="other"><summary>'+bi('What will the other side say? (Be ready!)','¿Qué dirá el otro lado? (¡Prepárate!)')+'</summary><ul>'+
+        theirs.map(l => '<li>'+B(l)+'</li>').join('')+'</ul></details>'+
+        '<div class="speech" id="speech"></div></div>';
+      body.querySelectorAll('[data-r]').forEach(b => b.addEventListener('click', () => {
+        const k = +b.dataset.r, at = L.reasons.indexOf(k);
+        if(at>=0) L.reasons.splice(at,1);
+        else if(L.reasons.length<2) L.reasons.push(k);
+        else { $('#liveCount').innerHTML = bi('You already picked two. Tap one of them to unpick it.','Ya escogiste dos. Toca una para quitarla.'); $('#liveCount').className='pick-count'; return; }
+        body.querySelectorAll('[data-r]').forEach(x => x.classList.toggle('on', L.reasons.includes(+x.dataset.r)));
+        paintSpeech(); refresh();
+      }));
+    }
+    body.querySelectorAll('[data-r]').forEach(x => x.classList.toggle('on', L.reasons.includes(+x.dataset.r)));
+    body.querySelectorAll('[data-stem]').forEach(x => x.classList.toggle('on', +x.dataset.stem===L.stem));
+    paintSpeech();
+  }
+  const GAP = '<span class="gap">&nbsp;</span>';
+  function paintSpeech(){
+    const L = state.live, sp = $('#speech');
+    if(!sp) return;
+    const p = PROPOSALS[L.prop], n = L.prop+1;
+    if(L.side==='Neutralist'){
+      const s = L.stem===null ? null : p.stems[L.stem];
+      sp.innerHTML = '<span class="sp-label">'+bi('Your question · copy this onto your paper','Tu pregunta · cópiala en tu hoja')+'</span>'+
+        'Fellow delegates, I am a Neutralist. My question about Proposal '+n+' is: '+
+        (s ? '<mark>'+s.en.replace('____', GAP)+'</mark>' : GAP+'?')+
+        (s ? '<span class="sp-idea">'+bi('Fill the blank on your paper. Idea: '+s.idea.en+', or use your own idea.','Llena el espacio en tu hoja. Idea: '+s.idea.es+', o usa tu propia idea.')+'</span>' : '')+
+        '<div class="sp-es">En español: Compañeros delegados, soy neutralista. Mi pregunta sobre la Propuesta '+n+' es: '+(s ? s.es.replace('____','____') : '____?')+'</div>';
+    }else{
+      const mine = L.side==='Patriot' ? p.pat : p.loy;
+      const yn = L.side==='Patriot' ? 'yes' : 'no', ynEs = L.side==='Patriot' ? 'sí' : 'no';
+      const r = L.reasons.map(k => mine[k]);
+      const en = k => r[k] ? '<mark>'+clause(r[k].en)+'</mark>' : GAP;
+      const es = k => r[k] ? clause(r[k].es) : '____';
+      sp.innerHTML = '<span class="sp-label">'+bi('Your speech · copy this onto your paper','Tu discurso · cópialo en tu hoja')+'</span>'+
+        'Fellow delegates, I am a '+L.side+'. We should vote <strong>'+yn+'</strong> on Proposal '+n+' because '+en(0)+'. Also, '+en(1)+'. Vote '+yn+'!'+
+        '<div class="sp-es">En español: Compañeros delegados, soy '+SIDE_NAME[L.side].es.toLowerCase()+'. Debemos votar <strong>'+ynEs+'</strong> en la Propuesta '+n+' porque '+es(0)+'. Además, '+es(1)+'. ¡Voten '+ynEs+'!</div>';
+      const c = $('#liveCount');
+      c.innerHTML = L.reasons.length===2 ? bi('✓ Two reasons picked. Copy your speech onto your paper.','✓ Escogiste dos razones. Copia tu discurso en tu hoja.') : bi(L.reasons.length+' of 2 reasons picked','Escogiste '+L.reasons.length+' de 2 razones');
+      c.className = 'pick-count'+(L.reasons.length===2?' ok':'');
+    }
+  }
+  renderLive2();
+
+  /* =================== SELF-PACED proposals =================== */
+  $$('.self-prop').forEach(sec => {
+    const i = +sec.dataset.i, p = PROPOSALS[i], S = state.self, n = i+1;
+    const steps = sec.querySelectorAll('.sp-step'), readBtn = sec.querySelector('[data-read]'), vbtns = sec.querySelectorAll('.vbtn');
+    const why = sec.querySelector('[data-why]'), box = sec.querySelector('[data-reasons]'), count = sec.querySelector('[data-count]');
+    const rbtn = sec.querySelector('.reveal-btn'), rev = sec.querySelector('.reveal'), paper = sec.querySelector('[data-paper]');
+    // the furthest step the student has reached (1-5); step 5 counts as reached once 1765 is shown
+    const reached = () => !S.read[i] ? 1 : !S.vote[i] ? 2 : (S.reasons[i]||[]).length<2 ? 3 : !S.revealed[i] ? 4 : 5;
+    function paint(){
+      const v = S.vote[i], picked = S.reasons[i] || [], done = !!S.revealed[i], at = reached();
+      steps.forEach(st => {
+        const k = +st.dataset.step;
+        st.hidden = k > at;
+        st.classList.toggle('now', k===at);
+        st.classList.toggle('did', k<at);
+      });
+      readBtn.hidden = !!S.read[i];
+      vbtns.forEach(b => { b.classList.toggle('picked', b.dataset.v===v); b.disabled = done; });
+      if(v){
+        const side = v==='yea' ? 'pat' : 'loy';
+        why.innerHTML = v==='yea'
+          ? bi('You voted <strong>Yay</strong>, like the Patriots. Tap the <strong>2 Patriot reasons</strong> that convinced you most.','Votaste <strong>Yay</strong> (sí), como los patriotas. Toca las <strong>2 razones patriotas</strong> que más te convencieron.')
+          : bi('You voted <strong>Nay</strong>, like the Loyalists. Tap the <strong>2 Loyalist reasons</strong> that convinced you most.','Votaste <strong>Nay</strong> (no), como los lealistas. Toca las <strong>2 razones lealistas</strong> que más te convencieron.');
+        box.innerHTML = starLines(p, side).map((l,k) =>
+          '<button class="reason '+side+(picked.includes(side+k)?' on':'')+'" type="button" data-key="'+side+k+'"'+(done?' disabled':'')+'>'+B(l)+'</button>').join('');
+        box.querySelectorAll('.reason').forEach(c => c.addEventListener('click', () => pick(c.dataset.key)));
+        count.innerHTML = picked.length===2 ? bi('✓ Two reasons picked.','✓ Escogiste dos razones.') : bi(picked.length+' of 2 picked','Escogiste '+picked.length+' de 2');
+        count.className = 'pick-count'+(picked.length===2?' ok':'');
+        paper.innerHTML = bi(
+          'On your <strong>vote tracker</strong>, find row <strong>'+n+'</strong>. Circle <span class="circ">'+(v==='yea'?'Yay':'Nay')+'</span> under “My vote” and <span class="circ">'+PAPER_1765[p.result].en+'</span> under “1765.” Leave “Our Congress” blank.',
+          'En tu <strong>registro de votos</strong>, busca la fila <strong>'+n+'</strong>. Encierra <span class="circ">'+(v==='yea'?'Yay':'Nay')+'</span> en “My vote” y <span class="circ">'+PAPER_1765[p.result].en+'</span> en “1765.” Deja “Our Congress” en blanco.');
+      }
+      rbtn.hidden = done;
+    }
+    // Scroll the step that just opened into view (the page is taller than a Chromebook screen).
+    function openStep(k){
+      paint(); refresh();
+      const st = sec.querySelector('.sp-step[data-step="'+k+'"]');
+      if(st && st.scrollIntoView) st.scrollIntoView({behavior:'smooth', block:'nearest'});
+    }
+    function pick(key){
+      if(S.revealed[i]) return;
+      const list = S.reasons[i] = S.reasons[i] || [], at = list.indexOf(key);
+      if(at>=0) list.splice(at,1);
+      else if(list.length<2) list.push(key);
+      else return;
+      openStep(list.length===2 ? 4 : 3);
+    }
+    readBtn.addEventListener('click', () => { S.read[i] = true; openStep(2); });
+    vbtns.forEach(b => b.addEventListener('click', () => {
+      if(S.revealed[i] || S.vote[i]===b.dataset.v) return;
+      S.vote[i] = b.dataset.v; S.reasons[i] = [];
+      openStep(3);
+    }));
+    function fillReveal(){
+      const v = S.vote[i];
+      rev.innerHTML = '<div class="reveal-row"><div>'+
+        '<div class="compare">'+bi('You voted ','Votaste ')+'<span class="badge '+v+'">'+(v==='yea'?'Yay':'Nay')+'</span> · 1765: <span class="badge '+p.result+'">'+RESULT_BADGE[p.result]+'</span></div>'+
+        '<p>'+resultLine(p)+'</p><p class="next">'+bi('<strong>What happened next:</strong> ','<strong>Lo que pasó después:</strong> ')+B(p.next)+'</p></div>'+
+        (p.img ? figure(p.img) : '<div></div>')+'</div>';
+      rev.classList.add('open');
+      wireZoom(rev); setLang(lang);
+    }
+    rbtn.addEventListener('click', () => { S.revealed[i] = true; fillReveal(); openStep(5); });
+    if(S.revealed[i]) fillReveal();
+    paint();
+  });
+
+  function starLines(p, side){ return (side==='pat' ? p.pat : p.loy).filter(l => l.star); }
+  function renderSelfResults(){
+    const S = state.self;
+    let match = 0;
+    $('#selfResList').innerHTML = PROPOSALS.map((p,i) => {
+      const v = S.vote[i];
+      let note;
+      if(p.result==='passed'){
+        if(v==='yea') match++;
+        note = v==='yea' ? bi('You agreed with the 1765 Congress.','Estuviste de acuerdo con el Congreso de 1765.') : bi('You disagreed with the 1765 Congress.','No estuviste de acuerdo con el Congreso de 1765.');
+      }else{
+        note = v==='yea' ? bi('The Congress did not vote on this, but many colonists did what you voted for.','El Congreso no votó sobre esto, pero muchos colonos hicieron lo que tú votaste.')
+                         : bi('The Congress did not vote on this. Some colonists agreed with your Nay vote, but many other colonists did what the proposal said.','El Congreso no votó sobre esto. Algunos colonos estaban de acuerdo con tu voto Nay, pero muchos otros colonos hicieron lo que decía la propuesta.');
+      }
+      return '<div class="res"><div class="rhead"><span class="pn">'+(i+1)+'</span><span class="rtext">'+B(p.text)+'</span></div>'+
+        '<div class="mine">'+bi('You: ','Tú: ')+(v ? '<span class="badge '+v+'">'+(v==='yea'?'Yay':'Nay')+'</span>' : '—')+' · 1765: <span class="badge '+p.result+'">'+RESULT_BADGE[p.result]+'</span></div>'+
+        '<p>'+note+'</p></div>';
+    }).join('');
+    $('#selfSummary').innerHTML = bi('The 1765 Congress passed three proposals (1, 2, and 5). You voted Yay on '+match+' of those 3.',
+                                     'El Congreso de 1765 aprobó tres propuestas (1, 2 y 5). Tú votaste Yay en '+match+' de esas 3.');
+    renderStrong();
+  }
+  // Write It, frame A: the student taps their strongest proposal and the screen builds the
+  // speech from their own vote and reasons (same frame as the Live speech and the paper).
+  function renderStrong(){
+    const S = state.self;
+    $('#strongBtns').innerHTML = PROPOSALS.map((p,i) => !S.vote[i] ? '' :
+      '<button class="pbtn'+(S.strong===i?' picked':'')+'" type="button" data-strong="'+i+'"><span class="pn">'+(i+1)+'</span><span>'+B(p.text)+
+      ' <span class="badge '+S.vote[i]+'">'+(S.vote[i]==='yea'?'Yay':'Nay')+'</span></span></button>').join('');
+    const sp = $('#strongSpeech'), i = S.strong;
+    sp.hidden = i===null;
+    if(i===null) return;
+    const p = PROPOSALS[i], n = i+1, v = S.vote[i];
+    const yn = v==='yea' ? 'yes' : 'no', ynEs = v==='yea' ? 'sí' : 'no';
+    const r = (S.reasons[i]||[]).map(key => starLines(p, key.slice(0,3))[+key.slice(3)]);
+    sp.innerHTML = '<span class="sp-label">'+bi('Your speech · copy this into frame A on your paper','Tu discurso · cópialo en el marco A de tu hoja')+'</span>'+
+      'Fellow delegates, I am a '+GAP+'. We should vote <strong>'+yn+'</strong> on Proposal '+n+' because <mark>'+clause(r[0].en)+'</mark>. Also, <mark>'+clause(r[1].en)+'</mark>. Vote '+yn+'!'+
+      '<span class="sp-idea">'+bi('For “I am a ____,” write the side on your identity card: Patriot, Loyalist, or Neutralist.','En “I am a ____”, escribe el lado de tu tarjeta de identidad: Patriot, Loyalist o Neutralist.')+'</span>'+
+      '<div class="sp-es">En español: Compañeros delegados, soy ____. Debemos votar <strong>'+ynEs+'</strong> en la Propuesta '+n+' porque '+clause(r[0].es)+'. Además, '+clause(r[1].es)+'. ¡Voten '+ynEs+'!</div>';
+  }
+  $('#strongBtns').addEventListener('click', e => {
+    const b = e.target.closest('[data-strong]');
+    if(!b) return;
+    state.self.strong = +b.dataset.strong;
+    refresh();
+  });
+
+  /* =================== PAPER CHECKBOXES =================== */
+  const CB = {
+    'cb-l-speech':['live','cbSpeech'], 'cb-l-tracker':['live','cbTracker'], 'cb-l-1765':['live','cb1765'],
+    'cb-l-r1':['live','cbR1'], 'cb-l-r2':['live','cbR2'],
+    'cb-s-speech':['self','cbSpeech'], 'cb-s-tracker':['self','cbTracker'], 'cb-s-r1':['self','cbR1'], 'cb-s-r2':['self','cbR2']
+  };
+  Object.keys(CB).forEach(id => { $('#'+id).checked = !!state[CB[id][0]][CB[id][1]]; });
+  Object.keys(CB).forEach(id => $('#'+id).addEventListener('change', e => { state[CB[id][0]][CB[id][1]] = e.target.checked; refresh(); }));
+
+  /* =================== FINISH =================== */
+  function renderFinish(){
+    const list = state.mode==='live' ? LIVE : state.mode==='self' ? SELF : [];
+    const parts = list.filter(p => p.id!=='finish' && p.id!=='selfres');
+    const all = parts.length>0 && parts.every(p => complete(p.id));
+    $('#finishTitle').innerHTML = all ? bi('Every part complete!','¡Todas las partes completas!') : bi('Done for today?','¿Terminaste por hoy?');
+    $('#checkList').innerHTML = parts.map(p =>
+      '<li><span>'+B(p.nav)+'</span><span class="state '+(complete(p.id)?'yes':'no')+'">'+(complete(p.id)?bi('Complete','Completa'):bi('Not yet','Todavía no'))+'</span></li>').join('');
+    if(state.mode==='self') renderSelfResults();
+  }
+
+  /* =================== TAP TO ENLARGE =================== */
+  const lb = $('#lightbox'), lbImg = lb.querySelector('img'), lbCap = lb.querySelector('.lb-cap');
+  function openZoom(img){
+    const cap = img.closest('figure') && img.closest('figure').querySelector('figcaption');
+    lbCap.innerHTML = cap ? cap.innerHTML : '';
+    lbImg.alt = img.alt;
+    lbImg.onerror = () => { lbImg.onerror = null; lbImg.src = img.currentSrc || img.src; };
+    lbImg.src = img.dataset.zoom || img.src;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    lb.querySelector('.lb-close').focus();
+  }
+  function closeZoom(){
+    if(!lb.classList.contains('open')) return;
+    lb.classList.remove('open');
+    lbImg.removeAttribute('src');
+    document.body.style.overflow = '';
+  }
+  function wireZoom(root){
+    root.querySelectorAll('img[data-zoom]').forEach(img => {
+      if(img.dataset.wired) return;
+      img.dataset.wired = '1';
+      img.tabIndex = 0;
+      img.setAttribute('role','button');
+      img.addEventListener('click', () => openZoom(img));
+      img.addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openZoom(img); } });
+    });
+  }
+  wireZoom(document);
+  lb.addEventListener('click', closeZoom);
+  document.addEventListener('keydown', e => { if(e.key==='Escape') closeZoom(); });
+
+  /* =================== CONGRESS BOARD (teacher, projector, English only) ===================
+     Order for each proposal: Patriot speaks → Loyalist speaks → Neutralist asks → count hands.
+     Patriots +1 if it passes, Loyalists +1 if it fails; a tie fails. */
+  const board = {
+    cur:0, final:false,
+    rows:PROPOSALS.map(() => ({yea:0, nay:0, rec:null, neut:null, shown:false})),
+    spk:PROPOSALS.map(() => ({P:30, L:30, N:30})),
+    run:null, iv:null
+  };
+  const savedBoard = readSave(BOARD_KEY);
+  if(savedBoard && savedBoard.v===1 && Array.isArray(savedBoard.rows) && savedBoard.rows.length===PROPOSALS.length){
+    board.cur = savedBoard.cur || 0; board.final = !!savedBoard.final; board.rows = savedBoard.rows;
+  }
+  const boardEl = $('#board');
+  const passed = r => r.rec && r.yea > r.nay;
+  function score(){
+    let P=0, Lo=0;
+    board.rows.forEach(r => { if(r.rec) (r.yea > r.nay ? P++ : Lo++); });
+    return {P, L:Lo};
+  }
+  function stopTimer(){ if(board.iv){ clearInterval(board.iv); board.iv = null; } board.run = null; }
+  function openBoard(){
+    document.body.classList.add('boardmode');
+    window.scrollTo(0,0);
+    renderBoard();
+    if(location.hash !== '#board'){ try{ location.hash = 'board'; }catch(e){} }
+  }
+  function closeBoard(silent){
+    if(!document.body.classList.contains('boardmode')) return;
+    stopTimer();
+    document.body.classList.remove('boardmode');
+  }
+  $('#openBoard').addEventListener('click', openBoard);
+
+  function renderBoard(){
+    const sc = score();
+    const head = '<div class="bhead"><span class="btitle">The Stamp Act Congress · New York · October 1765</span>'+
+      '<span class="bscore"><span class="p">Patriots '+sc.P+'</span> · <span class="l">Loyalists '+sc.L+'</span></span>'+
+      PROPOSALS.map((p,i) => '<button class="btab'+(!board.final && board.cur===i?' cur':'')+(board.rows[i].rec?' rec':'')+'" data-tab="'+i+'">'+(i+1)+'</button>').join('')+
+      '<button class="btab'+(board.final?' cur':'')+'" data-tab="final">Final</button>'+
+      '<button class="btab" data-newclass>↺ New class</button>'+
+      '<button class="btab" data-exit>✕ Exit board</button></div>';
+    boardEl.innerHTML = head + '<div class="bbody">'+(board.final ? boardFinal() : boardProp())+'</div>';
+    writeSave(BOARD_KEY, {v:1, cur:board.cur, final:board.final, rows:board.rows});
+    boardEl.querySelector('[data-newclass]').addEventListener('click', () => {
+      if(!confirm('Clear all votes on the Board for a new class?')) return;
+      stopTimer();
+      board.cur = 0; board.final = false;
+      board.rows = PROPOSALS.map(() => ({yea:0, nay:0, rec:null, neut:null, shown:false}));
+      board.spk = PROPOSALS.map(() => ({P:30, L:30, N:30}));
+      renderBoard();
+    });
+    boardEl.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => {
+      stopTimer();
+      if(b.dataset.tab==='final'){ board.final = true; } else { board.final = false; board.cur = +b.dataset.tab; }
+      renderBoard();
+    }));
+    boardEl.querySelector('[data-exit]').addEventListener('click', () => goTo('hero'));
+    if(!board.final) wireBoardProp();
+  }
+  const fmt = s => '0:'+String(s).padStart(2,'0');
+  function boardProp(){
+    const i = board.cur, p = PROPOSALS[i], r = board.rows[i], t = board.spk[i];
+    const spk = (k, cls, who, role) => {
+      const left = t[k], cl = 'spk '+cls+(board.run===k?' running':'')+(left===0?' timeup':'');
+      return '<div class="'+cl+'" data-spk="'+k+'"><div class="who">'+who+'</div><div class="role">'+role+'</div>'+
+        '<div class="clock">'+(left===0?'Time!':fmt(left))+'</div>'+
+        '<button class="bbtn'+(board.run===k?' sel':'')+'" data-go="'+k+'">'+(board.run===k?'Pause':(left<30 && left>0?'Resume':'Start 30 sec'))+'</button> '+
+        '<button class="bbtn ghost" data-reset="'+k+'">Reset</button></div>';
+    };
+    const res = r.rec
+      ? '<div class="bres '+(passed(r)?'pass':'fail')+'">'+(passed(r)?'PASSED':'FAILED')+' '+r.yea+'–'+r.nay+'<small>'+(passed(r)?'Patriots +1':(r.yea===r.nay?'A tie fails. Loyalists +1':'Loyalists +1'))+'</small></div>'
+      : '<div class="bres wait">Count the hands, then record the vote.</div>';
+    return '<div class="bprop-num">Proposal '+(i+1)+' of 5</div>'+
+      '<div class="bprop-text">'+p.text.en+'</div><p class="bmeans">'+p.means.en+'</p>'+
+      '<div class="bspeak">'+spk('P','p','1 · Patriot','speaks for it')+spk('L','l','2 · Loyalist','speaks against it')+spk('N','n','3 · Neutralist','asks a question')+'</div>'+
+      '<div class="bvote">'+
+        '<div class="tally yea"><div class="lbl">Yay</div><div class="n">'+r.yea+'</div><div class="row"><button data-t="yea" data-d="-1">−1</button><button data-t="yea" data-d="1">+1</button><button data-t="yea" data-d="5">+5</button></div></div>'+
+        '<div class="tally nay"><div class="lbl">Nay</div><div class="n">'+r.nay+'</div><div class="row"><button data-t="nay" data-d="-1">−1</button><button data-t="nay" data-d="1">+1</button><button data-t="nay" data-d="5">+5</button></div></div>'+
+        '<div class="bside">'+res+(r.rec ? '<button class="bbtn ghost" data-unrec>Change the count</button>' : '<button class="bbtn" data-rec>Record vote</button>')+'</div>'+
+      '</div>'+
+      '<div class="bneut"><span class="lab">Most Neutralists voted:</span>'+
+        ['yea','nay','split'].map(k => '<button class="bbtn ghost'+(r.neut===k?' sel':'')+'" data-neut="'+k+'">'+{yea:'Yay',nay:'Nay',split:'Split'}[k]+'</button>').join('')+'</div>'+
+      (r.shown
+        ? '<div class="b1765"><strong>In 1765:</strong> '+(p.result==='passed'?'<strong>Passed.</strong> ':'<strong>The Congress did not vote on this.</strong> ')+p.outcome.en+'</div>'
+        : '')+
+      '<div class="bfoot"><span class="bwarn">Votes are saved on this computer. Tap “New class” to clear them for the next period.</span><span>'+
+        (r.shown ? '' : '<button class="bbtn ghost" data-show>Show the 1765 result</button> ')+
+        '<button class="bbtn" data-next>'+(i<4?'Next proposal →':'Final results →')+'</button></span></div>';
+  }
+  function wireBoardProp(){
+    const i = board.cur, r = board.rows[i], t = board.spk[i];
+    boardEl.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => {
+      const k = b.dataset.go;
+      if(board.run===k){ stopTimer(); renderBoard(); return; }
+      stopTimer();
+      if(t[k]===0) t[k] = 30;
+      board.run = k;
+      board.iv = setInterval(() => {
+        t[k] = Math.max(0, t[k]-1);
+        const card = boardEl.querySelector('[data-spk="'+k+'"] .clock');
+        if(card) card.textContent = t[k]===0 ? 'Time!' : fmt(t[k]);
+        if(t[k]===0){ stopTimer(); renderBoard(); }
+      }, 1000);
+      renderBoard();
+    }));
+    boardEl.querySelectorAll('[data-reset]').forEach(b => b.addEventListener('click', () => {
+      if(board.run===b.dataset.reset) stopTimer();
+      t[b.dataset.reset] = 30; renderBoard();
+    }));
+    boardEl.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => {
+      if(r.rec) return;
+      r[b.dataset.t] = Math.max(0, r[b.dataset.t] + (+b.dataset.d)); renderBoard();
+    }));
+    const rec = boardEl.querySelector('[data-rec]');
+    if(rec) rec.addEventListener('click', () => { r.rec = true; renderBoard(); });
+    const un = boardEl.querySelector('[data-unrec]');
+    if(un) un.addEventListener('click', () => { r.rec = false; renderBoard(); });
+    boardEl.querySelectorAll('[data-neut]').forEach(b => b.addEventListener('click', () => { r.neut = b.dataset.neut; renderBoard(); }));
+    const sh = boardEl.querySelector('[data-show]');
+    if(sh) sh.addEventListener('click', () => { r.shown = true; renderBoard(); });
+    boardEl.querySelector('[data-next]').addEventListener('click', () => {
+      stopTimer();
+      if(i<4) board.cur = i+1; else board.final = true;
+      renderBoard();
+    });
+  }
+  function boardFinal(){
+    const sc = score();
+    let helpP = 0, helpL = 0;
+    board.rows.forEach(r => { if(r.neut==='yea') helpP++; if(r.neut==='nay') helpL++; });
+    const done = board.rows.filter(r => r.rec).length;
+    const win = done===0 ? 'No votes recorded yet.'
+      : sc.P>sc.L ? 'The Patriots win, '+sc.P+' to '+sc.L+'!'
+      : sc.L>sc.P ? 'The Loyalists win, '+sc.L+' to '+sc.P+'!'
+      : 'A tie, '+sc.P+' to '+sc.L+'!';
+    const neut = helpP>helpL ? 'Most of the time, the Neutralists sided with the Patriots ('+helpP+' of 5).'
+      : helpL>helpP ? 'Most of the time, the Neutralists sided with the Loyalists ('+helpL+' of 5).'
+      : 'The Neutralists did not favor either side (Patriots '+helpP+', Loyalists '+helpL+').';
+    return '<div class="bwin">'+win+'</div>'+
+      '<table class="btable"><tr><th>#</th><th>Proposal</th><th>Our Congress</th><th>Neutralists</th><th>1765</th></tr>'+
+      PROPOSALS.map((p,i) => { const r = board.rows[i];
+        return '<tr><td>'+(i+1)+'</td><td>'+p.text.en+'</td><td>'+(r.rec ? '<strong>'+(passed(r)?'Passed':'Failed')+'</strong> '+r.yea+'–'+r.nay : '—')+'</td>'+
+          '<td>'+(r.neut ? {yea:'Mostly Yay',nay:'Mostly Nay',split:'Split'}[r.neut] : '—')+'</td>'+
+          '<td>'+(p.result==='passed' ? '<strong>Passed</strong>' : '<strong>Not voted</strong>, but colonists did it anyway')+'</td></tr>'; }).join('')+
+      '</table>'+
+      '<p class="bnote"><strong>Neutralists:</strong> '+neut+'</p>'+
+      '<p class="bnote"><strong>What happened next:</strong> Parliament repealed the Stamp Act in March 1766. But Parliament also passed a law saying it could still make any law it wanted for the colonies.</p>'+
+      '<div class="bfoot"><span class="bwarn">Students: circle our Congress’s results on your vote tracker.</span><button class="bbtn ghost" data-tab="4">← Back to Proposal 5</button></div>';
+  }
+
+  $('#startOver').addEventListener('click', () => {
+    if(!confirm(lang==='es' ? '¿Borrar todos tus toques en esta pantalla y empezar de nuevo? Tu hoja no cambia.'
+                            : 'Erase all your taps on this screen and start over? Your paper does not change.')) return;
+    clearSave(SAVE_KEY);
+    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+    location.reload();
+  });
+
+  /* =================== START =================== */
+  buildNav();
+  setLang(saved && saved.lang==='es' ? 'es' : 'en');
+  // Reopen where the student left off: the page in the address (after a refresh) or the saved page.
+  const startAt = location.hash.slice(1) || (saved && saved.page) || 'hero';
+  if(startAt === 'board'){ $('#hero').classList.add('active'); refresh(); openBoard(); }
+  else if(startAt !== 'hero' && unlocked(startAt)){ show(startAt); try{ location.replace('#'+startAt); }catch(e){} }
+  else { show('hero'); if(location.hash){ try{ location.replace('#hero'); }catch(e){} } }
+})();
+</script>
+</body>
+</html>
