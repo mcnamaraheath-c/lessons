@@ -190,29 +190,6 @@
     margin-left: -16px;
     text-align: right;
   }
-  .student-name-input {
-    font-family: 'Kalam', cursive;
-    font-size: 1.1rem;
-    color: var(--ink);
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid var(--ink-faded);
-    width: 260px;
-    padding: 1px 6px 2px;
-    margin-left: 6px;
-    letter-spacing: normal;
-    text-transform: none;
-    outline: none;
-  }
-  .student-name-input:focus {
-    background: rgba(168, 122, 44, 0.08);
-    border-bottom-color: var(--ink);
-  }
-  .student-name-input::placeholder {
-    color: var(--ink-faded);
-    font-style: italic;
-    opacity: 0.55;
-  }
 
   .scene-text {
     font-family: 'Lora', serif;
@@ -1734,7 +1711,6 @@ const SPANISH = {
     title: "Voces de la Guerra Civil",
     subtitle: "Un diario de campo de una nación dividida",
     yearStamp: "1860 — 1865",
-    propertyOf: "PROPIEDAD DE:",
     introQuote: "\"Este diario pertenece a uno de cuatro estadounidenses que vivieron la Guerra Civil. Sus decisiones — y las tuyas — moldearán lo que sucede a continuación.\"",
     introP1: "Bienvenido, amigo. Estás a punto de entrar en la vida de alguien que vivió uno de los momentos más dolorosos e importantes de la historia estadounidense.",
     introP2: "Elige un personaje a continuación. Lee su historia. Toma sus decisiones. Presta atención a tus <strong>estadísticas</strong> — pueden decidir lo que puedes hacer después. Recoge <strong>artefactos</strong> en el camino y gana <strong>insignias</strong> por el tipo de decisiones que tomas.",
@@ -4993,7 +4969,6 @@ function renderCharacterSelect() {
 
   return `
     <div class="journal-page">
-      <div class="date-stamp">${ui('propertyOf', 'PROPERTY OF:')}<input type="text" class="student-name-input" maxlength="40" placeholder="${state.language === 'es' ? 'tu nombre' : 'your name'}" value="${(localStorage.getItem('civilWarJournal_studentName') || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')}" oninput="localStorage.setItem('civilWarJournal_studentName', this.value)" aria-label="${state.language === 'es' ? 'Tu nombre' : 'Your name'}"></div>
       <p class="intro-blurb">${ui('introQuote', '"This journal belongs to one of four Americans living through the Civil War. Their choices — and yours — will shape what happens next."')}</p>
       ${resumeBanner}
       <div class="scene-text">
