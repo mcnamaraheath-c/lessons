@@ -82,7 +82,7 @@ The look is Japanese ink-wash for Acts 1–2 and shifts into the painted-scroll 
 
 ### Chrome
 
-- **Top strip (always visible)**: act·scene indicator on the left (e.g. 一·3), three slim stat bars in the middle (mark, label, bar, number), and a 誓 button on the right that opens the ledger page as an overlay. Height ≤ 56px. Nothing else.
+- **Top strip (always visible)**: act and scene indicator on the left (e.g. 一 · Scene 3; the word Scene is a `ui` string, Escena in Spanish), three slim stat bars in the middle (mark, label, bar, number), and a 誓 button on the right that opens the ledger page as an overlay. Height ≤ 56px. Nothing else.
 - **Bottom bar (always visible)**: Back · Read aloud · EN/ES · Continue. Continue is disabled on decision pages until an option is chosen; choosing an option advances immediately, so decision pages have no Continue click. Teacher jump menu appears here only with `?teacher=1`.
 - Back goes to the previous page. Back from a consequence page returns to the decision page with the chosen option highlighted but does not allow re-choosing (the choice is made). This matches the Civil War journal.
 
