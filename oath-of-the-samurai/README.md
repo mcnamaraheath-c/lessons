@@ -35,6 +35,7 @@ To add or replace a picture, save it into `images/` under the exact filename bel
 | Page | Filename | Status |
 |---|---|---|
 | Title | `00-title.jpg` | in place (Midjourney) |
+| Intro (You are Yamabe Tadayoshi) | `01-intro.jpg` | in place (Midjourney) |
 | Scene 1 | `s01-lords-offer.jpg` | in place (Midjourney) |
 | Scene 2 | `s02-two-banners.jpg` | in place (Midjourney) |
 | Scene 3, Minamoto path | `s03-dan-no-ura-m.jpg` | in place (Midjourney) |
@@ -53,7 +54,7 @@ To add or replace a picture, save it into `images/` under the exact filename bel
 | Petition | `s11-petition.jpg` | in place (scroll panel) |
 | End | `s12-ledger-end.jpg` | in place (scroll panel) |
 
-All eighteen story pictures are in place. The Midjourney prompts used for the thirteen painted ones are in `CLAUDE.md` §9. The original Midjourney PNGs are kept in `images-source/`, which is not committed to the repo.
+All nineteen story pictures are in place. The Midjourney prompts used for the thirteen painted ones are in `CLAUDE.md` §9. The original Midjourney PNGs are kept in `images-source/`, which is not committed to the repo.
 
 ### Consequence pictures
 

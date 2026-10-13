@@ -185,7 +185,7 @@ Page order (ids): p00 title · p01 intro · p02 stats · s1 story/decision/conse
 
 ## 8. Image handling
 
-- Every story page, the title, both inheritance pages, and the storm pages have one image slot with a fixed filename (§9). Load with `<img loading="lazy">` inside the `--frame`.
+- Every story page, the title, the intro, both inheritance pages, and the storm pages have one image slot with a fixed filename (§9). Load with `<img loading="lazy">` inside the `--frame`.
 - If a file is missing or fails to load, show a placeholder: the `--paper` tone darkened 6%, with the act's kanji (一 二 三) centered in `--muted` at 20% opacity. The page must look finished with no images at all.
 - Act 3 images are public-domain scroll panels. Fetch the largest available versions from Wikimedia Commons, crop to the described panel, save as JPEG ≤ 400 KB, and record the source URL and panel description in `README.md` for attribution on the end page.
 - Teacher-supplied Midjourney images: accept any size; on first build, write a small `scripts/optimize-images.sh` (ImageMagick) that resizes to max 1600px wide and recompresses. Document it in README.
@@ -198,6 +198,7 @@ Midjourney prompts share one suffix so the set matches: `--ar 16:9 --style raw -
 
 | Page | Filename | Source | Prompt or panel |
 |---|---|---|---|
+| p01 intro | `images/01-intro.jpg` | Midjourney | (added Oct 12) sumi-e ink wash, a young man on a hillside farm above a bay, rice terraces, a horse and a bow, Kyushu, 1180, warm paper |
 | p00 title | `images/00-title.jpg` | Midjourney | sumi-e ink wash painting, a single samurai helmet resting on a scroll beside a sheaf of rice, warm washi paper, one small vermilion seal, generous empty space, Kamakura period, wide composition |
 | s1 story | `images/s01-lords-offer.jpg` | Midjourney | sumi-e ink wash, a mounted lord with twenty riders arriving at a hillside farming village above a bay, terraced rice fields, young man standing at a gate, Kyushu, 12th century, warm paper tone, one vermilion banner |
 | s2 story | `images/s02-two-banners.jpg` | Midjourney | sumi-e ink wash, night, a lone messenger on horseback outside a farm gate with a lantern, two distant war banners on separate hills, one vermilion, one black, moonlit rice fields, 12th century Japan |

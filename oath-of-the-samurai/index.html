@@ -879,7 +879,7 @@ const cat = (...parts) => ({ en: parts.map(p => p.en).join(' '), es: parts.map(p
               { d: {stat: +/-n}, set: {stat: n}, halve: true, flags: {...}, ledger: {...} } */
 const PAGES = [
   { id: 'p00', type: 'title', act: 1, img: '00-title.jpg' },
-  { id: 'p01', type: 'intro', act: 1 },
+  { id: 'p01', type: 'intro', act: 1, img: '01-intro.jpg' },
   { id: 'p02', type: 'stats', act: 1 },
 
   /* Scene 1 */
@@ -1139,6 +1139,7 @@ const RENDER = {
       <button type="button" class="big" id="beginBtn">${T(C.ui.begin)}</button></div></div>`;
   },
   intro(p, S) {
+    if (p.img) return `<div class="page split">${frame(p, S)}<div class="text"><div data-pg>${parasHtml(parasOf(p, S))}</div></div></div>`;
     return `<div class="page"><div class="text center" data-pg>${parasHtml(parasOf(p, S))}</div></div>`;
   },
   stats(p) {
