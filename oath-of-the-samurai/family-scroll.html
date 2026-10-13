@@ -60,11 +60,12 @@
 
   /* rice chart */
   table.rice { border-collapse: collapse; width: 100%; table-layout: fixed; margin-top: 3pt; }
-  table.rice td, table.rice th { border: 1px solid #999; height: 0.12in; padding: 0; font-weight: 400; font-size: 8.5pt; text-align: center; }
-  table.rice th.r { width: 0.3in; border: 0; text-align: right; padding-right: 4pt; }
+  table.rice td, table.rice th { border: 1px solid #999; height: 0.14in; padding: 0; font-weight: 400; font-size: 8.5pt; line-height: 1; text-align: center; }
+  table.rice th.r { width: 0.2in; border: 0; text-align: right; padding-right: 3pt; }
   table.rice tr.lab th.r { width: auto; font-weight: 600; }
   .chart { display: flex; align-items: stretch; gap: 1pt; }
-  .chart .ylab { flex: 0 0 auto; writing-mode: vertical-rl; transform: rotate(180deg); font-size: 8.5pt; font-weight: 600; text-align: center; padding-left: 0.22in; }
+  .chart .ylab { flex: 0 0 auto; writing-mode: vertical-rl; transform: rotate(180deg); font-size: 8.5pt; font-weight: 600; text-align: center; padding-left: 0; margin-right: -2pt; }
+  table.rice tr.xlab th { border: 0; height: auto; font-weight: 600; padding-top: 1pt; }
   .chart table.rice { flex: 1 1 auto; }
   table.rice tr.lab th { border: 0; height: auto; padding-top: 2pt; }
   table.rice tr.act th { border: 0; height: auto; font-size: 8.5pt; color: #555; }
@@ -186,7 +187,7 @@
     <h2>3. Watch the rice</h2>
     <p>Rice is your family's land, counted in koku. One koku feeds one person for a year. Your rice starts at 2. After every scene, look at the rice number at the top of the screen and put a dot on the chart. Connect the dots as you go.</p>
     <div class="chart"><div class="ylab">Rice</div><table class="rice">
-      <tr class="act"><th></th><th></th><th colspan="4"><span>Act 一 · Tadayoshi</span></th><th colspan="3"><span>Act 二 · Yoshisuke</span></th><th colspan="3"><span>Act 三 · Nagamoto</span></th><th></th></tr>
+      <tr class="act"><th class="r"></th><th></th><th colspan="4"><span>Act 一 · Tadayoshi</span></th><th colspan="3"><span>Act 二 · Yoshisuke</span></th><th colspan="3"><span>Act 三 · Nagamoto</span></th><th></th></tr>
       <tr><th class="r">10</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
       <tr><th class="r">9</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
       <tr><th class="r">8</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -198,7 +199,8 @@
       <tr><th class="r">2</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
       <tr><th class="r">1</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
       <tr><th class="r">0</th><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td></tr>
-      <tr class="lab"><th class="r">Scene</th><th>Start</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>End</th></tr>
+      <tr class="lab"><th class="r"></th><th>Start</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>End</th></tr>
+      <tr class="xlab"><th class="r"></th><th colspan="12">Scene</th></tr>
     </table></div>
   </div>
   <div class="pg">The Family Scroll · front</div>
@@ -315,9 +317,9 @@
 
   <div class="sec">
     <h2>3. Vigila el arroz</h2>
-    <p>El arroz es la tierra de tu familia, contada en koku. Un koku alimenta a una persona durante un año. Tu arroz empieza en 2. Después de cada escena, mira el número de arroz en la parte de arriba de la pantalla y pon un punto en la gráfica. Une los puntos conforme avanzas.</p>
+    <p>El arroz es la tierra de tu familia, contada en koku. Un koku alimenta a una persona durante un año. Tu arroz empieza en 2. Después de cada escena, mira el número de arroz arriba en la pantalla y pon un punto en la gráfica. Une los puntos conforme avanzas.</p>
     <div class="chart"><div class="ylab">Arroz</div><table class="rice">
-      <tr class="act"><th></th><th></th><th colspan="4"><span>Acto 一 · Tadayoshi</span></th><th colspan="3"><span>Acto 二 · Yoshisuke</span></th><th colspan="3"><span>Acto 三 · Nagamoto</span></th><th></th></tr>
+      <tr class="act"><th class="r"></th><th></th><th colspan="4"><span>Acto 一 · Tadayoshi</span></th><th colspan="3"><span>Acto 二 · Yoshisuke</span></th><th colspan="3"><span>Acto 三 · Nagamoto</span></th><th></th></tr>
       <tr><th class="r">10</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
       <tr><th class="r">9</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
       <tr><th class="r">8</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
@@ -329,7 +331,8 @@
       <tr><th class="r">2</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
       <tr><th class="r">1</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
       <tr><th class="r">0</th><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td></tr>
-      <tr class="lab"><th class="r">Escena</th><th>Inicio</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>Final</th></tr>
+      <tr class="lab"><th class="r"></th><th>Inicio</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>Final</th></tr>
+      <tr class="xlab"><th class="r"></th><th colspan="12">Escena</th></tr>
     </table></div>
   </div>
   <div class="pg">El Pergamino de la Familia · frente</div>
