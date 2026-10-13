@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;1,400&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- Tokens (Acts 1–2: ink-wash) ---------- */
+:root {
+  --paper: #F4EDE0;
+  --paper-dark: #E5DFD3;            /* --paper darkened 6%, for image placeholders */
+  --ink: #1C1A17;
+  --accent: #B7352A;
+  --secondary: #2C3E6B;
+  --gold: #B8923E;
+  --muted: #8C8780;
+  --frame-pad: 1px;
+  --frame: inset 0 0 0 1px var(--ink);
+  --serif: 'Noto Serif', Georgia, 'Times New Roman', serif;
+  --jp: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', 'Noto Serif', serif;
+  --fs: 20px;
+}
+/* ---------- Act 3: painted scroll ---------- */
+body[data-act="3"] {
+  --paper: #E8D8B5;
+  --paper-dark: #DACBAA;
+  --ink: #2A211A;
+  --secondary: #3F7D5A;
+  --muted: #7A6A55;
+  --frame-pad: 6px;
+  /* two thin lines with a gold hairline between */
+  --frame: inset 0 0 0 1.5px var(--ink), inset 0 0 0 2.5px var(--paper),
+           inset 0 0 0 3.5px var(--gold), inset 0 0 0 4.5px var(--paper),
+           inset 0 0 0 6px var(--ink);
+}
+@media (max-width: 1366px) { :root { --fs: 18px; } }
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100vh; height: 100dvh;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: var(--fs);
+  line-height: 1.6;
+  background-color: var(--paper);
+  /* faint paper fibers, no image file */
+  background-image:
+    repeating-linear-gradient(87deg, rgba(70, 50, 25, .022) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(4deg, rgba(70, 50, 25, .016) 0 1px, transparent 1px 11px),
+    repeating-linear-gradient(131deg, rgba(255, 255, 255, .05) 0 2px, transparent 2px 19px);
+  transition: background-color .9s, color .9s;
+}
+.jp { font-family: var(--jp); font-weight: 500; }
+h1, h2 { font-weight: 600; line-height: 1.25; margin: 0; }
+p { margin: 0 0 .7em; }
+[hidden] { display: none !important; }
+
+/* ---------- Buttons ---------- */
+button, select {
+  font: inherit; color: var(--ink); background: transparent;
+  border: 1px solid var(--ink); border-radius: 0;
+  padding: 6px 18px; cursor: pointer;
+}
+button:hover:not(:disabled), button:focus-visible { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+button:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--secondary); outline-offset: 2px; }
+button:disabled { opacity: .4; cursor: default; }
+
+/* ---------- Top strip ---------- */
+#top {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+  height: 54px; padding: 0 24px; border-bottom: 1px solid var(--ink);
+}
+#where { font-size: 1.25em; letter-spacing: .05em; }
+#where .sc { font-family: var(--serif); }
+#stats { display: flex; gap: 28px; align-items: center; }
+.stat { display: flex; align-items: center; gap: 8px; font-size: 15px; white-space: nowrap; transition: opacity .4s; }
+.stat.off { opacity: 0; visibility: hidden; }
+.stat .mark { font-size: 20px; color: var(--accent); }
+.stat .bar { width: 96px; height: 8px; border: 1px solid var(--ink); display: block; }
+.stat .bar i { display: block; height: 100%; width: 0; background: var(--ink); transition: width .5s; }
+.stat .num { min-width: 1.2em; text-align: right; font-weight: 600; }
+.stat .tag {
+  min-width: 2.6em; text-align: center; font-size: 13px; font-weight: 600; padding: 0 5px;
+  color: var(--paper); visibility: hidden; opacity: 0; transition: opacity .3s;
+}
+.stat .tag.show { visibility: visible; opacity: 1; }
+.stat .tag.up { background: var(--accent); }
+.stat .tag.down { background: var(--secondary); }
+#oathBtn { justify-self: end; font-size: 20px; padding: 2px 12px; color: var(--accent); }
+
+/* ---------- Bottom bar ---------- */
+#bottom {
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px;
+  height: 56px; padding: 0 24px; border-top: 1px solid var(--ink); font-size: 16px;
+}
+#bottom .mid { display: flex; gap: 12px; align-items: center; }
+#bottom .mid label { display: flex; gap: 8px; align-items: center; font-size: 14px; }
+#backBtn { justify-self: start; }
+#nextBtn { justify-self: end; font-weight: 600; }
+#langBtn b { color: var(--accent); }
+#langBtn:hover b, #langBtn:focus-visible b { color: inherit; text-decoration: underline; }
+select { padding: 5px 8px; max-width: 170px; }
+
+/* ---------- Stage ---------- */
+#stage { overflow: auto; display: flex; padding: 16px 32px; }
+.page { margin: auto; width: 100%; max-width: 1280px; animation: fade .25s; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.text { max-width: 62ch; }
+.center { margin-left: auto; margin-right: auto; }
+.page h1 { font-size: 1.4em; margin-bottom: .15em; }
+.when { color: var(--muted); font-size: .8em; letter-spacing: .12em; text-transform: uppercase; margin-bottom: .7em; }
+.lead { font-style: italic; }
+
+/* image frame + placeholder */
+.frame { position: relative; padding: var(--frame-pad); box-shadow: var(--frame); aspect-ratio: 16 / 9; width: 100%; }
+.frame .ph { width: 100%; height: 100%; background: var(--paper-dark); display: grid; place-items: center; overflow: hidden; }
+.frame .ph span { font-family: var(--jp); font-size: clamp(60px, 9vw, 150px); color: var(--muted); opacity: .2; line-height: 1; }
+.frame img { position: absolute; inset: var(--frame-pad); width: calc(100% - 2 * var(--frame-pad)); height: calc(100% - 2 * var(--frame-pad)); object-fit: cover; display: block; }
+
+/* story / inherit / petition / title: illustration left, text right */
+.split { display: grid; grid-template-columns: 44% minmax(0, 1fr); gap: 40px; align-items: center; }
+@media (max-width: 1100px) {
+  .split { grid-template-columns: 1fr; gap: 14px; }
+  .split .frame { width: min(100%, calc(38vh * 16 / 9)); max-height: 38vh; margin: 0 auto; }
+  .split .text { margin: 0 auto; }
+  .titlepage .frame { width: min(100%, calc(30vh * 16 / 9)); max-height: 30vh; }
+  .titlepage .text { text-align: center; }
+  .titlepage h1 { font-size: 1.9em; }
+  .titlepage .seal { font-size: 2.4em; }
+  .titlepage .tag { margin-bottom: .6em; }
+}
+/* Act 3 scroll panels are shown whole, never cropped */
+body[data-act="3"] .split .frame img, .end .frame img { object-fit: contain; }
+.wide .frame { aspect-ratio: 21 / 9; width: min(100%, calc(40vh * 21 / 9)); margin: 0 auto 16px; }
+.wide .text { margin: 0 auto; }
+
+/* stat changes listed in the page */
+.deltas { list-style: none; display: flex; flex-wrap: wrap; gap: 10px; margin: .9em 0 0; padding: 0; align-items: center; }
+.chip { border: 1px solid currentColor; padding: 1px 12px; font-size: .85em; font-weight: 600; animation: fade .3s backwards; }
+.chip.up { color: var(--accent); }
+.chip.down { color: var(--secondary); }
+.chip.none { color: var(--muted); font-weight: 400; }
+.chip .jp { margin-right: .3em; }
+.note { color: var(--muted); font-style: italic; font-size: .9em; }
+.ricezero { margin-top: .8em; padding-left: 12px; border-left: 3px solid var(--gold); font-style: italic; }
+
+/* title */
+.titlepage h1 { font-size: 2.6em; }
+.titlepage .seal { font-size: 4.2em; color: var(--accent); line-height: 1.2; margin: .1em 0; }
+.titlepage .tag { font-style: italic; font-size: 1.15em; margin-bottom: 1.2em; }
+.big { font-size: 1.05em; padding: 10px 30px; font-weight: 600; }
+
+/* three stat cards */
+.statcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 18px; }
+.statcard { border: 1px solid var(--ink); padding: 18px 20px; background: var(--paper); box-shadow: 0 2px 0 rgba(0,0,0,.08); animation: fade .4s; }
+.statcard.off { visibility: hidden; animation: none; }
+.statcard h2 { font-size: 1.15em; margin-bottom: .4em; }
+.statcard h2 .jp { color: var(--accent); font-size: 1.5em; margin-right: .3em; }
+.statcard p { margin: 0; font-size: .95em; }
+.closing { text-align: center; font-weight: 600; font-size: 1.15em; margin: 22px 0 0; }
+.closing.off { visibility: hidden; }
+
+/* decision */
+.decision { max-width: 1080px; }
+.situation { text-align: center; font-size: 1.25em; font-weight: 600; margin: 0 0 28px; }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.card {
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
+  text-align: left; padding: 22px 24px 24px; background: var(--paper); line-height: 1.55;
+  box-shadow: 0 2px 0 rgba(0,0,0,.08); transition: transform .15s, box-shadow .15s;
+}
+.card .chead { display: flex; align-items: center; }
+#situation:focus { outline: none; }
+.card .badge { flex: none; display: inline-grid; place-items: center; width: 1.8em; height: 1.8em; background: var(--accent); color: var(--paper); font-weight: 600; margin-right: .6em; }
+.card .ct { font-weight: 600; font-size: 1.1em; }
+.card .cx { display: block; margin-top: .7em; }
+.card:hover:not(:disabled), .card:focus-visible, .card.chosen {
+  background: var(--paper); color: var(--ink); border-color: var(--ink);
+  transform: translateY(-2px); box-shadow: inset 5px 0 0 var(--accent), 0 2px 0 rgba(0,0,0,.08);
+}
+.card:disabled { opacity: .45; }
+.card.chosen:disabled { opacity: 1; }
+.card .yours { display: block; margin-top: .8em; color: var(--accent); font-size: .8em; letter-spacing: .1em; text-transform: uppercase; }
+
+/* ledger */
+.ledger { max-width: 980px; }
+.ledger .seal { font-size: 2.4em; color: var(--accent); line-height: 1; text-align: center; }
+.ledger h1 { text-align: center; }
+.ledger .intro { text-align: center; max-width: 62ch; margin: .4em auto 0; }
+.lgrid { margin-top: 16px; }
+.lhead, .lrow { display: grid; grid-template-columns: 1fr 150px 1fr; gap: 14px; align-items: center; }
+.lhead { font-weight: 600; font-size: .85em; letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid var(--ink); padding-bottom: 6px; }
+.lhead span:last-child, .lrow .got { text-align: right; }
+.lrow { padding: 10px 0; border-bottom: 1px solid color-mix(in srgb, var(--muted) 45%, transparent); }
+.lgen { font-size: .75em; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; padding-top: 10px; }
+.arrow { position: relative; height: 26px; color: var(--muted); }
+.arrow i { position: absolute; left: 4px; right: 14px; top: 9px; border-top: 2px dashed currentColor; }
+.arrow i::after { content: ""; position: absolute; right: -12px; top: -7px; border: 6px solid transparent; border-left: 12px solid currentColor; }
+.arrow.moved { color: var(--accent); }
+.arrow.moved i { border-top: 3px solid currentColor; }
+.arrow.moved.small i { left: 38px; right: 44px; border-top-width: 2px; }
+.arrow em { position: absolute; left: 0; right: 0; top: 12px; text-align: center; font-size: .72em; color: var(--gold); font-weight: 600; }
+.lines { max-width: 62ch; margin: 16px auto 0; }
+.lines p.off { visibility: hidden; }
+.ledger .deltas { justify-content: center; }
+.got.promised { font-style: italic; }
+
+/* warrior's code */
+.codes { display: grid; gap: 10px; margin: .6em 0 .9em; }
+.coderow { display: grid; grid-template-columns: 3.4em 1fr; gap: 14px; align-items: center; }
+.coderow .k { font-size: 1.7em; color: var(--accent); text-align: center; line-height: 1.1; }
+.coderow .ref { color: var(--muted); font-style: italic; font-size: .9em; }
+
+/* evidence */
+.evidence { max-width: 1100px; }
+table.ev { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: .88em; line-height: 1.45; }
+table.ev th, table.ev td { border: 1px solid var(--ink); padding: 8px 12px; text-align: left; vertical-align: top; }
+table.ev th { font-weight: 600; background: color-mix(in srgb, var(--paper-dark) 70%, transparent); }
+.evfoot { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; }
+.evfoot p { margin: 0; }
+
+/* end */
+.end { max-width: 980px; text-align: center; }
+.end .frame { aspect-ratio: 16 / 10; width: min(100%, calc(20vh * 1.6)); margin: 0 auto 6px; }
+.end .lrow { text-align: left; padding: 2px 0 4px; font-size: .92em; }
+.end .lgen { padding-top: 4px; }
+.end .big { padding: 6px 26px; }
+.end .thanks { margin: 10px 0 6px; }
+.credits { color: var(--muted); font-size: 12px; line-height: 1.4; margin: 8px auto 0; max-width: 110ch; }
+
+/* ledger overlay */
+#overlay { position: fixed; inset: 0; background: rgba(28, 26, 23, .55); display: grid; place-items: center; z-index: 10; }
+#overlay .sheet { background: var(--paper); border: 1px solid var(--ink); padding: 24px 32px; width: min(920px, 92vw); max-height: 88vh; overflow: auto; }
+#overlay .closeRow { text-align: center; margin-top: 18px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+@media (max-width: 1100px) {
+  #top, #bottom { padding: 0 12px; }
+  #stats { gap: 12px; }
+  .stat .lbl { display: none; }
+  .stat .bar { width: 64px; }
+  #stage { padding: 12px 16px; }
+}
+</style>
+</head>
+<body data-act="1">
+<header id="top">
+  <div id="where" class="jp"></div>
+  <div id="stats"></div>
+  <button id="oathBtn" class="jp" type="button"></button>
+</header>
+<main id="stage" aria-live="polite"></main>
+<footer id="bottom">
+  <button id="backBtn" type="button"></button>
+  <div class="mid">
+    <button id="ttsBtn" type="button"></button>
+    <button id="langBtn" type="button"></button>
+    <label id="jumpWrap" hidden><span id="jumpLbl"></span><select id="jumpSel"></select></label>
+  </div>
+  <button id="nextBtn" type="button"></button>
+</footer>
+<div id="overlay" role="dialog" aria-modal="true" hidden></div>
+<script>
+/* =====================================================================
+   CONTENT — every word the student sees, English and Spanish side by side.
+   Teachers: edit the text between the quotation marks. Keep the keys
+   (the words before each colon) and the punctuation around them as is.
+   ===================================================================== */
+const CONTENT = {
+
+  ui: {
+    docTitle:   { en: "Oath of the Samurai", es: "El juramento del samurái" },
+    begin:      { en: "Begin", es: "Comenzar" },
+    back:       { en: "Back", es: "Atrás" },
+    next:       { en: "Continue", es: "Continuar" },
+    readAloud:  { en: "Read aloud", es: "Leer en voz alta" },
+    stop:       { en: "Stop reading", es: "Dejar de leer" },
+    langEN:     { en: "EN", es: "EN" },
+    langES:     { en: "ES", es: "ES" },
+    langLabel:  { en: "Language: English. Switch to Spanish.", es: "Idioma: español. Cambiar a inglés." },
+    jump:       { en: "Jump to", es: "Ir a" },
+    openLedger: { en: "Open the oath ledger", es: "Abrir el registro del juramento" },
+    close:      { en: "Close", es: "Cerrar" },
+    honor:      { en: "Honor", es: "Honor" },
+    trust:      { en: "Trust", es: "Confianza" },
+    rice:       { en: "Rice", es: "Arroz" },
+    ledgerTitle:{ en: "The Oath", es: "El juramento" },
+    gaveHead:   { en: "What I gave my lord", es: "Lo que le di a mi señor" },
+    gotHead:    { en: "What my lord gave me", es: "Lo que mi señor me dio" },
+    promised:   { en: "promised", es: "prometido" },
+    ledgerEmpty:{ en: "Nothing is written here yet.", es: "Todavía no hay nada escrito aquí." },
+    riceZero:   { en: "Your family borrows rice from the temple to eat.", es: "Tu familia pide arroz prestado al templo para comer." },
+    noChange:   { en: "No change", es: "Sin cambios" },
+    yourChoice: { en: "Your choice", es: "Tu decisión" },
+    copyAll:    { en: "Copy all", es: "Copiar todo" },
+    copied:     { en: "Copied", es: "Copiado" },
+    gen1:       { en: "Tadayoshi, 1180–1192", es: "Tadayoshi, 1180–1192" },
+    gen2:       { en: "Yoshisuke, 1232–1240", es: "Yoshisuke, 1232–1240" },
+    gen3:       { en: "Nagamoto, 1274–1285", es: "Nagamoto, 1274–1285" },
+    imageAlt:   { en: "Illustration for this page", es: "Ilustración de esta página" }
+  },
+
+  /* Rows of the oath ledger (誓) */
+  ledger: {
+    gaveSword:   { en: "My sword, whenever my lord calls", es: "Mi espada, cada vez que mi señor llame" },
+    gotRice:     { en: "Rice for the winter", es: "Arroz para el invierno" },
+    gotPromise:  { en: "A promise of land", es: "Una promesa de tierra" },
+    gaveWar:     { en: "Five years of war, Dan-no-ura", es: "Cinco años de guerra, Dan-no-ura" },
+    gotLand:     { en: "Land, in writing, from the shogun's register", es: "Tierra, por escrito, del registro del shogun" },
+    gaveGuard:   { en: "Guard duty in Kyoto, obedience to the shogun's law", es: "Guardia en Kyoto, obediencia a la ley del shogun" },
+    gotField:    { en: "One small field", es: "Un campo pequeño" },
+    gotNothing:  { en: "Nothing this time", es: "Nada esta vez" },
+    gaveWall:    { en: "Seven years of stone, guard duty, the first invasion", es: "Siete años de piedra, guardia, la primera invasión" },
+    gotPromised: { en: "Promised", es: "Prometido" },
+    gaveAll:     { en: "Two invasions, seven years of stone, the night boats", es: "Dos invasiones, siete años de piedra, los botes de noche" },
+    gotDash:     { en: "—", es: "—" }
+  },
+
+  /* ---------------- Opening ---------------- */
+
+  p00: {
+    title: { en: "Oath of the Samurai", es: "El juramento del samurái" },
+    tagline: { en: "Three generations. One promise.", es: "Tres generaciones. Una promesa." }
+  },
+
+  p01: {
+    paras: [
+      { en: "You are Yamabe Tadayoshi. A nineteen-year-old living in the year 1180.",
+        es: "Eres Yamabe Tadayoshi. Un joven de diecinueve años que vive en el año 1180." },
+      { en: "Your family farms a few small fields on the island of Kyushu, in the south of Japan, on a hillside that looks down on Hakata Bay. You can ride, shoot a bow from a moving horse, and carry a sword that was your grandfather's.",
+        es: "Tu familia cultiva unos pocos campos pequeños en la isla de Kyushu, en el sur de Japón, en una ladera que mira hacia la bahía de Hakata. Sabes montar a caballo, disparar un arco desde un caballo en movimiento, y llevas una espada que fue de tu abuelo." },
+      { en: "In this story you will make ten choices. Each one changes what happens next, and some of them will change what happens to your son and to your grandson. There is no wrong way to play. There are only the choices a samurai could really have made, and what came of them.",
+        es: "En esta historia tomarás diez decisiones. Cada una cambia lo que pasa después, y algunas cambiarán lo que les pase a tu hijo y a tu nieto. No hay una manera equivocada de jugar. Solo hay decisiones que un samurái de verdad pudo haber tomado, y lo que resultó de ellas." }
+    ]
+  },
+
+  p02: {
+    title: { en: "Three things to watch", es: "Tres cosas que debes vigilar" },
+    cards: [
+      { en: "Your name. Honor is what people say about you and your family when you are not in the room. It goes up when you keep your word even when it costs you. It goes down when you break your word, or when you run.",
+        es: "Tu nombre. El honor es lo que la gente dice de ti y de tu familia cuando no estás presente. Sube cuando cumples tu palabra aunque te cueste. Baja cuando rompes tu palabra o cuando huyes." },
+      { en: "What your lord thinks of you. A lord is a landowner with warriors of his own. Trust goes up when you serve him. You spend it every time you ask him for something.",
+        es: "Lo que tu señor piensa de ti. Un señor es un dueño de tierras que tiene sus propios guerreros. La confianza sube cuando le sirves. La gastas cada vez que le pides algo." },
+      { en: "Your land, measured in koku. One koku is enough rice to feed one person for a year. Rice goes down every time you go to war. Only a lord can give you more.",
+        es: "Tu tierra, medida en koku. Un koku es el arroz suficiente para alimentar a una persona durante un año. El arroz baja cada vez que vas a la guerra. Solo un señor puede darte más." }
+    ],
+    closing: { en: "Keep your eye on the rice.", es: "No pierdas de vista el arroz." }
+  },
+
+  /* ---------------- Act 一 — Tadayoshi, 1180–1192 ---------------- */
+
+  's1-story': {
+    title: { en: "The Lord's Offer", es: "La oferta del señor" },
+    when:  { en: "Spring 1180", es: "Primavera de 1180" },
+    paras: [
+      { en: "Bandits have burned the rice store on the farm next to yours. Your father sends a letter to the emperor's governor, the official in the capital who is supposed to keep order in your province. A letter comes back. No soldiers come with it.",
+        es: "Unos bandidos han quemado el almacén de arroz de la granja vecina. Tu padre le manda una carta al gobernador del emperador, el funcionario de la capital que debería mantener el orden en tu provincia. Llega una carta de respuesta. Con ella no llega ningún soldado." },
+      { en: "Then a lord named Kuwabara rides into your village with twenty warriors on horseback. A lord is a landowner with warriors of his own, and Lord Kuwabara says what lords all over Japan are saying that year: the emperor's officials cannot protect you anymore, but I can. He wants your sword whenever he calls for it. In return, he will protect your family's fields.",
+        es: "Entonces un señor llamado Kuwabara entra a caballo en tu aldea con veinte guerreros montados. Un señor es un dueño de tierras que tiene sus propios guerreros, y el señor Kuwabara dice lo que los señores de todo Japón están diciendo ese año: los funcionarios del emperador ya no pueden protegerlos, pero yo sí. Quiere tu espada cada vez que él la pida. A cambio, protegerá los campos de tu familia." },
+      { en: "He looks at you for a long moment, because you are the one in your family who can ride and shoot. Then he asks what you want from him in return for your oath.",
+        es: "Te mira un largo rato, porque tú eres el de tu familia que sabe montar y disparar. Luego te pregunta qué quieres de él a cambio de tu juramento." }
+    ]
+  },
+  's1-decision': {
+    situation: { en: "Lord Kuwabara waits for your answer.", es: "El señor Kuwabara espera tu respuesta." },
+    A: { title: { en: "Rice now.", es: "Arroz ahora." },
+         text:  { en: "“Give my family enough rice to get through this winter, and my sword is yours.”",
+                  es: "«Dele a mi familia arroz suficiente para pasar este invierno, y mi espada es suya»." } },
+    B: { title: { en: "Land later.", es: "Tierra después." },
+         text:  { en: "“Let me prove myself first. When I have earned it, give me land of my own.”",
+                  es: "«Déjeme demostrar primero lo que valgo. Cuando me la haya ganado, deme una tierra propia»." } }
+  },
+  's1-cons': {
+    A: [ { en: "Lord Kuwabara nods once. That evening two of his men carry sacks of rice into your father's storehouse, enough to get everyone through to spring. You kneel in the yard and swear the oath: when he calls, you come. Your father watches from the doorway and says nothing, which is how he says he is proud.",
+           es: "El señor Kuwabara asiente una sola vez. Esa tarde, dos de sus hombres llevan sacos de arroz al almacén de tu padre, suficientes para que todos lleguen a la primavera. Te arrodillas en el patio y haces el juramento: cuando él llame, tú vas. Tu padre mira desde la puerta y no dice nada, que es su manera de decir que está orgulloso." } ],
+    B: [ { en: "Lord Kuwabara is quiet for a moment. “Most men ask for rice,” he says. “I will remember that you asked for the harder thing.” You kneel in the yard and swear the oath: when he calls, you come. Your family's storehouse is as empty as it was this morning, but your lord has made you a promise, and a lord's promise is worth something.",
+           es: "El señor Kuwabara se queda callado un momento. «La mayoría de los hombres pide arroz», dice. «Recordaré que tú pediste lo más difícil». Te arrodillas en el patio y haces el juramento: cuando él llame, tú vas. El almacén de tu familia está tan vacío como esta mañana, pero tu señor te ha hecho una promesa, y la promesa de un señor vale algo." } ]
+  },
+
+  ledger1: {
+    intro: { en: "An oath has two sides. Here is what each side has given so far.",
+             es: "Un juramento tiene dos lados. Esto es lo que cada lado ha dado hasta ahora." }
+  },
+
+  's2-story': {
+    title: { en: "Two Banners", es: "Dos estandartes" },
+    when:  { en: "Autumn 1180", es: "Otoño de 1180" },
+    paras: [
+      { en: "In Kyoto, the capital city, a prince has sent out a call for warriors to rise up against the Taira clan, the powerful family that controls the emperor. Far to the east, a man named Minamoto Yoritomo has raised his banner to answer the prince's call. The Taira clan holds the capital, the emperor, and most of Kyushu, the island where you live. They look like the stronger side.",
+        es: "En Kyoto, la capital, un príncipe ha llamado a los guerreros a levantarse contra el clan Taira, la poderosa familia que controla al emperador. Lejos, en el este, un hombre llamado Minamoto Yoritomo ha levantado su estandarte para responder al llamado del príncipe. El clan Taira domina la capital, al emperador y casi todo Kyushu, la isla donde vives. Parece el lado más fuerte." },
+      { en: "Lord Kuwabara gathers his warriors in his hall and tells them he has chosen to fight for the Minamoto clan. Some of the men look at each other. Nobody says anything.",
+        es: "El señor Kuwabara reúne a sus guerreros en su salón y les dice que ha decidido pelear por el clan Minamoto. Algunos hombres se miran entre sí. Nadie dice nada." },
+      { en: "That night a messenger comes to your gate from Lord Hirose, Kuwabara's brother-in-law, whose lands lie in the next valley. Lord Hirose has chosen the Taira clan. He offers you more rice than Kuwabara pays, and a horse, and a place in his line. His messenger reminds you of one thing before he waits for your answer: the Taira clan is the side that is winning.",
+        es: "Esa noche llega a tu puerta un mensajero del señor Hirose, cuñado de Kuwabara, cuyas tierras están en el valle de al lado. El señor Hirose ha elegido al clan Taira. Te ofrece más arroz del que paga Kuwabara, un caballo y un lugar en sus filas. Su mensajero te recuerda una cosa antes de esperar tu respuesta: el clan Taira es el lado que va ganando." }
+    ]
+  },
+  's2-decision': {
+    situation: { en: "Lord Hirose's messenger is waiting in the dark outside your gate.", es: "El mensajero del señor Hirose espera en la oscuridad, frente a tu puerta." },
+    A: { title: { en: "Stay with Kuwabara.", es: "Quédate con Kuwabara." },
+         text:  { en: "“Tell Lord Hirose I swore to Kuwabara, and I will fight for the Minamoto clan with him.”",
+                  es: "«Dile al señor Hirose que le hice un juramento a Kuwabara, y que pelearé con él por el clan Minamoto»." } },
+    B: { title: { en: "Go to Hirose.", es: "Vete con Hirose." },
+         text:  { en: "“Tell Lord Hirose I will come. The Taira clan is stronger, and my family needs rice.”",
+                  es: "«Dile al señor Hirose que iré. El clan Taira es más fuerte, y mi familia necesita arroz»." } }
+  },
+  's2-cons': {
+    A: [ { en: "The messenger rides off without a word. In the morning Lord Kuwabara finds you saddling your horse beside his other men. “Hirose asked for you, didn't he?” he says. “And here you are.” He does not thank you, because a lord does not thank a vassal for keeping his oath. But he puts you in the front of the line, where he can see you.",
+           es: "El mensajero se va a caballo sin decir palabra. Por la mañana, el señor Kuwabara te encuentra ensillando tu caballo junto a sus otros hombres. «Hirose te mandó llamar, ¿verdad?», dice. «Y aquí estás». No te da las gracias, porque un señor no le agradece a un vasallo que cumpla su juramento. Pero te pone al frente de la fila, donde pueda verte." },
+         { en: "Nobody knows yet who will win this war. The Taira clan is bigger. But you kept the first promise you ever made.",
+           es: "Nadie sabe todavía quién ganará esta guerra. El clan Taira es más grande. Pero cumpliste la primera promesa que hiciste en tu vida." } ],
+    B: [ { en: "You ride through the night to Lord Hirose's hall. By morning you have rice, a horse, and a place in his line. You are a Taira warrior now. Behind you, in Kuwabara's village, people are already saying that the Yamabe boy broke his oath. Lord Hirose does not care what they say. He needs swords.",
+           es: "Cabalgas toda la noche hasta el salón del señor Hirose. Por la mañana ya tienes arroz, un caballo y un lugar en sus filas. Ahora eres un guerrero del clan Taira. Detrás de ti, en la aldea de Kuwabara, la gente ya dice que el muchacho de los Yamabe rompió su juramento. Al señor Hirose no le importa lo que digan. Necesita espadas." },
+         { en: "Nobody knows yet who will win this war. The Taira clan is bigger. But a new lord's trust starts at the beginning.",
+           es: "Nadie sabe todavía quién ganará esta guerra. El clan Taira es más grande. Pero la confianza de un señor nuevo empieza desde el principio." } ]
+  },
+
+  's3-story': {
+    title: { en: "Dan-no-ura", es: "Dan-no-ura" },
+    when:  { en: "Spring 1185", es: "Primavera de 1185" },
+    lead:  { en: "Five years of war have eaten your family's rice.", es: "Cinco años de guerra se han comido el arroz de tu familia." },
+    minamoto: [
+      { en: "For five years the Taira clan and the Minamoto clan have fought up and down Japan. Now the last battle is being fought in boats, in the narrow sea between the islands of Honshu and Kyushu, at a place called Dan-no-ura. You are in one of Lord Kuwabara's boats with six of his men, and the Minamoto side is losing until midday, when the tide turns.",
+        es: "Durante cinco años, el clan Taira y el clan Minamoto han peleado por todo Japón. Ahora la última batalla se pelea en barcos, en el mar angosto entre las islas de Honshu y Kyushu, en un lugar llamado Dan-no-ura. Vas en uno de los barcos del señor Kuwabara con seis de sus hombres, y el lado Minamoto va perdiendo hasta el mediodía, cuando cambia la marea." },
+      { en: "The tide at Dan-no-ura runs like a river. When it changes, every Taira boat is pushed toward the rocks, and the Minamoto archers can finally reach them. Ship by ship, the Taira clan begins to go down.",
+        es: "La marea en Dan-no-ura corre como un río. Cuando cambia, empuja todos los barcos de los Taira hacia las rocas, y los arqueros de los Minamoto por fin pueden alcanzarlos. Barco tras barco, el clan Taira empieza a hundirse." },
+      { en: "A man in the water beside your boat calls for a rope. His helmet is gone and his armor is dragging him under. You know his face. It is Lord Hirose, Kuwabara's brother-in-law, the man who offered you double rice in 1180.",
+        es: "Un hombre que está en el agua, junto a tu barco, pide a gritos una cuerda. Ha perdido el casco y la armadura lo arrastra hacia el fondo. Conoces su cara. Es el señor Hirose, cuñado de Kuwabara, el hombre que te ofreció el doble de arroz en 1180." }
+    ],
+    taira: [
+      { en: "For five years the Taira clan and the Minamoto clan have fought up and down Japan. Now the last battle is being fought in boats, in the narrow sea between the islands of Honshu and Kyushu, at a place called Dan-no-ura. You are on Lord Hirose's ship, and the Taira side is winning until midday, when the tide turns.",
+        es: "Durante cinco años, el clan Taira y el clan Minamoto han peleado por todo Japón. Ahora la última batalla se pelea en barcos, en el mar angosto entre las islas de Honshu y Kyushu, en un lugar llamado Dan-no-ura. Vas en el barco del señor Hirose, y el lado Taira va ganando hasta el mediodía, cuando cambia la marea." },
+      { en: "The tide at Dan-no-ura runs like a river. When it changes, every Taira boat is pushed toward the rocks, and the Minamoto archers can finally reach you. Ship by ship, the Taira clan begins to go down. Lord Hirose's flag comes down with the mast.",
+        es: "La marea en Dan-no-ura corre como un río. Cuando cambia, empuja todos los barcos de los Taira hacia las rocas, y los arqueros de los Minamoto por fin pueden alcanzarte. Barco tras barco, el clan Taira empieza a hundirse. La bandera del señor Hirose cae junto con el mástil." },
+      { en: "A boat pulls alongside, and you know the men in it. They are Lord Kuwabara's warriors, the lord you left in 1180. One of them is holding out his hand.",
+        es: "Un barco se acerca al tuyo, y conoces a los hombres que van en él. Son los guerreros del señor Kuwabara, el señor al que dejaste en 1180. Uno de ellos te tiende la mano." }
+    ]
+  },
+  's3-decision': {
+    minamoto: {
+      situation: { en: "Lord Hirose's hand is a sword's length from your boat.", es: "La mano del señor Hirose está a una espada de distancia de tu barco." },
+      A: { title: { en: "Pull him in.", es: "Súbelo al barco." },
+           text:  { en: "He will be a prisoner, but he will live.", es: "Será un prisionero, pero vivirá." } },
+      B: { title: { en: "Leave him.", es: "Déjalo." },
+           text:  { en: "The sea decides. You keep your boat steady and your men safe.", es: "El mar decide. Tú mantienes firme tu barco y a salvo a tus hombres." } }
+    },
+    taira: {
+      situation: { en: "Lord Kuwabara's boat is beside yours.", es: "El barco del señor Kuwabara está junto al tuyo." },
+      A: { title: { en: "Fight on.", es: "Sigue peleando." },
+           text:  { en: "Hirose's ship is sinking, but you will not lower your sword while the deck is under your feet.",
+                    es: "El barco de Hirose se hunde, pero no bajarás la espada mientras tengas la cubierta bajo los pies." } },
+      B: { title: { en: "Surrender.", es: "Ríndete." },
+           text:  { en: "Lower your sword and let Kuwabara's men pull you aboard.", es: "Baja la espada y deja que los hombres de Kuwabara te suban a su barco." } }
+    }
+  },
+  's3-cons': {
+    minamoto: {
+      A: [ { en: "You throw the rope. Hirose comes over the side like a landed fish, coughing seawater, and two of your men hold him down. Your captain is not pleased, but he says nothing. Later, men on both sides tell the story of the Yamabe warrior who pulled an enemy from the sea. Mercy is part of a warrior's name.",
+             es: "Lanzas la cuerda. Hirose cae en el barco como un pez recién sacado del agua, tosiendo agua de mar, y dos de tus hombres lo sujetan. A tu capitán no le gusta, pero no dice nada. Más tarde, hombres de los dos lados cuentan la historia del guerrero Yamabe que sacó a un enemigo del mar. La compasión es parte del nombre de un guerrero." } ],
+      B: [ { en: "You keep your hands on the oar. The sea takes Hirose under before he can call again. Your captain claps your shoulder. “You kept the boat steady,” he says. “That man turned on his own family.” Lord Kuwabara hears what you did and remembers it.",
+             es: "Mantienes las manos en el remo. El mar se traga a Hirose antes de que pueda gritar otra vez. Tu capitán te da una palmada en el hombro. «Mantuviste firme el barco», dice. «Ese hombre le dio la espalda a su propia familia». El señor Kuwabara se entera de lo que hiciste y lo recuerda." } ]
+    },
+    taira: {
+      A: [ { en: "You fight until the deck tilts out from under you. The sea takes your armor, your sword, and nearly takes you. Kuwabara's men drag you out half-drowned and tie your hands, a prisoner. Your family's rice is gone with your armor. But men on both sides tell the story of the Yamabe warrior who did not run.",
+             es: "Peleas hasta que la cubierta se inclina y se te va de los pies. El mar se lleva tu armadura, tu espada, y por poco te lleva a ti. Los hombres de Kuwabara te sacan medio ahogado y te atan las manos: eres un prisionero. El arroz de tu familia se fue con tu armadura. Pero hombres de los dos lados cuentan la historia del guerrero Yamabe que no huyó." } ],
+      B: [ { en: "You lay your sword on the deck. Kuwabara's men pull you across, and one of them says, “You remembered who you were first.” You are a prisoner, but a prisoner of your own first lord, and that is not the same as being an enemy.",
+             es: "Dejas tu espada sobre la cubierta. Los hombres de Kuwabara te pasan a su barco, y uno de ellos dice: «Te acordaste de quién eras primero». Eres un prisionero, pero un prisionero de tu primer señor, y eso no es lo mismo que ser un enemigo." } ]
+    }
+  },
+  's3-close': {
+    paras: [
+      { en: "By sunset the Taira clan is gone. Their ships, their lords, and the child emperor they carried with them are all at the bottom of the strait. Minamoto Yoritomo now commands every warrior in Japan.",
+        es: "Al atardecer, el clan Taira ya no existe. Sus barcos, sus señores y el niño emperador que llevaban con ellos están en el fondo del estrecho. Minamoto Yoritomo manda ahora sobre todos los guerreros de Japón." }
+    ]
+  },
+
+  's4-story': {
+    title: { en: "The Oath at Kamakura", es: "El juramento en Kamakura" },
+    when:  { en: "1192", es: "1192" },
+    common: [
+      { en: "The war is over. The emperor has given Minamoto Yoritomo a new title: shogun, the top general of all of Japan's warriors. The emperor still lives in Kyoto, the capital, with his poems and his ceremonies, but the real orders now come from Kamakura, the town in the east where Yoritomo rules.",
+        es: "La guerra terminó. El emperador le ha dado a Minamoto Yoritomo un título nuevo: shogun, el general más alto de todos los guerreros de Japón. El emperador sigue viviendo en Kyoto, la capital, con sus poemas y sus ceremonias, pero las órdenes de verdad ahora salen de Kamakura, el pueblo del este donde gobierna Yoritomo." },
+      { en: "Lord Kuwabara brings his warriors to Kamakura to kneel before the shogun. In a long hall, an official reads names from a register and hands each warrior a paper that says which land is his. A warrior who holds land from a lord like this is called a vassal, and the paper is proof of the deal: the land is yours, and your sword is your lord's.",
+        es: "El señor Kuwabara lleva a sus guerreros a Kamakura para arrodillarse ante el shogun. En un salón largo, un funcionario lee nombres de un registro y le entrega a cada guerrero un papel que dice cuál es su tierra. A un guerrero que recibe tierra de un señor de esta manera se le llama vasallo, y el papel es la prueba del trato: la tierra es tuya, y tu espada es de tu señor." }
+    ],
+    minamoto: { en: "Your name is read. You walk forward and take the paper.",
+                es: "Leen tu nombre. Caminas al frente y recibes el papel." },
+    minamotoPromise: { en: "Lord Kuwabara says, so the official can hear, “In 1180 this man asked me for land instead of rice. Write it bigger.”",
+                       es: "El señor Kuwabara dice, para que el funcionario lo oiga: «En 1180 este hombre me pidió tierra en lugar de arroz. Escríbelo más grande»." },
+    taira: { en: "The official reaches the end of the list and your name is not on it. The hall goes quiet. Then Lord Kuwabara steps forward. “This man served me before he served Hirose,” he says. “I will answer for him.” The official looks at Kuwabara for a long moment, and writes.",
+             es: "El funcionario llega al final de la lista y tu nombre no está. El salón se queda en silencio. Entonces el señor Kuwabara da un paso al frente. «Este hombre me sirvió a mí antes de servir a Hirose», dice. «Yo respondo por él». El funcionario mira a Kuwabara un largo rato, y escribe." },
+    tairaPromise: { en: "The land is smaller than what you were promised in 1180. The promise died when you left.",
+                    es: "La tierra es más pequeña que la que te prometieron en 1180. La promesa murió cuando te fuiste." },
+    men: { en: "Beside you kneel Gorō and Sadamune, the two warriors who have fought at your side since the strait.",
+           es: "A tu lado se arrodillan Gorō y Sadamune, los dos guerreros que han peleado junto a ti desde el estrecho." }
+  },
+  's4-decision': {
+    situation: { en: "The official asks whether the land goes in your name alone.", es: "El funcionario pregunta si la tierra se anota solo a tu nombre." },
+    A: { title: { en: "Keep all of it.", es: "Quédate con todo." },
+         text:  { en: "“All of it in the Yamabe name. We earned it.”", es: "«Toda a nombre de los Yamabe. Nos la ganamos»." } },
+    B: { title: { en: "Share it.", es: "Compártela." },
+         text:  { en: "“Write part of it to Gorō and Sadamune. They fought beside me, and they should hold land from me the way I hold it from my lord.”",
+                  es: "«Anote una parte a nombre de Gorō y Sadamune. Pelearon a mi lado, y deben recibir tierra de mí como yo la recibo de mi señor»." } }
+  },
+  's4-cons': {
+    A: [ { en: "Your name goes on the register, and every koku of the land is yours. Gorō and Sadamune will go home to their fathers' farms. You ride back to Kyushu a landed man, with a paper in your sleeve that the shogun's government will honor for as long as it stands.",
+           es: "Tu nombre queda en el registro, y cada koku de la tierra es tuyo. Gorō y Sadamune volverán a las granjas de sus padres. Regresas a Kyushu como un hombre con tierra, con un papel en la manga que el gobierno del shogun va a respetar mientras ese gobierno exista." } ],
+    B: [ { en: "Gorō and Sadamune kneel to you the way you knelt to Kuwabara. Now you are a small lord yourself, with warriors of your own house. Your land is smaller, but it is not only yours to defend. This is how the whole country works now: the shogun gives land to your lord, your lord gives land to you, and you give land to your men.",
+           es: "Gorō y Sadamune se arrodillan ante ti como tú te arrodillaste ante Kuwabara. Ahora tú mismo eres un pequeño señor, con guerreros de tu propia casa. Tu tierra es más pequeña, pero ya no te toca defenderla solo. Así funciona ahora todo el país: el shogun le da tierra a tu señor, tu señor te da tierra a ti, y tú les das tierra a tus hombres." } ]
+  },
+
+  inherit1: {
+    title: { en: "The oath passes down", es: "El juramento pasa de padre a hijo" },
+    paras: [
+      { en: "Tadayoshi grows old on his land and dies there, which is more than most warriors of the Genpei War can say. The oath scroll and the land pass to his son.",
+        es: "Tadayoshi envejece en su tierra y muere allí, que es más de lo que pueden decir casi todos los guerreros de la guerra Genpei. El rollo del juramento y la tierra pasan a su hijo." },
+      { en: "Honor passes with the name. Rice passes with the paper. But a lord's trust is not inherited. It must be earned again.",
+        es: "El honor pasa con el nombre. El arroz pasa con el papel. Pero la confianza de un señor no se hereda. Hay que ganársela otra vez." },
+      { en: "The year is 1232. You are Yamabe Yoshisuke, Tadayoshi's son. Your lord is Kuwabara's son.",
+        es: "Es el año 1232. Eres Yamabe Yoshisuke, hijo de Tadayoshi. Tu señor es el hijo de Kuwabara." }
+    ]
+  },
+
+  /* ---------------- Act 二 — Yoshisuke, 1232–1240 ---------------- */
+
+  's5-story': {
+    title: { en: "The Summons", es: "El llamado" },
+    when:  { en: "Autumn 1232", es: "Otoño de 1232" },
+    paras: [
+      { en: "Lord Kuwabara, the one who took your father to Kamakura, has died, and his son is lord now. A rider brings an order from the shogun's government in Kamakura: every vassal owes six months of guard duty in Kyoto, the capital, and the Kuwabara warriors leave in three days.",
+        es: "El señor Kuwabara, el que llevó a tu padre a Kamakura, ha muerto, y ahora su hijo es el señor. Un jinete trae una orden del gobierno del shogun en Kamakura: cada vasallo debe seis meses de guardia en Kyoto, la capital, y los guerreros de Kuwabara salen en tres días." },
+      { en: "Your rice is standing in the fields, one week from harvest. If you leave now, part of the crop will rot before anyone can bring it in. Your younger brother Yoshikage can ride, and the shogun's rules allow a vassal to send a substitute in his place.",
+        es: "Tu arroz sigue en pie en los campos, a una semana de la cosecha. Si te vas ahora, parte de la cosecha se pudrirá antes de que alguien pueda recogerla. Tu hermano menor, Yoshikage, sabe montar, y las reglas del shogun permiten que un vasallo mande a un sustituto en su lugar." },
+      { en: "The rider will not wait three days. He wants your answer before he rides to the next farm.",
+        es: "El jinete no va a esperar tres días. Quiere tu respuesta antes de seguir hacia la próxima granja." }
+    ]
+  },
+  's5-decision': {
+    situation: { en: "The rider waits at your gate.", es: "El jinete espera en tu puerta." },
+    A: { title: { en: "Ride now.", es: "Sal ahora." },
+         text:  { en: "Leave the harvest to your family and go yourself, today.", es: "Deja la cosecha en manos de tu familia y ve tú mismo, hoy." } },
+    B: { title: { en: "Send Yoshikage.", es: "Manda a Yoshikage." },
+         text:  { en: "Finish the harvest, then follow your brother to Kyoto.", es: "Termina la cosecha y después alcanza a tu hermano en Kyoto." } }
+  },
+  's5-cons': {
+    A: [ { en: "Rain comes the week after you leave. A third of the crop rots in the field. In Kyoto, the new Lord Kuwabara sees you at your post every morning for six months, and he learns your face.",
+           es: "La semana después de tu salida llega la lluvia. Un tercio de la cosecha se pudre en el campo. En Kyoto, el nuevo señor Kuwabara te ve en tu puesto cada mañana durante seis meses, y aprende a reconocer tu cara." } ],
+    B: [ { en: "The harvest comes in full, and your storehouse is heavy. Yoshikage rides to Kyoto and stands guard well. But when the new Lord Kuwabara calls the roll on the first morning, the name he hears is Yoshikage, not Yoshisuke, and he remembers which Yamabe came.",
+           es: "La cosecha entra completa, y tu almacén está lleno. Yoshikage cabalga a Kyoto y hace bien su guardia. Pero cuando el nuevo señor Kuwabara pasa lista la primera mañana, el nombre que oye es Yoshikage, no Yoshisuke, y recuerda cuál de los Yamabe se presentó." } ]
+  },
+
+  's6-story': {
+    title: { en: "The Boundary Stones", es: "Las piedras del lindero" },
+    when:  { en: "1236", es: "1236" },
+    paras: [
+      { en: "A warrior named Hirose Tsunemori, the grandson of the Lord Hirose from the Genpei War, has moved the boundary stones on the field your father Tadayoshi was given in 1192. Four stones, each one dragged twenty paces into your land. At the shrine festival he said in front of everyone that the Yamabe family holds land it did not earn.",
+        es: "Un guerrero llamado Hirose Tsunemori, nieto del señor Hirose de la guerra Genpei, ha movido las piedras del lindero, las que marcan el límite del campo que tu padre Tadayoshi recibió en 1192. Cuatro piedras, cada una arrastrada veinte pasos hacia adentro de tu tierra. En la fiesta del santuario dijo delante de todos que la familia Yamabe tiene una tierra que no se ganó." },
+      { en: "Your warriors want to settle it the old way, with swords, tomorrow at dawn. Twenty years ago that is what you would have done.",
+        es: "Tus guerreros quieren arreglarlo a la antigua, con espadas, mañana al amanecer. Hace veinte años, eso es lo que tú habrías hecho." },
+      { en: "But the shogun's government has a new law, written in Kamakura four years ago: warriors who fight each other over land must take the fight to a court instead, and a lord whose vassals start a private war must pay a fine to Kamakura out of his own storehouse.",
+        es: "Pero el gobierno del shogun tiene una ley nueva, escrita en Kamakura hace cuatro años: los guerreros que se peleen entre sí por tierras deben llevar su pleito a un tribunal, y un señor cuyos vasallos empiecen una guerra privada debe pagarle una multa a Kamakura de su propio almacén." }
+    ]
+  },
+  's6-decision': {
+    situation: { en: "Your warriors are waiting for you to say the word.", es: "Tus guerreros esperan a que des la orden." },
+    A: { title: { en: "Draw your sword.", es: "Saca la espada." },
+         text:  { en: "Meet Hirose Tsunemori at the boundary stones at dawn and settle it the way warriors always have.",
+                  es: "Enfrenta a Hirose Tsunemori en las piedras del lindero al amanecer y arréglalo como siempre lo han hecho los guerreros." } },
+    B: { title: { en: "Go to court.", es: "Ve al tribunal." },
+         text:  { en: "Take your father's paper from 1192 to Lord Kuwabara and let the shogun's law decide.",
+                  es: "Lleva el papel de tu padre, el de 1192, ante el señor Kuwabara y deja que decida la ley del shogun." } }
+  },
+  's6-cons': {
+    A: [ { en: "You win. Tsunemori limps home with a cut across his arm, and the stones go back where they were. Every warrior in the valley knows the Yamabe name is not to be insulted. But a private war is against the shogun's law, and Lord Kuwabara pays the fine to Kamakura out of his own storehouse. He does not say a word to you. He does not need to.",
+           es: "Ganas. Tsunemori vuelve a casa cojeando, con un corte en el brazo, y las piedras regresan a su lugar. Todos los guerreros del valle saben que al nombre Yamabe no se le insulta. Pero una guerra privada va contra la ley del shogun, y el señor Kuwabara le paga la multa a Kamakura de su propio almacén. No te dice ni una palabra. No hace falta." } ],
+    B: [ { en: "The judge in Lord Kuwabara's court reads Tadayoshi's paper from 1192 aloud. The stones go back where they were, and Tsunemori's family must pay you a season's rice for what they took. Lord Kuwabara says only, “That is what the paper is for.” The paper, it turns out, is worth more than a sword.",
+           es: "El juez del tribunal del señor Kuwabara lee en voz alta el papel de Tadayoshi, el de 1192. Las piedras regresan a su lugar, y la familia de Tsunemori debe pagarte el arroz de una temporada por lo que tomó. El señor Kuwabara solo dice: «Para eso sirve el papel». Resulta que el papel vale más que una espada." } ]
+  },
+
+  code: {
+    title: { en: "The Warrior's Code", es: "El código del guerrero" },
+    intro: { en: "Warriors have a name for the way you are expected to live. They call it bushido, the warrior's code. It has four parts, and you have already met all of them.",
+             es: "Los guerreros tienen un nombre para la manera en que se espera que vivas. Lo llaman bushido, el código del guerrero. Tiene cuatro partes, y ya las conoces todas." },
+    rows: [
+      { kanji: "忠",
+        name: { en: "Loyalty", es: "Lealtad" },
+        text: { en: "You keep your oath to your lord even when another lord offers more.", es: "Cumples tu juramento con tu señor aunque otro señor te ofrezca más." },
+        ref:  { en: "(1180, the night the messenger came.)", es: "(1180, la noche en que llegó el mensajero.)" } },
+      { kanji: "勇",
+        name: { en: "Courage", es: "Valor" },
+        text: { en: "You face the enemy and the sea without running.", es: "Enfrentas al enemigo y al mar sin huir." },
+        ref:  { en: "(1185, Dan-no-ura.)", es: "(1185, Dan-no-ura.)" } },
+      { kanji: "名",
+        name: { en: "Honor", es: "Honor" },
+        text: { en: "Your name is what people say about your family when you are not there.", es: "Tu nombre es lo que la gente dice de tu familia cuando no estás." },
+        ref:  { en: "(Every choice so far.)", es: "(Cada decisión hasta ahora.)" } },
+      { kanji: "克己",
+        name: { en: "Self-discipline", es: "Autodisciplina" },
+        text: { en: "You hold the sword in when the law says to hold it in.", es: "Dejas la espada guardada cuando la ley dice que la guardes." },
+        ref:  { en: "(1236, the boundary stones.)", es: "(1236, las piedras del lindero.)" } }
+    ],
+    closing: { en: "A warrior who has all four is called a true samurai. Nobody is born with all four.",
+               es: "A un guerrero que tiene las cuatro se le llama un verdadero samurái. Nadie nace con las cuatro." }
+  },
+
+  's7-story': {
+    title: { en: "The Monk", es: "El monje" },
+    when:  { en: "Winter 1240", es: "Invierno de 1240" },
+    paras: [
+      { en: "It is a hard winter. Snow has closed the road to the valley, and there is nothing to do but wait for spring. At a small temple above the bay, a monk of a kind of Buddhism called Zen explains why so many warriors have been coming to sit in silence with him.",
+        es: "Es un invierno duro. La nieve ha cerrado el camino al valle, y no hay nada que hacer más que esperar la primavera. En un pequeño templo sobre la bahía, un monje de un tipo de budismo llamado zen explica por qué tantos guerreros han venido a sentarse en silencio con él." },
+      { en: "In Zen, he says, you train your mind the way you train your body: every day, with discipline, until it does what you tell it. A warrior who has already made peace with the idea of dying moves without fear. And fear, the monk says, is what gets a samurai killed. A frightened hand is slow.",
+        es: "En el zen, dice, entrenas la mente igual que entrenas el cuerpo: todos los días, con disciplina, hasta que hace lo que tú le dices. Un guerrero que ya aceptó en paz la idea de morir se mueve sin miedo. Y el miedo, dice el monje, es lo que hace que maten a un samurái. Una mano asustada es lenta." },
+      { en: "He offers you a place on the veranda. Warriors who stay the winter sit in silence for hours, eat little, and pay for the temple's rice from their own storehouses.",
+        es: "Te ofrece un lugar en la galería del templo. Los guerreros que se quedan todo el invierno se sientan en silencio durante horas, comen poco y pagan el arroz del templo de sus propios almacenes." }
+    ]
+  },
+  's7-decision': {
+    situation: { en: "The monk waits. Snow is falling past the open door.", es: "El monje espera. La nieve cae frente a la puerta abierta." },
+    A: { title: { en: "Stay the winter.", es: "Quédate el invierno." },
+         text:  { en: "Sit with the monks, learn to still your mind, and send rice from your storehouse to keep the temple fed.",
+                  es: "Siéntate con los monjes, aprende a calmar tu mente y manda arroz de tu almacén para alimentar al templo." } },
+    B: { title: { en: "Go home.", es: "Vuelve a casa." },
+         text:  { en: "Thank the monk. Your training is the bow and the sword, every morning, in your own yard.",
+                  es: "Dale las gracias al monje. Tu entrenamiento es el arco y la espada, cada mañana, en tu propio patio." } }
+  },
+  's7-cons': {
+    A: [ { en: "By spring you can sit for an hour without moving, and you no longer dream about your father's stories of Dan-no-ura. Your storehouse is lighter for feeding the temple. But people in the village say Yoshisuke came down from the temple a different kind of warrior, one who does not hurry.",
+           es: "Para la primavera ya puedes estar sentado una hora sin moverte, y ya no sueñas con las historias de tu padre sobre Dan-no-ura. Tu almacén pesa menos por haber alimentado al templo. Pero la gente de la aldea dice que Yoshisuke bajó del templo convertido en otra clase de guerrero, uno que no se apresura." } ],
+    B: [ { en: "You spend the winter and the spring on your own land, shooting at a straw target until your arrows go where you look. Your storehouse is fuller than it has ever been, and your sword arm is faster than it was. A samurai's discipline, you tell your son, is the bow at dawn.",
+           es: "Pasas el invierno y la primavera en tu propia tierra, disparando a un blanco de paja hasta que tus flechas van adonde miras. Tu almacén está más lleno que nunca, y tu brazo de la espada es más rápido que antes. La disciplina de un samurái, le dices a tu hijo, es el arco al amanecer." } ]
+  },
+
+  act2close: {
+    granted: { en: "Lord Kuwabara calls you to his hall and gives you one small field by the river, in writing. “There is still a little land to give,” he says. The arrow moves, smaller than in 1192.",
+               es: "El señor Kuwabara te llama a su salón y te da un campo pequeño junto al río, por escrito. «Todavía queda un poco de tierra para dar», dice. La flecha se mueve, más pequeña que en 1192." },
+    none:    { en: "Lord Kuwabara calls you to his hall and thanks you for your service. He does not give you land. “There is very little left to give,” he says. The arrow stays grey.",
+               es: "El señor Kuwabara te llama a su salón y te agradece tu servicio. No te da tierra. «Queda muy poca para dar», dice. La flecha se queda gris." }
+  },
+
+  inherit2: {
+    title: { en: "The oath passes down", es: "El juramento pasa de padre a hijo" },
+    paras: [
+      { en: "Yoshisuke dies in his sleep, an old man, in the house his father built. The oath scroll and the land pass to his son.",
+        es: "Yoshisuke muere mientras duerme, ya anciano, en la casa que construyó su padre. El rollo del juramento y la tierra pasan a su hijo." },
+      { en: "Honor passes with the name. Rice passes with the paper. A lord's trust is not inherited. It must be earned again.",
+        es: "El honor pasa con el nombre. El arroz pasa con el papel. La confianza de un señor no se hereda. Hay que ganársela otra vez." },
+      { en: "The year is 1274. You are Yamabe Nagamoto, Yoshisuke's son. Your lord is the grandson of the first Lord Kuwabara.",
+        es: "Es el año 1274. Eres Yamabe Nagamoto, hijo de Yoshisuke. Tu señor es el nieto del primer señor Kuwabara." },
+      { en: "For six years, letters have been arriving in Japan from Kublai Khan, the Mongol ruler of China, ordering Japan to submit to him. The shogun's government has refused every one. Now the Mongols have stopped writing.",
+        es: "Desde hace seis años llegan a Japón cartas de Kublai Khan, el gobernante mongol de China, que le ordenan a Japón someterse a él. El gobierno del shogun las ha rechazado todas. Ahora los mongoles han dejado de escribir." }
+    ]
+  },
+
+  /* ---------------- Act 三 — Nagamoto, 1274–1285 ---------------- */
+
+  's8-story': {
+    title: { en: "Hakata Bay", es: "La bahía de Hakata" },
+    when:  { en: "November 1274", es: "Noviembre de 1274" },
+    open: { en: "Kublai Khan's fleet is in Hakata Bay, the bay your family's land looks out on. Hundreds of ships. Your scout comes back white-faced and reports how the Mongol soldiers fight: they stay in tight groups, they shoot their arrows all at once in a cloud, and they throw iron balls that explode and kill horses.",
+            es: "La flota de Kublai Khan está en la bahía de Hakata, la bahía que se ve desde la tierra de tu familia. Cientos de barcos. Tu explorador vuelve pálido y cuenta cómo pelean los soldados mongoles: se mantienen en grupos cerrados, disparan sus flechas todas a la vez, como una nube, y lanzan bolas de hierro que explotan y matan a los caballos." },
+    self: { en: "When you reach Lord Kuwabara's camp, he greets you by name. “You are Yoshisuke's son. Your father stood guard in Kyoto while his own harvest rotted in the field. Stand at my right side.”",
+            es: "Cuando llegas al campamento del señor Kuwabara, él te saluda por tu nombre. «Eres el hijo de Yoshisuke. Tu padre hizo guardia en Kyoto mientras su propia cosecha se pudría en el campo. Ponte a mi derecha»." },
+    brother: { en: "When you reach Lord Kuwabara's camp, he looks at you for a moment before he speaks. “The Yamabe family sent a brother last time. Show me you are here now.”",
+               es: "Cuando llegas al campamento del señor Kuwabara, él te mira un momento antes de hablar. «La última vez, la familia Yamabe mandó a un hermano. Demuéstrame que ahora sí estás aquí»." },
+    close: { en: "All around you, the samurai are fighting the way samurai have always fought. Each man rides out alone, shouts his name and his family's name, and challenges one Mongol to fight him. The Mongols do not answer challenges. They shoot the man who is shouting.",
+             es: "A tu alrededor, los samuráis pelean como siempre han peleado los samuráis. Cada hombre sale solo a caballo, grita su nombre y el de su familia, y reta a un mongol a pelear con él. Los mongoles no responden a los retos. Le disparan al hombre que está gritando." },
+    note: { en: "War eats rice.", es: "La guerra se come el arroz." }
+  },
+  's8-decision': {
+    situation: { en: "The Mongol lines are coming up the beach.", es: "Las filas mongolas avanzan por la playa." },
+    A: { title: { en: "Ride out alone.", es: "Sal solo a caballo." },
+         text:  { en: "Shout your name, “Yamabe Nagamoto, grandson of Tadayoshi who fought at Dan-no-ura,” and charge.",
+                  es: "Grita tu nombre, «Yamabe Nagamoto, nieto de Tadayoshi, el que peleó en Dan-no-ura», y lánzate al ataque." } },
+    B: { title: { en: "Hold your men.", es: "Mantén juntos a tus hombres." },
+         text:  { en: "Keep them together behind the dunes and meet the Mongol line as a group, the way the Mongols fight.",
+                  es: "Tenlos unidos detrás de las dunas y enfrenta a la fila mongola en grupo, como pelean los mongoles." } }
+  },
+  's8-cons': {
+    A: [ { en: "You charge. Arrows come in a cloud and an iron ball bursts over your horse. You reach the Mongol line and cut your way back out, and every warrior on the beach heard your name before you did it. Two of your men and three horses do not come back.",
+           es: "Te lanzas al ataque. Las flechas llegan como una nube y una bola de hierro estalla sobre tu caballo. Llegas hasta la fila mongola y te abres paso de regreso a golpes de espada, y todos los guerreros de la playa oyeron tu nombre antes de que lo hicieras. Dos de tus hombres y tres caballos no regresan." } ],
+    B: [ { en: "You hold your men behind the dunes until the first Mongol group reaches the sand, then you hit them all at once. They fall back to their ships. Lord Kuwabara finds you afterward and says only, “One captain thought.”",
+           es: "Mantienes a tus hombres detrás de las dunas hasta que el primer grupo mongol llega a la arena, y entonces los golpeas todos a la vez. Ellos retroceden hasta sus barcos. Después, el señor Kuwabara te busca y solo dice: «Un capitán pensó»." } ]
+  },
+  s8storm: {
+    paras: [
+      { en: "That night a storm comes in off the sea. By morning the bay is empty. The Mongol fleet has gone back to Korea, and nobody in Japan believes they have gone for good.",
+        es: "Esa noche llega una tormenta desde el mar. Por la mañana, la bahía está vacía. La flota mongola ha vuelto a Corea, y nadie en Japón cree que se haya ido para siempre." }
+    ]
+  },
+
+  's9-story': {
+    title: { en: "Seven Years of Stone", es: "Siete años de piedra" },
+    when:  { en: "1275–1281", es: "1275–1281" },
+    open: [
+      { en: "The Mongols are gone, but everyone knows they will come back. In 1276 the shogun's government orders a stone wall built along the whole shore of Hakata Bay, high enough that no horse can climb it. Every vassal in Kyushu must build one section of the wall and take turns standing guard on it, all at his own cost: the stone, the workers, the rice to feed them.",
+        es: "Los mongoles se fueron, pero todos saben que van a volver. En 1276 el gobierno del shogun ordena construir un muro de piedra a lo largo de toda la orilla de la bahía de Hakata, tan alto que ningún caballo pueda treparlo. Cada vasallo de Kyushu debe construir una sección del muro y turnarse para hacer guardia en ella, todo pagado por él mismo: la piedra, los trabajadores, el arroz para alimentarlos." },
+      { en: "Over the next seven years, Kublai Khan sends messengers demanding that Japan surrender. The shogun's government cuts off their heads and sends no answer.",
+        es: "Durante los siete años siguientes, Kublai Khan manda mensajeros a exigir que Japón se rinda. El gobierno del shogun les corta la cabeza y no manda respuesta." }
+    ],
+    retainers: { en: "Gorō, grandson of the Gorō your grandfather Tadayoshi gave land to in 1192, hauls stone beside you every day.",
+                 es: "Gorō, nieto del Gorō al que tu abuelo Tadayoshi le dio tierra en 1192, carga piedra a tu lado todos los días." },
+    noretainers: { en: "A warrior named Shigeto, who has stood beside you since the wall's first stone, hauls stone beside you every day.",
+                   es: "Un guerrero llamado Shigeto, que ha estado a tu lado desde la primera piedra del muro, carga piedra a tu lado todos los días." },
+    close: { en: "Lord Kuwabara rides the wall each spring and repeats what Kamakura has promised him: every warrior will be rewarded with land when this is over.",
+             es: "Cada primavera, el señor Kuwabara recorre el muro a caballo y repite lo que Kamakura le ha prometido: cada guerrero será recompensado con tierra cuando esto termine." },
+    note: { en: "Seven years of stone and guard duty eat rice.", es: "Siete años de piedra y de guardia se comen el arroz." }
+  },
+  's9-decision': {
+    situation: { en: "The stonecutters want to know how high to build.", es: "Los canteros quieren saber qué tan alto deben construir." },
+    A: { title: { en: "Build it high.", es: "Constrúyelo alto." },
+         text:  { en: "Taller than the order requires, and hire more stonecutters with your own rice to do it.",
+                  es: "Más alto de lo que pide la orden, y contrata más canteros con tu propio arroz para lograrlo." } },
+    B: { title: { en: "Build what is required.", es: "Construye lo que se pide." },
+         text:  { en: "Keep the rest of your rice to feed your men through the long wait.",
+                  es: "Guarda el resto de tu arroz para alimentar a tus hombres durante la larga espera." } }
+  },
+  's9-cons': {
+    A: [ { en: "Your section stands a head taller than the sections on either side. Lord Kuwabara stops his horse in front of it on his spring ride and says your name to the men around him. Your storehouse is nearly empty.",
+           es: "Tu sección queda una cabeza más alta que las secciones de los lados. En su recorrido de primavera, el señor Kuwabara detiene su caballo frente a ella y dice tu nombre a los hombres que lo acompañan. Tu almacén está casi vacío." } ],
+    B: [ { en: "Your section meets the order exactly, and every man who started the wall with you is still fed and still with you when the seventh year ends.",
+           es: "Tu sección cumple la orden con exactitud, y cada hombre que empezó el muro contigo sigue alimentado y sigue a tu lado cuando termina el séptimo año." } ]
+  },
+
+  's10-story': {
+    title: { en: "The Divine Wind", es: "El viento divino" },
+    when:  { en: "Summer 1281", es: "Verano de 1281" },
+    open: [
+      { en: "In the summer of 1281 the Mongols return with two fleets, far larger than the first. The wall works. The Mongol soldiers cannot land, so they stay crowded on their ships in the bay, week after week, in the heat.",
+        es: "En el verano de 1281 los mongoles regresan con dos flotas, mucho más grandes que la primera. El muro funciona. Los soldados mongoles no pueden desembarcar, así que se quedan amontonados en sus barcos en la bahía, semana tras semana, bajo el calor." },
+      { en: "Every night, samurai row out in small boats, climb onto the Mongol ships in the dark, and fight on the decks. Many do not row back. But every ship they attack is one more ship that cannot rest, and the Mongols are running out of water.",
+        es: "Cada noche, los samuráis salen remando en botes pequeños, suben a los barcos mongoles en la oscuridad y pelean sobre las cubiertas. Muchos no regresan. Pero cada barco que atacan es un barco más que no puede descansar, y a los mongoles se les está acabando el agua." }
+    ],
+    retainers: { en: "Lord Kuwabara asks for volunteers for tonight's boats. Gorō is already standing.",
+                 es: "El señor Kuwabara pide voluntarios para los botes de esta noche. Gorō ya está de pie." },
+    noretainers: { en: "Lord Kuwabara asks for volunteers for tonight's boats. Shigeto is already standing.",
+                   es: "El señor Kuwabara pide voluntarios para los botes de esta noche. Shigeto ya está de pie." }
+  },
+  's10-decision': {
+    situation: { en: "The boats leave at moonset.", es: "Los botes salen cuando se oculta la luna." },
+    A: { title: { en: "Volunteer for the raid.", es: "Ofrécete para el ataque." },
+         text:  { en: "Row out in the dark and board a Mongol ship.", es: "Sal remando en la oscuridad y sube a un barco mongol." } },
+    B: { title: { en: "Hold your section of the wall.", es: "Defiende tu sección del muro." },
+         text:  { en: "That is your duty, and the wall is the reason the Mongols are still on their ships.",
+                  es: "Ese es tu deber, y el muro es la razón por la que los mongoles siguen en sus barcos." } }
+  },
+  's10-cons': {
+    zen: [ { en: "You board the ship the way your father learned to sit at the temple in 1240: without hurry, without fear. You remember what he told you: a frightened hand is slow. Yours is not. You fight across the deck and back into the boat, and every man who rowed out with you rows back.",
+             es: "Subes al barco como tu padre aprendió a sentarse en el templo en 1240: sin prisa, sin miedo. Recuerdas lo que te dijo: una mano asustada es lenta. La tuya no lo es. Peleas de un lado a otro de la cubierta y vuelves al bote, y todos los hombres que salieron remando contigo regresan remando." } ],
+    nozenRetainers: [ { en: "You board the ship with the bow and the sword your father drilled into you every dawn in 1240. You fight across the deck and back into the boat. Gorō does not row back with you.",
+                        es: "Subes al barco con el arco y la espada que tu padre te hizo practicar cada amanecer en 1240. Peleas de un lado a otro de la cubierta y vuelves al bote. Gorō no regresa remando contigo." } ],
+    nozenNoretainers: [ { en: "You board the ship with the bow and the sword your father drilled into you every dawn in 1240. You fight across the deck and back into the boat. Shigeto does not row back with you.",
+                          es: "Subes al barco con el arco y la espada que tu padre te hizo practicar cada amanecer en 1240. Peleas de un lado a otro de la cubierta y vuelves al bote. Shigeto no regresa remando contigo." } ],
+    B: [ { en: "You hold the wall through the longest nights of the summer. No Mongol sets foot on your section. The men in the boats get the stories, but the wall is why there are stories to tell.",
+           es: "Defiendes el muro durante las noches más largas del verano. Ningún mongol pone un pie en tu sección. Los hombres de los botes se quedan con las historias, pero el muro es la razón de que haya historias que contar." } ]
+  },
+  s10storm: {
+    title: { en: "The divine wind", es: "El viento divino" },
+    paras: [
+      { en: "On the night of the fifteenth day, a typhoon comes in off the sea. By morning both Mongol fleets are broken against the shore, and the bay is full of wreckage. The priests say the gods sent the wind to save Japan. They call it kamikaze, the divine wind.",
+        es: "En la noche del día quince, un tifón llega desde el mar. Por la mañana, las dos flotas mongolas están destrozadas contra la orilla, y la bahía está llena de restos. Los sacerdotes dicen que los dioses mandaron el viento para salvar a Japón. Lo llaman kamikaze, el viento divino." }
+    ]
+  },
+
+  petition: {
+    title: { en: "Kamakura, 1285", es: "Kamakura, 1285" },
+    paras: [
+      { en: "The war is over, and you have kept your side of the oath for eleven years. Lord Kuwabara rides to Kamakura to claim the land the shogun's government promised in 1276.",
+        es: "La guerra terminó, y tú has cumplido tu parte del juramento durante once años. El señor Kuwabara cabalga a Kamakura para reclamar la tierra que el gobierno del shogun prometió en 1276." },
+      { en: "There is no land. In every war before this one, the winners took the losers' land and shared it out. But the Mongols had no land in Japan to take. The shogun's government gives a little land to the temples whose priests prayed for the wind. To the warriors who built the wall and rowed the boats, it gives thanks.",
+        es: "No hay tierra. En todas las guerras anteriores, los ganadores se quedaban con la tierra de los perdedores y la repartían. Pero los mongoles no tenían tierra en Japón que se pudiera tomar. El gobierno del shogun les da un poco de tierra a los templos cuyos sacerdotes rezaron por el viento. A los guerreros que construyeron el muro y remaron en los botes les da las gracias." },
+      { en: "Lord Kuwabara rides home with nothing in his saddlebag. He does not need to tell you. You can see it in how he sits his horse.",
+        es: "El señor Kuwabara vuelve a casa sin nada en las alforjas. No hace falta que te lo diga. Se le nota en la manera de ir sentado en su caballo." }
+    ]
+  },
+
+  ledger4: {
+    lines: [
+      { en: "There was no enemy land to take. There was no land in Japan to give. For the first time since 1180, the oath was kept on only one side.",
+        es: "No había tierra enemiga que tomar. No había tierra en Japón que dar. Por primera vez desde 1180, el juramento se cumplió solo de un lado." },
+      { en: "Across Kyushu, thousands of families were in the same position. The shogun's government that could not pay its warriors grew weaker every year, and within fifty years it fell.",
+        es: "Por todo Kyushu, miles de familias estaban en la misma situación. El gobierno del shogun, que no pudo pagarles a sus guerreros, se debilitó cada año, y en menos de cincuenta años cayó." }
+    ]
+  },
+
+  /* ---------------- Ending pages ---------------- */
+
+  evidence: {
+    title: { en: "Evidence for your GRAPES Tracker", es: "Evidencia para tu GRAPES Tracker" },
+    heads: [
+      { en: "What happened", es: "Qué pasó" },
+      { en: "Source", es: "Fuente" },
+      { en: "Why it mattered", es: "Por qué importó" }
+    ],
+    rows: [
+      [ { en: "In 1192 Minamoto Yoritomo became shogun. Samurai swore loyalty to lords in exchange for land, and the emperor became a figurehead.",
+          es: "En 1192 Minamoto Yoritomo se convirtió en shogun. Los samuráis juraban lealtad a los señores a cambio de tierra, y el emperador quedó como una figura sin poder real." },
+        { en: "Oath of the Samurai, Act 1", es: "El juramento del samurái, Acto 1" },
+        { en: "Warriors, not the emperor, now ruled Japan.", es: "Ahora los guerreros, y no el emperador, gobernaban Japón." } ],
+      [ { en: "Samurai lived by bushido (loyalty, courage, honor, self-discipline), and many practiced Zen Buddhism to face death without fear.",
+          es: "Los samuráis vivían según el bushido (lealtad, valor, honor, autodisciplina), y muchos practicaban el budismo zen para enfrentar la muerte sin miedo." },
+        { en: "Oath of the Samurai, Act 2", es: "El juramento del samurái, Acto 2" },
+        { en: "The warrior code shaped how Japanese leaders and soldiers thought for centuries.",
+          es: "El código del guerrero influyó durante siglos en la manera de pensar de los líderes y los soldados japoneses." } ],
+      [ { en: "After the Mongol invasions of 1274 and 1281, there was no new land to reward the samurai who fought.",
+          es: "Después de las invasiones mongolas de 1274 y 1281, no hubo tierra nueva para recompensar a los samuráis que pelearon." },
+        { en: "Oath of the Samurai, Act 3", es: "El juramento del samurái, Acto 3" },
+        { en: "The lord-vassal deal only worked if both sides could pay. When it couldn't, the Kamakura shogunate grew weak.",
+          es: "El trato entre señor y vasallo solo funcionaba si los dos lados podían pagar. Cuando ya no se pudo, el shogunato de Kamakura se debilitó." } ]
+    ],
+    foot: { en: "Copy these into your GRAPES Tracker under P (Politics) and S (Social).",
+            es: "Copia esto en tu GRAPES Tracker, en P (Política) y S (Social)." }
+  },
+
+  epilogue: {
+    title: { en: "650 years later", es: "650 años después" },
+    paras: [
+      { en: "The storm of 1281 gave Japan a word: kamikaze, the divine wind. The oath gave Japan a code: bushido, the warrior's way.",
+        es: "La tormenta de 1281 le dio a Japón una palabra: kamikaze, el viento divino. El juramento le dio a Japón un código: bushido, el camino del guerrero." },
+      { en: "Six hundred and fifty years later, in the 1940s, Japan's government went to war against the United States and its allies. It taught its soldiers a version of bushido in which surrender was the worst dishonor a man could suffer, and it named its pilots who flew their planes into enemy ships after the storm: kamikaze.",
+        es: "Seiscientos cincuenta años después, en la década de 1940, el gobierno de Japón entró en guerra contra Estados Unidos y sus aliados. Les enseñó a sus soldados una versión del bushido en la que rendirse era la peor deshonra que un hombre podía sufrir, y a los pilotos que estrellaban sus aviones contra los barcos enemigos les puso el nombre de la tormenta: kamikaze." },
+      { en: "That was a modern government using an old idea for its own purposes. Nagamoto's oath asked him to keep his word to his lord. It did not ask him to die on purpose, and his lord owed him land in return. When you hear the word kamikaze, you can now explain where it came from, and what was changed.",
+        es: "Eso fue un gobierno moderno usando una idea antigua para sus propios fines. El juramento de Nagamoto le pedía cumplir su palabra con su señor. No le pedía morir a propósito, y su señor le debía tierra a cambio. Cuando oigas la palabra kamikaze, ahora puedes explicar de dónde vino y qué fue lo que se cambió." }
+    ]
+  },
+
+  end: {
+    rows: [
+      { gave: { en: "My sword and five years of war", es: "Mi espada y cinco años de guerra" },
+        got:  { en: "Land, in writing", es: "Tierra, por escrito" } },
+      { gave: { en: "Guard duty and obedience to the law", es: "Guardia y obediencia a la ley" },
+        gotField:   { en: "One small field", es: "Un campo pequeño" },
+        gotNothing: { en: "Thanks, and no land", es: "Las gracias, y nada de tierra" } },
+      { gave: { en: "Two invasions and seven years of stone", es: "Dos invasiones y siete años de piedra" },
+        got:  { en: "", es: "" } }
+    ],
+    thanks: { en: "Thank you for playing.", es: "Gracias por jugar." },
+    openTask: { en: "Open the writing task", es: "Abrir la tarea de escritura" },
+    credits: { en: "Act 3 pictures: Mōko Shūrai Ekotoba (Illustrated Account of the Mongol Invasions), made for the samurai Takezaki Suenaga about 1293, now in the Museum of the Imperial Collections, Tokyo. Public domain, via Wikimedia Commons.",
+               es: "Imágenes del Acto 3: Mōko Shūrai Ekotoba (Relato ilustrado de las invasiones mongolas), hecho para el samurái Takezaki Suenaga hacia 1293, hoy en el Museo de las Colecciones Imperiales, Tokio. Dominio público, vía Wikimedia Commons." }
+  }
+};
+
+/* =====================================================================
+   ENGINE — no student-facing text below this line.
+   ===================================================================== */
+const C = CONTENT;
+const ACT_MARK = { 1: '一', 2: '二', 3: '三' };
+const OATH_MARK = '誓';
+const STATS = {
+  honor: { mark: '名', max: 6 },
+  trust: { mark: '信', max: 6 },
+  rice:  { mark: '米', max: 10 }
+};
+const STAT_KEYS = ['honor', 'trust', 'rice'];
+const START = { honor: 3, trust: 0, rice: 2 };
+const STORE_KEY = 'oath-of-the-samurai:v1';
+const PARAMS = new URLSearchParams(location.search);
+const TEACHER = PARAMS.get('teacher') === '1';
+const REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+const pick = (S, n) => S.choices['s' + n] || 'A';
+const AB = (S, n, a, b) => (pick(S, n) === 'A' ? a : b);
+/* join sentences into one paragraph, in both languages */
+const cat = (...parts) => ({ en: parts.map(p => p.en).join(' '), es: parts.map(p => p.es).join(' ') });
+
+/* ---------- Pages, in play order ----------
+   paras(S)   paragraphs for this path        img(S)  image filename
+   fx(S)      stat changes, flags and ledger entries made on this page:
+              { d: {stat: +/-n}, set: {stat: n}, halve: true, flags: {...}, ledger: {...} } */
+const PAGES = [
+  { id: 'p00', type: 'title', act: 1, img: '00-title.jpg' },
+  { id: 'p01', type: 'intro', act: 1 },
+  { id: 'p02', type: 'stats', act: 1 },
+
+  /* Scene 1 */
+  { id: 's1-story', type: 'story', act: 1, scene: 1, img: 's01-lords-offer.jpg' },
+  { id: 's1-decision', type: 'decision', act: 1, scene: 1 },
+  { id: 's1-cons', type: 'consequence', act: 1, scene: 1,
+    paras: S => C['s1-cons'][pick(S, 1)],
+    fx: S => AB(S, 1, { d: { trust: 1, rice: 2 } }, { d: { trust: 2 }, flags: { PROMISE: true } }) },
+  { id: 'ledger1', type: 'ledger', act: 1,
+    fx: S => ({ ledger: { gen: 1, gave: 'gaveSword', got: S.flags.PROMISE ? 'gotPromise' : 'gotRice', moved: true } }) },
+
+  /* Scene 2 */
+  { id: 's2-story', type: 'story', act: 1, scene: 2, img: 's02-two-banners.jpg' },
+  { id: 's2-decision', type: 'decision', act: 1, scene: 2 },
+  { id: 's2-cons', type: 'consequence', act: 1, scene: 2,
+    paras: S => C['s2-cons'][pick(S, 2)],
+    fx: S => AB(S, 2,
+      { d: { honor: 1, trust: 1 }, flags: { SIDE: 'minamoto' } },
+      { d: { honor: -1, rice: 1 }, set: { trust: 1 }, flags: { SIDE: 'taira' } }) },
+
+  /* Scene 3 (variant by SIDE) */
+  { id: 's3-story', type: 'story', act: 1, scene: 3,
+    img: S => (S.flags.SIDE === 'taira' ? 's03-dan-no-ura-t.jpg' : 's03-dan-no-ura-m.jpg'),
+    paras: S => C['s3-story'][S.flags.SIDE],
+    fx: () => ({ d: { rice: -1 } }) },
+  { id: 's3-decision', type: 'decision', act: 1, scene: 3, content: S => C['s3-decision'][S.flags.SIDE] },
+  { id: 's3-cons', type: 'consequence', act: 1, scene: 3,
+    paras: S => C['s3-cons'][S.flags.SIDE][pick(S, 3)],
+    fx: S => (S.flags.SIDE === 'taira'
+      ? AB(S, 3, { d: { honor: 2, rice: -1 } }, { d: { honor: -1, trust: 1 } })
+      : AB(S, 3, { d: { honor: 1 } }, { d: { trust: 1 } })) },
+  { id: 's3-close', type: 'consequence', act: 1, scene: 3, plain: true },
+
+  /* Scene 4 */
+  { id: 's4-story', type: 'story', act: 1, scene: 4, img: 's04-oath-kamakura.jpg',
+    paras: S => {
+      const c = C['s4-story'], t = S.flags.SIDE === 'taira';
+      const mine = t ? (S.flags.PROMISE ? cat(c.taira, c.tairaPromise) : c.taira)
+                     : (S.flags.PROMISE ? cat(c.minamoto, c.minamotoPromise) : c.minamoto);
+      return [...c.common, mine, c.men];
+    },
+    fx: S => ({ d: { rice: S.flags.SIDE === 'taira' ? 2 : (S.flags.PROMISE ? 5 : 4) } }) },
+  { id: 's4-decision', type: 'decision', act: 1, scene: 4 },
+  { id: 's4-cons', type: 'consequence', act: 1, scene: 4,
+    paras: S => C['s4-cons'][pick(S, 4)],
+    fx: S => AB(S, 4, {}, { d: { rice: -1 }, flags: { RETAINERS: true } }) },
+  { id: 'ledger2', type: 'ledger', act: 1,
+    fx: () => ({ ledger: { gen: 1, gave: 'gaveWar', got: 'gotLand', moved: true } }) },
+  { id: 'inherit1', type: 'inherit', act: 2, img: 'x1-inherit.jpg', fx: () => ({ halve: true }) },
+
+  /* Scene 5 */
+  { id: 's5-story', type: 'story', act: 2, scene: 5, img: 's05-summons.jpg' },
+  { id: 's5-decision', type: 'decision', act: 2, scene: 5 },
+  { id: 's5-cons', type: 'consequence', act: 2, scene: 5,
+    paras: S => C['s5-cons'][pick(S, 5)],
+    fx: S => AB(S, 5,
+      { d: { trust: 2, rice: -1 }, flags: { SUMMONS: 'self' } },
+      { d: { trust: -1, rice: 1 }, flags: { SUMMONS: 'brother' } }) },
+
+  /* Scene 6 */
+  { id: 's6-story', type: 'story', act: 2, scene: 6, img: 's06-boundary-stones.jpg' },
+  { id: 's6-decision', type: 'decision', act: 2, scene: 6 },
+  { id: 's6-cons', type: 'consequence', act: 2, scene: 6,
+    paras: S => C['s6-cons'][pick(S, 6)],
+    fx: S => AB(S, 6, { d: { honor: 1, trust: -2 } }, { d: { trust: 1, rice: 1 } }) },
+
+  { id: 'code', type: 'code', act: 2 },
+
+  /* Scene 7 */
+  { id: 's7-story', type: 'story', act: 2, scene: 7, img: 's07-zen-monk.jpg' },
+  { id: 's7-decision', type: 'decision', act: 2, scene: 7 },
+  { id: 's7-cons', type: 'consequence', act: 2, scene: 7,
+    paras: S => C['s7-cons'][pick(S, 7)],
+    fx: S => AB(S, 7, { d: { honor: 1, rice: -1 }, flags: { ZEN: true } }, { d: { rice: 1 }, flags: { ZEN: false } }) },
+  { id: 'act2close', type: 'ledger', act: 2,
+    fx: S => {
+      const g = S.stats.trust >= 4;
+      return { d: g ? { rice: 1 } : {}, ledger: { gen: 2, gave: 'gaveGuard', got: g ? 'gotField' : 'gotNothing', moved: g, small: true } };
+    } },
+  { id: 'inherit2', type: 'inherit', act: 3, img: 'x2-inherit.jpg', fx: () => ({ halve: true }) },
+
+  /* Scene 8 */
+  { id: 's8-story', type: 'story', act: 3, scene: 8, img: 's08-hakata-bay.jpg',
+    paras: S => { const c = C['s8-story']; return [c.open, c[S.flags.SUMMONS], c.close]; },
+    fx: S => ({ d: { trust: S.flags.SUMMONS === 'self' ? 1 : -1, rice: -1 } }) },
+  { id: 's8-decision', type: 'decision', act: 3, scene: 8 },
+  { id: 's8-cons', type: 'consequence', act: 3, scene: 8,
+    paras: S => C['s8-cons'][pick(S, 8)],
+    fx: S => AB(S, 8, { d: { honor: 2, rice: -2 } }, { d: { trust: 1, rice: -1 } }) },
+  { id: 's8storm', type: 'storm', act: 3, img: 's08-storm.jpg' },
+
+  /* Scene 9 */
+  { id: 's9-story', type: 'story', act: 3, scene: 9, img: 's09-the-wall.jpg',
+    paras: S => { const c = C['s9-story']; return [...c.open, S.flags.RETAINERS ? c.retainers : c.noretainers, c.close]; },
+    fx: S => ({ d: { rice: S.flags.RETAINERS ? -1 : -2 } }) },
+  { id: 's9-decision', type: 'decision', act: 3, scene: 9 },
+  { id: 's9-cons', type: 'consequence', act: 3, scene: 9,
+    paras: S => C['s9-cons'][pick(S, 9)],
+    fx: S => AB(S, 9, { d: { trust: 1, rice: -1 } }, {}) },
+  { id: 'ledger3', type: 'ledger', act: 3,
+    fx: () => ({ ledger: { gen: 3, gave: 'gaveWall', got: 'gotPromised', moved: false, promised: true } }) },
+
+  /* Scene 10 */
+  { id: 's10-story', type: 'story', act: 3, scene: 10, img: 's10-night-raid.jpg',
+    paras: S => { const c = C['s10-story']; return [...c.open, S.flags.RETAINERS ? c.retainers : c.noretainers]; },
+    fx: () => ({ d: { rice: -1 } }) },
+  { id: 's10-decision', type: 'decision', act: 3, scene: 10 },
+  { id: 's10-cons', type: 'consequence', act: 3, scene: 10,
+    paras: S => {
+      const c = C['s10-cons'];
+      if (pick(S, 10) === 'B') return c.B;
+      if (S.flags.ZEN) return c.zen;
+      return S.flags.RETAINERS ? c.nozenRetainers : c.nozenNoretainers;
+    },
+    fx: S => AB(S, 10, { d: { honor: 2, trust: 1 } }, { d: { honor: 1, trust: 1 } }) },
+  { id: 's10storm', type: 'storm', act: 3, img: 's10-divine-wind.jpg' },
+
+  { id: 'petition', type: 'petition', act: 3, img: 's11-petition.jpg' },
+  { id: 'ledger4', type: 'ledger', act: 3,
+    fx: () => ({ ledger: { gen: 3, gave: 'gaveAll', got: 'gotDash', moved: false } }) },   /* never moves, on any path */
+
+  { id: 'evidence', type: 'evidence', act: 3 },
+  { id: 'epilogue', type: 'epilogue', act: 3 },
+  { id: 'end', type: 'end', act: 3, img: 's12-ledger-end.jpg' }
+];
+const INDEX = {};
+PAGES.forEach((p, i) => { INDEX[p.id] = i; });
+
+/* ---------- State ---------- */
+function freshState() {
+  return {
+    lang: 'en',
+    page: 'p00',
+    step: 0,                      // position inside a page that reveals itself in steps
+    history: [],
+    stats: { ...START },
+    flags: { PROMISE: false, SIDE: null, RETAINERS: false, SUMMONS: null, ZEN: false },
+    choices: {},
+    ledger: [],
+    riceZeroNoted: false
+  };
+}
+let state = freshState();
+
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* storage unavailable: play on */ }
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (!raw) return;
+    const s = JSON.parse(raw);
+    if (!s || !(s.page in INDEX)) return;
+    state = Object.assign(freshState(), s);
+    if (state.lang !== 'es') state.lang = 'en';
+    if (!state.choices || typeof state.choices !== 'object') state.choices = {};
+  } catch (e) { state = freshState(); }
+}
+
+/* ---------- Stat engine ----------
+   Stats, flags and the ledger are always rebuilt from the choices made so far,
+   so Back, refresh and the teacher jump menu can never leave them out of step. */
+const clamp = (v, k) => Math.max(0, Math.min(STATS[k].max, v));
+
+function replay(upto, choices) {
+  const S = {
+    stats: { ...START },
+    flags: { PROMISE: false, SIDE: null, RETAINERS: false, SUMMONS: null, ZEN: false },
+    ledger: [],
+    choices: choices || state.choices
+  };
+  let pending = false, noted = false, out = null;
+  for (let i = 0; i <= upto; i++) {
+    const p = PAGES[i];
+    const before = { ...S.stats };
+    const deltas = [];
+    const r = p.fx ? (p.fx(S) || {}) : {};
+    STAT_KEYS.forEach(k => {
+      if (r.d && r.d[k]) {
+        S.stats[k] = clamp(S.stats[k] + r.d[k], k);
+        deltas.push({ stat: k, up: r.d[k] > 0, text: (r.d[k] > 0 ? '+' : '−') + Math.abs(r.d[k]) });
+      }
+      if (r.set && k in r.set) {
+        const v = clamp(r.set[k], k);
+        deltas.push({ stat: k, up: v > S.stats[k], text: '= ' + v });
+        S.stats[k] = v;
+      }
+    });
+    if (r.halve) {
+      S.stats.trust = Math.floor(S.stats.trust / 2);
+      deltas.push({ stat: 'trust', up: false, text: '÷ 2' });
+    }
+    if (r.flags) Object.assign(S.flags, r.flags);
+    if (r.ledger) S.ledger.push(r.ledger);
+    /* Rice at 0: one line on the next consequence page, once per occurrence */
+    if (before.rice > 0 && S.stats.rice === 0) pending = true;
+    let note = false;
+    if (pending && p.type === 'consequence' && !p.plain) { note = true; pending = false; noted = true; }
+    if (i === upto) out = { S, before, after: { ...S.stats }, deltas, note, noted };
+  }
+  return out;
+}
+
+/* ---------- Helpers ---------- */
+const $ = id => document.getElementById(id);
+const stage = $('stage');
+const L = o => (o && o[state.lang] != null ? o[state.lang] : '');
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const T = o => esc(L(o));
+const pageIndex = () => INDEX[state.page];
+let V = null;            // result of replay() for the page on screen
+let totalSteps = 1;
+let chunks = null;       // paragraph groups when a long page is split to fit the screen
+let timers = [];
+const later = (ms, fn) => { timers.push(setTimeout(fn, ms)); };
+const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+
+function frame(p, S) {
+  const file = typeof p.img === 'function' ? p.img(S) : p.img;
+  const c = C[p.id] || {};
+  const alt = c.title ? L(c.title) : L(C.ui.imageAlt);
+  return `<div class="frame"><div class="ph"><span>${ACT_MARK[p.act]}</span></div>` +
+         `<img loading="lazy" src="images/${file}" alt="${esc(alt)}"></div>`;
+}
+const parasOf = (p, S) => (p.paras ? p.paras(S) : (C[p.id].paras || []));
+const parasHtml = list => list.map(x => `<p>${T(x)}</p>`).join('');
+
+function chipsHtml(deltas, noteText) {
+  if (!deltas.length && !noteText) return '';
+  const chips = deltas.map((d, i) =>
+    `<li class="chip ${d.up ? 'up' : 'down'}" style="animation-delay:${350 + i * 400}ms">` +
+    `<span class="jp">${STATS[d.stat].mark}</span>${T(C.ui[d.stat])} ${d.text}</li>`).join('');
+  const note = noteText ? `<li class="note">${esc(noteText)}</li>` : '';
+  return `<ul class="deltas">${chips}${note}</ul>`;
+}
+
+function arrowHtml(e) {
+  return `<span class="arrow${e.moved ? ' moved' : ''}${e.small ? ' small' : ''}"><i></i>` +
+         (e.promised ? `<em>${T(C.ui.promised)}</em>` : '') + `</span>`;
+}
+function ledgerHead() {
+  return `<div class="lhead"><span>${T(C.ui.gaveHead)}</span><span></span><span>${T(C.ui.gotHead)}</span></div>`;
+}
+function ledgerRow(e) {
+  return `<div class="lrow"><span class="gave">${T(C.ledger[e.gave])}</span>${arrowHtml(e)}` +
+         `<span class="got${e.promised ? ' promised' : ''}">${T(C.ledger[e.got])}</span></div>`;
+}
+
+/* ---------- Page renderers, one per page type ---------- */
+const RENDER = {
+  title(p, S) {
+    const c = C.p00;
+    return `<div class="page split titlepage">${frame(p, S)}<div class="text">
+      <h1>${T(c.title)}</h1><div class="seal jp" aria-hidden="true">${OATH_MARK}</div>
+      <p class="tag">${T(c.tagline)}</p>
+      <button type="button" class="big" id="beginBtn">${T(C.ui.begin)}</button></div></div>`;
+  },
+  intro(p, S) {
+    return `<div class="page"><div class="text center" data-pg>${parasHtml(parasOf(p, S))}</div></div>`;
+  },
+  stats(p) {
+    const c = C.p02;
+    const cards = STAT_KEYS.map((k, i) =>
+      `<div class="statcard${i > state.step ? ' off' : ''}"><h2><span class="jp">${STATS[k].mark}</span>${T(C.ui[k])}</h2>` +
+      `<p>${T(c.cards[i])}</p></div>`).join('');
+    return `<div class="page"><h1 style="text-align:center">${T(c.title)}</h1>
+      <div class="statcards">${cards}</div>
+      <p class="closing${state.step < 2 ? ' off' : ''}">${T(c.closing)}</p></div>`;
+  },
+  story(p, S) {
+    const c = C[p.id];
+    const lead = c.lead ? `<p class="lead">${T(c.lead)}</p>` : '';
+    return `<div class="page split">${frame(p, S)}<div class="text">
+      <h1>${T(c.title)}</h1>${c.when ? `<div class="when">${T(c.when)}</div>` : ''}
+      <div data-pg>${lead}${parasHtml(parasOf(p, S))}${chipsHtml(V.deltas, c.note ? L(c.note) : '')}</div></div></div>`;
+  },
+  petition(p, S) { return RENDER.story(p, S); },
+  inherit(p, S) { return RENDER.story(p, S); },
+  decision(p, S) {
+    const c = p.content ? p.content(S) : C[p.id];
+    const chosen = state.choices['s' + p.scene];
+    const locked = chosen && !TEACHER;
+    const card = k => `<button type="button" class="card${chosen === k ? ' chosen' : ''}" data-choice="${k}"${locked ? ' disabled' : ''}>
+      <span class="chead"><span class="badge">${k}</span><span class="ct">${T(c[k].title)}</span></span>
+      <span class="cx">${T(c[k].text)}</span>${chosen === k ? `<span class="yours">${T(C.ui.yourChoice)}</span>` : ''}</button>`;
+    return `<div class="page decision"><p class="situation" id="situation" tabindex="-1">${T(c.situation)}</p>
+      <div class="cards">${card('A')}${card('B')}</div></div>`;
+  },
+  consequence(p, S) {
+    const tail = p.plain ? '' :
+      (V.deltas.length ? chipsHtml(V.deltas) : `<ul class="deltas"><li class="chip none">${T(C.ui.noChange)}</li></ul>`) +
+      (V.note ? `<p class="ricezero">${T(C.ui.riceZero)}</p>` : '');
+    return `<div class="page"><div class="text center" data-pg>${parasHtml(parasOf(p, S))}${tail}</div></div>`;
+  },
+  ledger(p, S) {
+    const c = C[p.id] || {};
+    const entry = S.ledger[S.ledger.length - 1];
+    const rows = S.ledger.filter(e => e.gen === entry.gen).map(ledgerRow).join('');
+    let top = '';
+    if (c.intro) top = `<p class="intro">${T(c.intro)}</p>`;
+    if (p.id === 'act2close') top = `<p class="intro">${T(entry.moved ? c.granted : c.none)}</p>`;
+    const lines = c.lines
+      ? `<div class="lines">${c.lines.map((x, i) => `<p${i >= state.step ? ' class="off"' : ''}>${T(x)}</p>`).join('')}</div>` : '';
+    return `<div class="page ledger"><div class="seal jp" aria-hidden="true">${OATH_MARK}</div>
+      <h1>${T(C.ui.ledgerTitle)}</h1>${top}
+      <div class="lgrid">${ledgerHead()}${rows}</div>${chipsHtml(V.deltas)}${lines}</div>`;
+  },
+  code() {
+    const c = C.code;
+    const rows = c.rows.map(r => `<div class="coderow"><span class="k jp" aria-hidden="true">${r.kanji}</span>
+      <span><strong>${T(r.name)}</strong> — ${T(r.text)} <span class="ref">${T(r.ref)}</span></span></div>`).join('');
+    return `<div class="page"><div class="text center"><h1>${T(c.title)}</h1><p>${T(c.intro)}</p>
+      <div class="codes">${rows}</div><p>${T(c.closing)}</p></div></div>`;
+  },
+  storm(p, S) {
+    const c = C[p.id];
+    return `<div class="page wide">${frame(p, S)}<div class="text">
+      ${c.title ? `<h1>${T(c.title)}</h1>` : ''}<div data-pg>${parasHtml(c.paras)}</div></div></div>`;
+  },
+  evidence() {
+    const c = C.evidence;
+    return `<div class="page evidence"><h1>${T(c.title)}</h1>
+      <table class="ev"><thead><tr>${c.heads.map(h => `<th scope="col">${T(h)}</th>`).join('')}</tr></thead>
+      <tbody>${c.rows.map(r => `<tr>${r.map(x => `<td>${T(x)}</td>`).join('')}</tr>`).join('')}</tbody></table>
+      <div class="evfoot"><button type="button" id="copyBtn">${T(C.ui.copyAll)}</button><p>${T(c.foot)}</p></div></div>`;
+  },
+  epilogue(p, S) {
+    const c = C.epilogue;
+    return `<div class="page"><div class="text center"><h1>${T(c.title)}</h1><div data-pg>${parasHtml(c.paras)}</div></div></div>`;
+  },
+  end(p, S) {
+    const c = C.end;
+    const gen2 = S.ledger.find(e => e.gen === 2) || {};
+    const got = [c.rows[0].got, gen2.moved ? c.rows[1].gotField : c.rows[1].gotNothing, c.rows[2].got];
+    const moved = [true, !!gen2.moved, false];
+    const rows = c.rows.map((r, i) => `<div class="lgen">${T(C.ui['gen' + (i + 1)])}</div>
+      <div class="lrow"><span class="gave">${T(r.gave)}</span>${arrowHtml({ moved: moved[i], small: i === 1 })}<span class="got">${T(got[i])}</span></div>`).join('');
+    return `<div class="page end ledger">${frame(p, S)}
+      <div class="lgrid">${ledgerHead()}${rows}</div>
+      <p class="thanks">${T(c.thanks)}</p>
+      <button type="button" class="big" id="taskBtn">${T(c.openTask)}</button>
+      <p class="credits">${T(c.credits)}</p></div>`;
+  }
+};
+
+/* ---------- Fitting long pages: split paragraphs across steps instead of scrolling ---------- */
+const overflows = () => stage.scrollHeight > stage.clientHeight + 2;
+function paginate() {
+  chunks = null;
+  const box = stage.querySelector('[data-pg]');
+  if (!box) return 1;
+  const items = Array.from(box.children);
+  if (items.length < 2 || !overflows()) return 1;
+  const out = [];
+  let start = 0;
+  while (start < items.length) {
+    items.forEach(el => { el.hidden = true; });
+    let end = start;
+    while (end < items.length) {
+      items[end].hidden = false;
+      if (end > start && overflows()) { items[end].hidden = true; break; }
+      end++;
+    }
+    out.push([start, end]);
+    start = end;
+  }
+  /* keep the stat chips with the paragraph before them */
+  chunks = out;
+  return out.length;
+}
+function showChunk() {
+  if (!chunks) return;
+  const items = Array.from(stage.querySelector('[data-pg]').children);
+  const [a, b] = chunks[state.step];
+  items.forEach((el, i) => { el.hidden = i < a || i >= b; });
+}
+
+/* ---------- Top strip ---------- */
+function buildStats() {
+  $('stats').innerHTML = STAT_KEYS.map(k =>
+    `<div class="stat" data-stat="${k}"><span class="mark jp" aria-hidden="true">${STATS[k].mark}</span>` +
+    `<span class="lbl"></span><span class="bar"><i></i></span><span class="num"></span><span class="tag"></span></div>`).join('');
+}
+const statEl = k => document.querySelector(`.stat[data-stat="${k}"]`);
+function setBars(vals) {
+  STAT_KEYS.forEach(k => {
+    const el = statEl(k);
+    el.querySelector('.bar i').style.width = (100 * vals[k] / STATS[k].max) + '%';
+    el.querySelector('.num').textContent = vals[k];
+  });
+}
+function showTag(d) {
+  const tag = statEl(d.stat).querySelector('.tag');
+  tag.textContent = d.text;
+  tag.className = 'tag show ' + (d.up ? 'up' : 'down');
+}
+function showStats(animate) {
+  STAT_KEYS.forEach(k => { statEl(k).querySelector('.tag').className = 'tag'; });
+  if (!V.deltas.length) { setBars(V.after); return; }
+  if (!animate || REDUCED) { setBars(V.after); V.deltas.forEach(showTag); return; }
+  /* one change at a time, 400ms apart: the tag appears, then the bar fills or empties */
+  const cur = { ...V.before };
+  setBars(cur);
+  V.deltas.forEach((d, i) => later(350 + i * 400, () => {
+    showTag(d);
+    later(250, () => { cur[d.stat] = V.after[d.stat]; setBars(cur); });
+  }));
+}
+
+function renderChrome(p, animate) {
+  const idx = pageIndex();
+  $('where').innerHTML = ACT_MARK[p.act] + (p.scene ? `<span class="sc">·${p.scene}</span>` : '');
+  /* stat bars stay hidden until the "Three things to watch" page introduces them */
+  const visible = idx < INDEX.p02 ? 0 : (p.id === 'p02' ? state.step + 1 : 3);
+  STAT_KEYS.forEach((k, i) => {
+    const el = statEl(k);
+    el.classList.toggle('off', i >= visible);
+    el.querySelector('.lbl').textContent = L(C.ui[k]);
+    el.setAttribute('aria-label', L(C.ui[k]) + ' ' + V.after[k] + ' / ' + STATS[k].max);
+  });
+  showStats(animate);
+  const oath = $('oathBtn');
+  oath.textContent = OATH_MARK;
+  oath.setAttribute('aria-label', L(C.ui.openLedger));
+  oath.title = L(C.ui.openLedger);
+  $('backBtn').textContent = L(C.ui.back);
+  $('backBtn').disabled = idx === 0 && state.step === 0;
+  $('nextBtn').textContent = L(C.ui.next);
+  const undecided = p.type === 'decision' && !state.choices['s' + p.scene];
+  $('nextBtn').disabled = undecided || (idx === PAGES.length - 1 && state.step >= totalSteps - 1);
+  $('langBtn').innerHTML = state.lang === 'en'
+    ? `<b>${T(C.ui.langEN)}</b> / ${T(C.ui.langES)}` : `${T(C.ui.langEN)} / <b>${T(C.ui.langES)}</b>`;
+  $('langBtn').setAttribute('aria-label', L(C.ui.langLabel));
+  updateTts();
+  if (TEACHER) {
+    $('jumpLbl').textContent = L(C.ui.jump);
+    $('jumpSel').value = p.id;
+  }
+}
+
+/* ---------- Render ---------- */
+function render(animate) {
+  clearTimers();
+  stopSpeech();
+  const idx = pageIndex();
+  const p = PAGES[idx];
+  V = replay(idx);
+  state.stats = V.after;
+  state.flags = V.S.flags;
+  state.ledger = V.S.ledger;
+  state.riceZeroNoted = V.noted;
+  state.history = PAGES.slice(0, idx).map(x => x.id);
+
+  document.documentElement.lang = state.lang;
+  document.title = L(C.ui.docTitle);
+
+  /* Act 3 look: the paper and frame shift on the second inheritance page */
+  if (p.id === 'inherit2' && animate && !REDUCED) {
+    document.body.dataset.act = '2';
+    later(1200, () => { document.body.dataset.act = '3'; });
+  } else {
+    document.body.dataset.act = String(p.act);
+  }
+
+  if (p.type === 'stats') state.step = Math.min(state.step, 2);
+  if (p.id === 'ledger4') state.step = Math.min(state.step, C.ledger4.lines.length);
+  stage.innerHTML = RENDER[p.type](p, V.S);
+  stage.scrollTop = 0;
+  stage.querySelectorAll('.frame img').forEach(img => {
+    img.addEventListener('error', () => img.remove());   // missing file: the placeholder behind it shows
+  });
+
+  chunks = null;
+  if (p.type === 'stats') totalSteps = 3;
+  else if (p.id === 'ledger4') totalSteps = C.ledger4.lines.length + 1;
+  else totalSteps = paginate();
+  state.step = Math.max(0, Math.min(state.step, totalSteps - 1));
+  showChunk();
+
+  renderChrome(p, animate);
+  save();
+
+  const begin = $('beginBtn'), sit = $('situation');
+  if (sit) sit.focus({ preventScroll: true });
+  else if (begin) begin.focus({ preventScroll: true });
+  else if (!$('nextBtn').disabled) $('nextBtn').focus({ preventScroll: true });
+}
+
+/* ---------- Navigation ---------- */
+function next() {
+  if (!$('overlay').hidden) return;
+  if (state.step < totalSteps - 1) { state.step++; render(false); return; }
+  const idx = pageIndex(), p = PAGES[idx];
+  if (p.type === 'decision' && !state.choices['s' + p.scene]) return;
+  if (idx >= PAGES.length - 1) return;
+  state.page = PAGES[idx + 1].id;
+  state.step = 0;
+  render(true);
+}
+function back() {
+  if (!$('overlay').hidden) return;
+  if (state.step > 0) { state.step--; render(false); return; }
+  const idx = pageIndex();
+  if (idx === 0) return;
+  state.page = PAGES[idx - 1].id;
+  state.step = 99;                // land on the last step of the page before
+  render(false);
+}
+function choose(k) {
+  const p = PAGES[pageIndex()];
+  if (p.type !== 'decision' || !$('overlay').hidden) return;
+  const key = 's' + p.scene;
+  if (state.choices[key] && !TEACHER) return;      // a choice, once made, is made
+  state.choices[key] = k;
+  state.page = PAGES[pageIndex() + 1].id;
+  state.step = 0;
+  render(true);
+}
+function jump(id) {
+  if (!(id in INDEX)) return;
+  PAGES.slice(0, INDEX[id]).forEach(p => {
+    if (p.type === 'decision' && !state.choices['s' + p.scene]) state.choices['s' + p.scene] = 'A';
+  });
+  state.page = id;
+  state.step = 0;
+  render(false);
+}
+
+/* ---------- Read aloud ---------- */
+let speaking = false;
+function stopSpeech() {
+  speaking = false;
+  try { if ('speechSynthesis' in window) window.speechSynthesis.cancel(); } catch (e) {}
+}
+function updateTts() {
+  $('ttsBtn').textContent = L(speaking ? C.ui.stop : C.ui.readAloud);
+  $('ttsBtn').disabled = !('speechSynthesis' in window);
+}
+function readAloud() {
+  if (!('speechSynthesis' in window)) return;
+  if (speaking) { stopSpeech(); updateTts(); return; }
+  const text = (stage.innerText || stage.textContent || '').replace(/\s+/g, ' ').trim();
+  if (!text) return;
+  const u = new SpeechSynthesisUtterance(text);
+  const want = state.lang === 'es' ? 'es-MX' : 'en-US';
+  const short = want.slice(0, 2);
+  const voices = window.speechSynthesis.getVoices() || [];
+  const voice = voices.find(v => v.lang.replace('_', '-') === want) || voices.find(v => v.lang.slice(0, 2) === short);
+  if (voice) u.voice = voice;
+  u.lang = voice ? voice.lang : want;
+  u.rate = 0.95;
+  u.onend = u.onerror = () => { speaking = false; updateTts(); };
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+  speaking = true;
+  updateTts();
+}
+
+/* ---------- Ledger overlay (誓 button) ---------- */
+function openLedger() {
+  const groups = [1, 2, 3].map(g => {
+    const rows = state.ledger.filter(e => e.gen === g);
+    return rows.length ? `<div class="lgen">${T(C.ui['gen' + g])}</div>${rows.map(ledgerRow).join('')}` : '';
+  }).join('');
+  $('overlay').innerHTML = `<div class="sheet ledger"><div class="seal jp" aria-hidden="true">${OATH_MARK}</div>
+    <h1>${T(C.ui.ledgerTitle)}</h1>
+    ${groups ? `<div class="lgrid">${ledgerHead()}${groups}</div>` : `<p class="intro">${T(C.ui.ledgerEmpty)}</p>`}
+    <div class="closeRow"><button type="button" id="closeBtn">${T(C.ui.close)}</button></div></div>`;
+  $('overlay').hidden = false;
+  $('closeBtn').focus();
+}
+function closeLedger() {
+  if ($('overlay').hidden) return;
+  $('overlay').hidden = true;
+  $('overlay').innerHTML = '';
+  $('oathBtn').focus();
+}
+
+/* ---------- Evidence: copy the three rows as plain text ---------- */
+function copyEvidence(btn) {
+  const c = C.evidence;
+  const text = [c.heads.map(L).join('\t')].concat(c.rows.map(r => r.map(L).join('\t'))).join('\n');
+  const done = () => { btn.textContent = L(C.ui.copied); later(1800, () => { btn.textContent = L(C.ui.copyAll); }); };
+  const fallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) {}
+    ta.remove();
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
+  else fallback();
+}
+
+/* ---------- Events ---------- */
+$('nextBtn').addEventListener('click', next);
+$('backBtn').addEventListener('click', back);
+$('ttsBtn').addEventListener('click', readAloud);
+$('oathBtn').addEventListener('click', openLedger);
+$('langBtn').addEventListener('click', () => { state.lang = state.lang === 'en' ? 'es' : 'en'; render(false); });
+$('jumpSel').addEventListener('change', e => jump(e.target.value));
+$('overlay').addEventListener('click', e => { if (e.target.id === 'overlay' || e.target.id === 'closeBtn') closeLedger(); });
+stage.addEventListener('click', e => {
+  const card = e.target.closest('.card');
+  if (card && !card.disabled) { choose(card.dataset.choice); return; }
+  if (e.target.id === 'beginBtn') next();
+  if (e.target.id === 'copyBtn') copyEvidence(e.target);
+  if (e.target.id === 'taskBtn') window.open('writing-task.html', '_blank');
+});
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === 'Escape') { closeLedger(); return; }
+  if (e.target && /^(SELECT|INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if (e.key === 'ArrowLeft') { e.preventDefault(); back(); return; }
+  const k = e.key.toUpperCase();
+  if (k === 'A' || k === 'B') choose(k);
+});
+let resizeTimer = null;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => render(false), 150);
+});
+
+/* ---------- Start ---------- */
+(function init() {
+  if (PARAMS.get('reset') === '1') {
+    try { localStorage.removeItem(STORE_KEY); } catch (e) {}
+    PARAMS.delete('reset');
+    const q = PARAMS.toString();
+    try { history.replaceState(null, '', location.pathname + (q ? '?' + q : '')); } catch (e) {}
+  } else {
+    load();
+  }
+  buildStats();
+  if (TEACHER) {
+    $('jumpSel').innerHTML = PAGES.map(p => `<option value="${p.id}">${p.id}</option>`).join('');
+    $('jumpWrap').hidden = false;
+  }
+  render(false);
+  /* web fonts change line lengths: fit the page again once they arrive */
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => render(false));
+})();
+
+/* for the QA scripts */
+window.OATH = { CONTENT, PAGES, replay, START, STATS, getState: () => state, next, back, choose, jump };
+</script>
+</body>
+</html>
