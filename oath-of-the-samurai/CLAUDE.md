@@ -219,6 +219,27 @@ Midjourney prompts share one suffix so the set matches: `--ar 16:9 --style raw -
 
 The epilogue page has no image.
 
+## 9a. Consequence images (added Oct 12)
+
+Consequence pages use the same split layout as story pages (illustration left 44%, text right), with one image per outcome. The decision page stays image-free. Scene 10's image is shared by the zen/nozen variants; the Scene 3 closing page has one shared image.
+
+| Page | Filename (by choice) |
+|---|---|
+| s1-cons | s01-cons-a.jpg / s01-cons-b.jpg |
+| s2-cons | s02-cons-a.jpg / s02-cons-b.jpg |
+| s3-cons (minamoto) | s03m-cons-a.jpg / s03m-cons-b.jpg |
+| s3-cons (taira) | s03t-cons-a.jpg / s03t-cons-b.jpg |
+| s3-close | s03-close.jpg |
+| s4-cons | s04-cons-a.jpg / s04-cons-b.jpg |
+| s5-cons | s05-cons-a.jpg / s05-cons-b.jpg |
+| s6-cons | s06-cons-a.jpg / s06-cons-b.jpg |
+| s7-cons | s07-cons-a.jpg / s07-cons-b.jpg |
+| s8-cons | s08-cons-a.jpg / s08-cons-b.jpg |
+| s9-cons | s09-cons-a.jpg / s09-cons-b.jpg |
+| s10-cons | s10-cons-a.jpg / s10-cons-b.jpg |
+
+Implementation: add an `img` function to each consequence page in PAGES that returns the filename for `pick(S, n)` (and `S.flags.SIDE` for s3), and have the consequence renderer use the story page's split layout. The placeholder rule in §8 still applies, so the page is finished before any file exists. The teacher generates these as PNG; `scripts/optimize-images.sh` converts them.
+
 ---
 
 ## 10. Page text (English; Claude Code translates per §7)

@@ -867,6 +867,8 @@ const TEACHER = PARAMS.get('teacher') === '1';
 const REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
 const pick = (S, n) => S.choices['s' + n] || 'A';
+/* consequence illustration: one file per outcome, e.g. s05-cons-a.jpg (§9a) */
+const consImg = (n, prefix) => S => `${prefix}-cons-${pick(S, n).toLowerCase()}.jpg`;
 const AB = (S, n, a, b) => (pick(S, n) === 'A' ? a : b);
 /* join sentences into one paragraph, in both languages */
 const cat = (...parts) => ({ en: parts.map(p => p.en).join(' '), es: parts.map(p => p.es).join(' ') });
@@ -883,7 +885,7 @@ const PAGES = [
   /* Scene 1 */
   { id: 's1-story', type: 'story', act: 1, scene: 1, img: 's01-lords-offer.jpg' },
   { id: 's1-decision', type: 'decision', act: 1, scene: 1 },
-  { id: 's1-cons', type: 'consequence', act: 1, scene: 1,
+  { id: 's1-cons', type: 'consequence', act: 1, scene: 1, img: consImg(1, 's01'),
     paras: S => C['s1-cons'][pick(S, 1)],
     fx: S => AB(S, 1, { d: { trust: 1, rice: 2 } }, { d: { trust: 2 }, flags: { PROMISE: true } }) },
   { id: 'ledger1', type: 'ledger', act: 1,
@@ -892,7 +894,7 @@ const PAGES = [
   /* Scene 2 */
   { id: 's2-story', type: 'story', act: 1, scene: 2, img: 's02-two-banners.jpg' },
   { id: 's2-decision', type: 'decision', act: 1, scene: 2 },
-  { id: 's2-cons', type: 'consequence', act: 1, scene: 2,
+  { id: 's2-cons', type: 'consequence', act: 1, scene: 2, img: consImg(2, 's02'),
     paras: S => C['s2-cons'][pick(S, 2)],
     fx: S => AB(S, 2,
       { d: { honor: 1, trust: 1 }, flags: { SIDE: 'minamoto' } },
@@ -905,11 +907,12 @@ const PAGES = [
     fx: () => ({ d: { rice: -1 } }) },
   { id: 's3-decision', type: 'decision', act: 1, scene: 3, content: S => C['s3-decision'][S.flags.SIDE] },
   { id: 's3-cons', type: 'consequence', act: 1, scene: 3,
+    img: S => consImg(3, S.flags.SIDE === 'taira' ? 's03t' : 's03m')(S),
     paras: S => C['s3-cons'][S.flags.SIDE][pick(S, 3)],
     fx: S => (S.flags.SIDE === 'taira'
       ? AB(S, 3, { d: { honor: 2, rice: -1 } }, { d: { honor: -1, trust: 1 } })
       : AB(S, 3, { d: { honor: 1 } }, { d: { trust: 1 } })) },
-  { id: 's3-close', type: 'consequence', act: 1, scene: 3, plain: true },
+  { id: 's3-close', type: 'consequence', act: 1, scene: 3, plain: true, img: 's03-close.jpg' },
 
   /* Scene 4 */
   { id: 's4-story', type: 'story', act: 1, scene: 4, img: 's04-oath-kamakura.jpg',
@@ -921,7 +924,7 @@ const PAGES = [
     },
     fx: S => ({ d: { rice: S.flags.SIDE === 'taira' ? 2 : (S.flags.PROMISE ? 5 : 4) } }) },
   { id: 's4-decision', type: 'decision', act: 1, scene: 4 },
-  { id: 's4-cons', type: 'consequence', act: 1, scene: 4,
+  { id: 's4-cons', type: 'consequence', act: 1, scene: 4, img: consImg(4, 's04'),
     paras: S => C['s4-cons'][pick(S, 4)],
     fx: S => AB(S, 4, {}, { d: { rice: -1 }, flags: { RETAINERS: true } }) },
   { id: 'ledger2', type: 'ledger', act: 1,
@@ -931,7 +934,7 @@ const PAGES = [
   /* Scene 5 */
   { id: 's5-story', type: 'story', act: 2, scene: 5, img: 's05-summons.jpg' },
   { id: 's5-decision', type: 'decision', act: 2, scene: 5 },
-  { id: 's5-cons', type: 'consequence', act: 2, scene: 5,
+  { id: 's5-cons', type: 'consequence', act: 2, scene: 5, img: consImg(5, 's05'),
     paras: S => C['s5-cons'][pick(S, 5)],
     fx: S => AB(S, 5,
       { d: { trust: 2, rice: -1 }, flags: { SUMMONS: 'self' } },
@@ -940,7 +943,7 @@ const PAGES = [
   /* Scene 6 */
   { id: 's6-story', type: 'story', act: 2, scene: 6, img: 's06-boundary-stones.jpg' },
   { id: 's6-decision', type: 'decision', act: 2, scene: 6 },
-  { id: 's6-cons', type: 'consequence', act: 2, scene: 6,
+  { id: 's6-cons', type: 'consequence', act: 2, scene: 6, img: consImg(6, 's06'),
     paras: S => C['s6-cons'][pick(S, 6)],
     fx: S => AB(S, 6, { d: { honor: 1, trust: -2 } }, { d: { trust: 1, rice: 1 } }) },
 
@@ -949,7 +952,7 @@ const PAGES = [
   /* Scene 7 */
   { id: 's7-story', type: 'story', act: 2, scene: 7, img: 's07-zen-monk.jpg' },
   { id: 's7-decision', type: 'decision', act: 2, scene: 7 },
-  { id: 's7-cons', type: 'consequence', act: 2, scene: 7,
+  { id: 's7-cons', type: 'consequence', act: 2, scene: 7, img: consImg(7, 's07'),
     paras: S => C['s7-cons'][pick(S, 7)],
     fx: S => AB(S, 7, { d: { honor: 1, rice: -1 }, flags: { ZEN: true } }, { d: { rice: 1 }, flags: { ZEN: false } }) },
   { id: 'act2close', type: 'ledger', act: 2,
@@ -964,7 +967,7 @@ const PAGES = [
     paras: S => { const c = C['s8-story']; return [c.open, c[S.flags.SUMMONS], c.close]; },
     fx: S => ({ d: { trust: S.flags.SUMMONS === 'self' ? 1 : -1, rice: -1 } }) },
   { id: 's8-decision', type: 'decision', act: 3, scene: 8 },
-  { id: 's8-cons', type: 'consequence', act: 3, scene: 8,
+  { id: 's8-cons', type: 'consequence', act: 3, scene: 8, img: consImg(8, 's08'),
     paras: S => C['s8-cons'][pick(S, 8)],
     fx: S => AB(S, 8, { d: { honor: 2, rice: -2 } }, { d: { trust: 1, rice: -1 } }) },
   { id: 's8storm', type: 'storm', act: 3, img: 's08-storm.jpg' },
@@ -974,7 +977,7 @@ const PAGES = [
     paras: S => { const c = C['s9-story']; return [...c.open, S.flags.RETAINERS ? c.retainers : c.noretainers, c.close]; },
     fx: S => ({ d: { rice: S.flags.RETAINERS ? -1 : -2 } }) },
   { id: 's9-decision', type: 'decision', act: 3, scene: 9 },
-  { id: 's9-cons', type: 'consequence', act: 3, scene: 9,
+  { id: 's9-cons', type: 'consequence', act: 3, scene: 9, img: consImg(9, 's09'),
     paras: S => C['s9-cons'][pick(S, 9)],
     fx: S => AB(S, 9, { d: { trust: 1, rice: -1 } }, {}) },
   { id: 'ledger3', type: 'ledger', act: 3,
@@ -985,7 +988,7 @@ const PAGES = [
     paras: S => { const c = C['s10-story']; return [...c.open, S.flags.RETAINERS ? c.retainers : c.noretainers]; },
     fx: () => ({ d: { rice: -1 } }) },
   { id: 's10-decision', type: 'decision', act: 3, scene: 10 },
-  { id: 's10-cons', type: 'consequence', act: 3, scene: 10,
+  { id: 's10-cons', type: 'consequence', act: 3, scene: 10, img: consImg(10, 's10'),
     paras: S => {
       const c = C['s10-cons'];
       if (pick(S, 10) === 'B') return c.B;
@@ -1170,7 +1173,9 @@ const RENDER = {
     const tail = p.plain ? '' :
       (V.deltas.length ? chipsHtml(V.deltas) : `<ul class="deltas"><li class="chip none">${T(C.ui.noChange)}</li></ul>`) +
       (V.note ? `<p class="ricezero">${T(C.ui.riceZero)}</p>` : '');
-    return `<div class="page"><div class="text center" data-pg>${parasHtml(parasOf(p, S))}${tail}</div></div>`;
+    const body = `${parasHtml(parasOf(p, S))}${tail}`;
+    if (p.img) return `<div class="page split">${frame(p, S)}<div class="text"><div data-pg>${body}</div></div></div>`;
+    return `<div class="page"><div class="text center" data-pg>${body}</div></div>`;
   },
   ledger(p, S) {
     const c = C[p.id] || {};

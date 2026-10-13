@@ -53,7 +53,20 @@ To add or replace a picture, save it into `images/` under the exact filename bel
 | Petition | `s11-petition.jpg` | in place (scroll panel) |
 | End | `s12-ledger-end.jpg` | in place (scroll panel) |
 
-All eighteen pictures are in place. The Midjourney prompts used for the thirteen painted ones are in `CLAUDE.md` §9. The original Midjourney PNGs are kept in `images-source/`, which is not committed to the repo.
+All eighteen story pictures are in place. The Midjourney prompts used for the thirteen painted ones are in `CLAUDE.md` §9. The original Midjourney PNGs are kept in `images-source/`, which is not committed to the repo.
+
+### Consequence pictures
+
+Each consequence page also has a picture, one per outcome, shown in the same left-picture, right-text layout as the story pages. The file is chosen by the student's choice (`-a` or `-b`), and for Scene 3 by which side they fought on (`s03m` Minamoto, `s03t` Taira). All twenty-three are in place.
+
+| Page | Files |
+|---|---|
+| Scene 1 | `s01-cons-a.jpg`, `s01-cons-b.jpg` |
+| Scene 2 | `s02-cons-a.jpg`, `s02-cons-b.jpg` |
+| Scene 3, Minamoto path | `s03m-cons-a.jpg`, `s03m-cons-b.jpg` |
+| Scene 3, Taira path | `s03t-cons-a.jpg`, `s03t-cons-b.jpg` |
+| Scene 3, closing page | `s03-close.jpg` |
+| Scenes 4–10 | `s04-cons-a.jpg` … `s10-cons-b.jpg` (same pattern) |
 
 ### Optimizing
 
