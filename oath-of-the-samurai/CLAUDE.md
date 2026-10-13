@@ -616,11 +616,11 @@ Spanish page: same structure. "Práctica de razonamiento." Claim: "Los samuráis
 
 ## 12a. Family Scroll (`family-scroll.html`, added Oct 12)
 
-Printable companion students fill in *while* they play; the writing task comes after. Four letter pages in English, then the same four in Spanish, print-styled like the writing task. Same clarity rules and glossary as the game.
+Printable companion students fill in *while* they play; the writing task comes after. One sheet per student, front and back: two letter pages in English, then the same two in Spanish, print-styled like the writing task. Same clarity rules and glossary as the game. Keep it light: it is a game companion, not a worksheet (trimmed Oct 12 from four pages to two per language).
 
 - **Page 1:** the Yamabe crest (three mountains over waves, inline SVG in gray for tracing inside a bold ring) to trace and color, with three small circles 一 二 三 beneath it where the student draws what the lord gave in that act, or leaves it empty; a map of Japan (`images/japan-map.svg`, Commons CC BY-SA 3.0, credited on the sheet) with four numbered points the student matches to Hakata Bay, Dan-no-ura, Kyoto and Kamakura from clues in the story; a rice chart (0–10 by Start, Scenes 1–10, End) to plot after each scene.
-- **Pages 2–4:** one per act. Short find-it-on-screen questions, each labeled with the same season and year the game shows under the scene title ("Spring 1180", "November 1274"), the act's ledger (gave / got / did the arrow move), and a closing box on page 4 that leads into the three debrief questions.
-- Answer key lives in README. Verified with Chrome print-to-PDF: exactly 8 pages.
+- **Back:** all three acts on one page. Two short items per act, mostly fill-in-the-blank, each labeled with the same season and year the game shows under the scene title ("Spring 1180", "November 1274"); a one-line ledger per act (gave / got / did the arrow move) with the prompt to fill that act's circle; a bushido matching (four kanji to four words); and a closing box with the three debrief questions.
+- Answer key lives in README. Verified with Chrome print-to-PDF: exactly 4 pages.
 
 ## 13. Build order
 
