@@ -139,7 +139,7 @@ select { padding: 5px 8px; max-width: 170px; }
 }
 /* Act 3 scroll panels are shown whole, never cropped */
 body[data-act="3"] .split .frame img, .end .frame img { object-fit: contain; }
-.wide .frame { aspect-ratio: 21 / 9; width: min(100%, calc(40vh * 21 / 9)); margin: 0 auto 16px; }
+.wide .frame { aspect-ratio: 16 / 9; width: min(100%, calc(40vh * 16 / 9)); margin: 0 auto 16px; }
 .wide .text { margin: 0 auto; }
 
 /* stat changes listed in the page */
@@ -356,8 +356,8 @@ const CONTENT = {
 
   p01: {
     paras: [
-      { en: "You are Yamabe Tadayoshi. A nineteen-year-old living in the year 1180.",
-        es: "Eres Yamabe Tadayoshi. Un joven de diecinueve años que vive en el año 1180." },
+      { en: "You are Yamabe Tadayoshi. You are nineteen years old, and the year is 1180.",
+        es: "Eres Yamabe Tadayoshi. Tienes diecinueve años, y es el año 1180." },
       { en: "Your family farms a few small fields on the island of Kyushu, in the south of Japan, on a hillside that looks down on Hakata Bay. You can ride, shoot a bow from a moving horse, and carry a sword that was your grandfather's.",
         es: "Tu familia cultiva unos pocos campos pequeños en la isla de Kyushu, en el sur de Japón, en una ladera que mira hacia la bahía de Hakata. Sabes montar a caballo, disparar un arco desde un caballo en movimiento, y llevas una espada que fue de tu abuelo." },
       { en: "In this story you will make ten choices. Each one changes what happens next, and some of them will change what happens to your son and to your grandson. There is no wrong way to play. There are only the choices a samurai could really have made, and what came of them.",
@@ -865,7 +865,7 @@ const CONTENT = {
         got:  { en: "", es: "" } }
     ],
     thanks: { en: "Thank you for playing.", es: "Gracias por jugar." },
-    openTask: { en: "Open the writing task", es: "Abrir la tarea de escritura" },
+    openTask: { en: "Open the reasoning practice", es: "Abrir la práctica de razonamiento" },
     credits: { en: "Act 3 pictures: Mōko Shūrai Ekotoba (Illustrated Account of the Mongol Invasions), made for the samurai Takezaki Suenaga about 1293, now in the Museum of the Imperial Collections, Tokyo. Public domain, via Wikimedia Commons.",
                es: "Imágenes del Acto 3: Mōko Shūrai Ekotoba (Relato ilustrado de las invasiones mongolas), hecho para el samurái Takezaki Suenaga hacia 1293, hoy en el Museo de las Colecciones Imperiales, Tokio. Dominio público, vía Wikimedia Commons." }
   }
