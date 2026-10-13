@@ -15,12 +15,14 @@ Interactive story for the 7th-grade Feudal Japan unit (CA 7.5.3, 7.5.6). The stu
 
 `family-scroll.html` is the paper companion students keep beside the Chromebook. Print it two-sided: pages 1–4 are English, 5–8 are the same in Spanish, so each student gets two sheets. It is meant to be fun first and a study guide second:
 
-- **Page 1.** Draw a family crest (*mon*), match four numbered points on a map of Japan to the places in the story, and plot the family's rice after every scene on a chart. The crest gets one new mark at the end of each act.
+- **Page 1.** Trace and color the Yamabe family crest (*mon*): three mountains above the waves of Hakata Bay, since *Yamabe* means "mountainside." Under it are three small circles marked 一, 二, 三. At the end of each act the student draws in that act's circle the one thing the family got from its lord (rice sacks, a paper, a small field) or leaves it empty, so Act 3's empty circle shows the lesson at a glance. Then a map of Japan with four numbered points to match to the places in the story, and a rice chart to plot after every scene.
 - **Pages 2–4.** One page per act. Short "find it on the screen" questions keyed to the year, the act's oath ledger copied from the game, and a last box that walks straight into the debrief questions.
 
 The writing task comes after the story and the scroll. Every answer on the scroll is on the screen; the key below is for grading.
 
 ### Answer key
+
+**Act circles.** 一: rice sacks or a promise of land (and land in writing after 1192). 二: one small field if Trust was 4 or more, otherwise empty. 三: always empty.
 
 **Map.** 1 = Hakata Bay (where the family lives) · 2 = Dan-no-ura (the strait between Honshu and Kyushu) · 3 = Kyoto (the capital) · 4 = Kamakura (the shogun's town).
 

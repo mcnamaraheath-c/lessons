@@ -618,7 +618,7 @@ Spanish page: same structure. "Práctica de razonamiento." Claim: "Los samuráis
 
 Printable companion students fill in *while* they play; the writing task comes after. Four letter pages in English, then the same four in Spanish, print-styled like the writing task. Same clarity rules and glossary as the game.
 
-- **Page 1:** family crest (*mon*) to draw in a circle, with one mark added per act; a map of Japan (`images/japan-map.svg`, Commons CC BY-SA 3.0, credited on the sheet) with four numbered points the student matches to Hakata Bay, Dan-no-ura, Kyoto and Kamakura from clues in the story; a rice chart (0–10 by Start, Scenes 1–10, End) to plot after each scene.
+- **Page 1:** the Yamabe crest (three mountains over waves, inline SVG in gray for tracing inside a bold ring) to trace and color, with three small circles 一 二 三 beneath it where the student draws what the lord gave in that act, or leaves it empty; a map of Japan (`images/japan-map.svg`, Commons CC BY-SA 3.0, credited on the sheet) with four numbered points the student matches to Hakata Bay, Dan-no-ura, Kyoto and Kamakura from clues in the story; a rice chart (0–10 by Start, Scenes 1–10, End) to plot after each scene.
 - **Pages 2–4:** one per act. Short find-it-on-screen questions keyed by year, the act's ledger (gave / got / did the arrow move), and a closing box on page 4 that leads into the three debrief questions.
 - Answer key lives in README. Verified with Chrome print-to-PDF: exactly 8 pages.
 
