@@ -323,7 +323,12 @@ const CONTENT = {
     imageAlt:   { en: "Illustration for this page", es: "Ilustración de esta página" },
     enlarge:    { en: "Enlarge the picture", es: "Agrandar la imagen" },
     scene:      { en: "Scene", es: "Escena" },
-    scrollHint: { en: "Copy the picture of what your lord gave into this act's circle on your Family Scroll.", es: "Copia el dibujo de lo que tu señor te dio en el círculo de este acto en tu Pergamino de la Familia." }
+    scrollHint: {
+      ledger2:          { en: "Copy this picture into circle 一 on your Family Scroll.", es: "Copia este dibujo en el círculo 一 de tu Pergamino de la Familia." },
+      act2closeGranted: { en: "Copy this picture into circle 二 on your Family Scroll.", es: "Copia este dibujo en el círculo 二 de tu Pergamino de la Familia." },
+      act2closeNothing: { en: "Your lord gave you nothing this time. Leave circle 二 empty.", es: "Esta vez tu señor no te dio nada. Deja vacío el círculo 二." },
+      ledger4:          { en: "Your lord gave you nothing. Leave circle 三 empty.", es: "Tu señor no te dio nada. Deja vacío el círculo 三." }
+    }
   },
 
   /* Rows of the oath ledger (誓) */
@@ -1158,6 +1163,14 @@ function gotIcon(key) {
   if (inner === undefined) return '';
   return `<span class="goticon" aria-hidden="true"><svg viewBox="0 0 100 100">${inner}</svg></span>`;
 }
+/* Family Scroll hint: only on the three act-closing ledger pages */
+function scrollHint(p, entry) {
+  const h = C.ui.scrollHint;
+  const key = p.id === 'ledger2' ? 'ledger2'
+            : p.id === 'act2close' ? (entry.moved ? 'act2closeGranted' : 'act2closeNothing')
+            : p.id === 'ledger4' ? 'ledger4' : null;
+  return key ? `<p class="scrollhint">${T(h[key])}</p>` : '';
+}
 function ledgerRow(e) {
   return `<div class="lrow"><span class="gave">${T(C.ledger[e.gave])}</span>${arrowHtml(e)}` +
          `<span class="got${e.promised ? ' promised' : ''}">${gotIcon(e.got)}<span>${T(C.ledger[e.got])}</span></span></div>`;
@@ -1223,8 +1236,7 @@ const RENDER = {
       ? `<div class="lines">${c.lines.map((x, i) => `<p${i >= state.step ? ' class="off"' : ''}>${T(x)}</p>`).join('')}</div>` : '';
     return `<div class="page ledger"><div class="seal jp" aria-hidden="true">${OATH_MARK}</div>
       <h1>${T(C.ui.ledgerTitle)}</h1>${top}
-      <div class="lgrid">${ledgerHead()}${rows}</div>${chipsHtml(V.deltas)}${lines}
-      <p class="scrollhint">${T(C.ui.scrollHint)}</p></div>`;
+      <div class="lgrid">${ledgerHead()}${rows}</div>${chipsHtml(V.deltas)}${lines}${scrollHint(p, entry)}</div>`;
   },
   code() {
     const c = C.code;
