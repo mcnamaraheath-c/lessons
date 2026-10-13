@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-  @page { size: letter; margin: 0.5in 0.7in; }
+  @page { size: letter; margin: 0; }
   * { box-sizing: border-box; }
   body { margin: 0; background: #ddd; color: #1C1A17; font-family: 'Noto Serif', Georgia, 'Times New Roman', serif; font-size: 11pt; line-height: 1.4; }
   .sheet { background: #fff; width: 8.5in; min-height: 11in; margin: 16px auto; padding: 0.5in 0.7in; }
@@ -25,7 +25,7 @@
   .line { border-bottom: 1px solid #1C1A17; height: 22pt; }
   @media print {
     body { background: none; }
-    .sheet { width: auto; min-height: 0; margin: 0; padding: 0; }
+    .sheet { width: auto; min-height: 0; margin: 0; padding: 0.5in 0.7in; }
     .sheet + .sheet { break-before: page; }
   }
 </style>
