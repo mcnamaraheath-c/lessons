@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oath of the Samurai — The Family Scroll</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;1,400&family=Noto+Serif+JP:wght@500&display=swap" rel="stylesheet">
+<style>
+  @page { size: letter; margin: 0.5in 0.6in; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #ddd; color: #1C1A17; font-family: 'Noto Serif', Georgia, 'Times New Roman', serif; font-size: 10.5pt; line-height: 1.35; }
+  .sheet { background: #fff; width: 8.5in; min-height: 11in; margin: 16px auto; padding: 0.5in 0.6in; position: relative; }
+  h1 { font-size: 16pt; font-weight: 600; margin: 0 0 4pt; }
+  h2 { font-size: 12.5pt; font-weight: 600; margin: 0 0 4pt; border-bottom: 1px solid #1C1A17; padding-bottom: 2pt; }
+  h2 .jp { font-family: 'Noto Serif JP', 'Noto Serif', serif; font-weight: 500; margin-right: 6pt; }
+  .jp { font-family: 'Noto Serif JP', 'Noto Serif', serif; }
+  .name { display: flex; gap: 24pt; margin: 0 0 6pt; }
+  .name span { display: flex; align-items: flex-end; gap: 6pt; }
+  .name .n { flex: 3; } .name .p { flex: 1; }
+  .name i { flex: 1; border-bottom: 1px solid #1C1A17; height: 1.2em; }
+  .how { font-style: italic; margin: 0 0 8pt; }
+  .sub { font-size: 9.5pt; color: #444; margin: 0 0 4pt; }
+  p { margin: 0 0 3pt; }
+  .block { margin: 0 0 7pt; break-inside: avoid; }
+  .block .q { margin: 0 0 1pt; }
+  .year { display: inline-block; min-width: 3.3em; font-weight: 600; }
+  .line { border-bottom: 1px solid #1C1A17; height: 19pt; }
+  .line.short { height: 17pt; }
+  .inl { display: inline-block; border-bottom: 1px solid #1C1A17; min-width: 1.6in; height: 1em; vertical-align: baseline; }
+  .cols { display: flex; gap: 14pt; align-items: flex-start; }
+  .cols > * { flex: 1; min-width: 0; }
+  .sec { margin: 0 0 9pt; break-inside: avoid; }
+
+  /* family crest */
+  .crest { flex: 0 0 1.6in; width: 1.6in; height: 1.6in; border: 1.5px solid #1C1A17; border-radius: 50%; display: grid; place-items: center; color: #bbb; font-family: 'Noto Serif JP', serif; font-size: 22pt; }
+
+  /* map */
+  .mapwrap { position: relative; width: 3.05in; height: 3.05in; flex: 0 0 3.05in; border: 1px solid #1C1A17; overflow: hidden; }
+  /* show the part of the map with Japan in it: x 5–85 %, y 2–82 % of the full map */
+  .mapwrap img, .mapwrap svg { position: absolute; left: -6%; top: -2.5%; width: 125%; height: 125%; display: block; }
+  .mapwrap .pt { fill: #B7352A; }
+  .mapwrap .lead { stroke: #1C1A17; stroke-width: .5; fill: none; }
+  .mapwrap .lab circle { fill: #fff; stroke: #1C1A17; stroke-width: .6; }
+  .mapwrap .lab text { font-family: 'Noto Serif', Georgia, serif; font-size: 3.6px; font-weight: 600; text-anchor: middle; dominant-baseline: central; fill: #1C1A17; }
+  .mapwrap .isl { font-family: 'Noto Serif', Georgia, serif; font-size: 3.4px; font-style: italic; fill: #555; text-anchor: middle; }
+  .places .row { display: flex; align-items: flex-end; gap: 6pt; margin-bottom: 7pt; }
+  .places .num { flex: 0 0 1.25em; width: 1.25em; height: 1.25em; border: 1px solid #1C1A17; border-radius: 50%; text-align: center; font-weight: 600; font-size: 9.5pt; line-height: 1.2em; }
+  .places .row i { flex: 1; border-bottom: 1px solid #1C1A17; height: 1.3em; }
+  .bank { border: 1px solid #1C1A17; padding: 4pt 7pt; font-size: 9.5pt; margin-bottom: 8pt; }
+  .credit { font-size: 7.5pt; color: #666; margin-top: 3pt; }
+
+  /* rice chart */
+  table.rice { border-collapse: collapse; width: 100%; table-layout: fixed; margin-top: 3pt; }
+  table.rice td, table.rice th { border: 1px solid #999; height: 0.15in; padding: 0; font-weight: 400; font-size: 8.5pt; text-align: center; }
+  table.rice th.r { width: 0.3in; border: 0; text-align: right; padding-right: 4pt; }
+  table.rice tr.lab th { border: 0; height: auto; padding-top: 2pt; }
+  table.rice tr.act th { border: 0; height: auto; font-size: 8.5pt; color: #555; }
+  table.rice tr.act th span { display: block; border-bottom: 1px solid #999; margin: 0 2pt; }
+  table.rice td.z { background: #f1f1f1; }
+
+  /* bushido table */
+  table.code { border-collapse: collapse; width: 100%; margin: 2pt 0 4pt; }
+  table.code th, table.code td { border: 1px solid #1C1A17; padding: 3pt 6pt; text-align: left; font-weight: 400; vertical-align: top; }
+  table.code th { font-weight: 600; font-size: 9.5pt; }
+  table.code td.k { font-family: 'Noto Serif JP', serif; font-size: 15pt; width: 0.6in; text-align: center; }
+  table.code td.w { height: 22pt; }
+
+  /* ledger */
+  .ledger { border: 1px solid #1C1A17; padding: 5pt 8pt; margin: 2pt 0 7pt; break-inside: avoid; }
+  .ledger .t { font-weight: 600; margin-bottom: 2pt; }
+  .ledger .t .jp { margin-right: 4pt; }
+  .ledger .cols { gap: 10pt; }
+  .ledger .arrow { flex: 0 0 auto; align-self: center; font-size: 9pt; text-align: center; padding: 0 2pt; }
+  .yn { white-space: nowrap; }
+  .box { border: 1px solid #1C1A17; padding: 5pt 8pt; margin: 0 0 7pt; break-inside: avoid; }
+  .mark { font-size: 9.5pt; font-style: italic; margin-top: 2pt; }
+  .pg { text-align: right; font-size: 8pt; color: #777; margin-top: 4pt; }
+
+  .p1 { font-size: 10pt; }
+  .p1 .how { margin-bottom: 6pt; }
+  .p4 .line { height: 17pt; }
+  .p4 .block { margin-bottom: 5pt; }
+  .p4 .ledger, .p4 .box { margin-bottom: 5pt; }
+  @media print {
+    body { background: none; }
+    .sheet { width: auto; min-height: 0; margin: 0; padding: 0; }
+    .sheet + .sheet { break-before: page; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======================= ENGLISH ======================= -->
+
+<section class="sheet p1" lang="en">
+  <h1>Oath of the Samurai — The Family Scroll</h1>
+  <div class="name"><span class="n">Name: <i></i></span><span class="p">Period: <i></i></span></div>
+  <p class="how">Keep this scroll beside you while you play. Every answer is on the screen. Fill in each part when the story reaches it. You will use this scroll for the reasoning practice afterward.</p>
+
+  <div class="sec">
+    <h2>1. My family crest</h2>
+    <div class="cols">
+      <div>
+        <p>A samurai family had a crest called a <em>mon</em>: one simple shape inside a circle, such as a flower, a wave, a bird, or a pair of crossed arrows. Warriors painted it on their banners, so friends and enemies knew which family they were facing.</p>
+        <p>Draw the Yamabe family's crest in the circle. Keep it simple enough to paint on a banner.</p>
+        <p class="mark">At the end of each act, add one small mark inside the circle for the biggest thing your family did in that act.</p>
+      </div>
+      <div class="crest" aria-hidden="true">紋</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>2. Where in Japan?</h2>
+    <div class="cols">
+      <div class="mapwrap">
+        <img src="images/japan-map.svg" alt="Outline map of Japan with four numbered points">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <text class="isl" x="27" y="73">Kyushu</text>
+          <text class="isl" x="52" y="41">Honshu</text>
+          <text class="isl" x="17" y="46">Korea</text>
+          <text class="isl" x="13" y="24">China</text>
+          <path class="lead" d="M27.5 57 L19.5 61"/><path class="lead" d="M30.5 55.5 L33 49.5"/>
+          <path class="lead" d="M44 54.8 L41 49.5"/><path class="lead" d="M57.5 55.5 L61.5 61"/>
+          <circle class="pt" cx="27.5" cy="57" r="1.2"/><circle class="pt" cx="30.5" cy="55.5" r="1.2"/>
+          <circle class="pt" cx="44" cy="54.8" r="1.2"/><circle class="pt" cx="57.5" cy="55.5" r="1.2"/>
+          <g class="lab"><circle cx="18" cy="62" r="3"/><text x="18" y="62">1</text></g>
+          <g class="lab"><circle cx="33.5" cy="47" r="3"/><text x="33.5" y="47">2</text></g>
+          <g class="lab"><circle cx="40" cy="47" r="3"/><text x="40" y="47">3</text></g>
+          <g class="lab"><circle cx="63" cy="63" r="3"/><text x="63" y="63">4</text></g>
+        </svg>
+      </div>
+      <div class="places">
+        <p>Four places matter in this story. Each one is a numbered point on the map. When the story names a place, use the clues on the screen to decide which number it is, and write the name on that line.</p>
+        <div class="bank"><strong>The four places:</strong> Kyoto, the capital · Kamakura, the shogun's town · Dan-no-ura, the narrow sea between Honshu and Kyushu · Hakata Bay, where your family lives</div>
+        <div class="row"><span class="num">1</span><i></i></div>
+        <div class="row"><span class="num">2</span><i></i></div>
+        <div class="row"><span class="num">3</span><i></i></div>
+        <div class="row"><span class="num">4</span><i></i></div>
+        <p class="credit">Map: Maximilian Dörrbecker (Chumwa), Wikimedia Commons, CC BY-SA 3.0, recolored.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>3. Watch the rice</h2>
+    <p>Rice is your family's land, counted in koku. One koku is enough rice to feed one person for a year. Your rice starts at 2. After every scene, look at the rice number at the top of the screen and put a dot on the chart. Connect the dots as you go.</p>
+    <table class="rice">
+      <tr class="act"><th></th><th></th><th colspan="4"><span>Act 一 · Tadayoshi</span></th><th colspan="3"><span>Act 二 · Yoshisuke</span></th><th colspan="3"><span>Act 三 · Nagamoto</span></th><th></th></tr>
+      <tr><th class="r">10</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">9</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">8</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">7</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">6</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">5</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">4</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">3</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">2</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">1</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">0</th><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td></tr>
+      <tr class="lab"><th></th><th>Start</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>End</th></tr>
+    </table>
+  </div>
+  <div class="pg">The Family Scroll · 1</div>
+</section>
+
+<section class="sheet" lang="en">
+  <h2><span class="jp">一</span>Act One — Tadayoshi, 1180 to 1192</h2>
+  <p class="sub">Write the answers as you find them on the screen. The year tells you which scene to look in.</p>
+
+  <div class="block"><p class="q"><span class="year">1180</span> Bandits burn the rice store next door, and your father writes to the emperor's governor. What comes back, and what does not come?</p><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1180</span> Lord Kuwabara makes your family an offer. Write the deal in your own words.</p>
+    <p>Lord Kuwabara gets: <span class="inl" style="min-width:4.2in"></span></p>
+    <p>Your family gets: <span class="inl" style="min-width:4.4in"></span></p></div>
+
+  <div class="block"><p class="q"><span class="year">1180</span> Two clans are at war for control of Japan. Which clan looks stronger that autumn, and what two things does it hold?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1185</span> The last battle of the war is fought in boats. Where is it, and what changes at midday that decides who wins?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1192</span> The emperor gives Minamoto Yoritomo a new title. What is the title, and what does it mean?</p><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1192</span> The emperor still lives in Kyoto. What does he do there now, and where do the real orders come from?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1192</span> In the hall at Kamakura, every warrior is handed a paper. What is a <strong>vassal</strong>, and what does the paper prove?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="ledger">
+    <div class="t"><span class="jp">誓</span>The oath, Act One (copy it from the ledger page)</div>
+    <div class="cols">
+      <div><p>What I gave my lord:</p><div class="line short"></div></div>
+      <div class="arrow">→<br>Did the arrow move?<br><span class="yn">yes / no</span></div>
+      <div><p>What my lord gave me:</p><div class="line short"></div></div>
+    </div>
+  </div>
+
+  <div class="block"><p class="q">The hardest choice Tadayoshi made was <span class="inl" style="min-width:3.6in"></span></p>
+  <p class="q">It cost the family <span class="inl" style="min-width:4.6in"></span></p>
+  <p class="mark">Add a mark to your crest on page 1.</p></div>
+  <div class="pg">The Family Scroll · 2</div>
+</section>
+
+<section class="sheet" lang="en">
+  <h2><span class="jp">二</span>Act Two — Yoshisuke, 1232 to 1240</h2>
+
+  <div class="block"><p class="q"><span class="year">1232</span> The oath passes from father to son. Which two things pass down in full? Which one must be earned again, and why?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1232</span> A rider brings an order from the shogun's government in Kamakura. What does every vassal owe, and for how long?</p><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1236</span> Kamakura has written a new law about warriors who fight each other over land. What must they do instead, and what happens to a lord whose vassals start a private war?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block">
+    <p class="q"><strong>The warrior's code.</strong> Warriors call the way they are expected to live <em>bushido</em>. Write the name of each part, and the year in the story where you met it.</p>
+    <table class="code">
+      <tr><th>Mark</th><th>Name of this part of the code</th><th>Where you met it (year and what happened)</th></tr>
+      <tr><td class="k">忠</td><td class="w"></td><td class="w"></td></tr>
+      <tr><td class="k">勇</td><td class="w"></td><td class="w"></td></tr>
+      <tr><td class="k">名</td><td class="w"></td><td class="w"></td></tr>
+      <tr><td class="k">克己</td><td class="w"></td><td class="w"></td></tr>
+    </table>
+  </div>
+
+  <div class="block"><p class="q"><span class="year">1240</span> The monk at the temple teaches a kind of Buddhism called Zen. He says fear is what gets a samurai killed. How does Zen train a warrior so that he is not afraid?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="ledger">
+    <div class="t"><span class="jp">誓</span>The oath, Act Two</div>
+    <div class="cols">
+      <div><p>What I gave my lord:</p><div class="line short"></div></div>
+      <div class="arrow">→<br>Did the arrow move?<br><span class="yn">yes / no</span></div>
+      <div><p>What my lord gave me:</p><div class="line short"></div></div>
+    </div>
+    <p style="margin-top:4pt">Lord Kuwabara says something about how much land is left to give. Write his words:</p><div class="line short"></div>
+  </div>
+
+  <div class="block"><p class="q">The hardest choice Yoshisuke made was <span class="inl" style="min-width:3.6in"></span></p>
+  <p class="q">It cost the family <span class="inl" style="min-width:4.6in"></span></p>
+  <p class="mark">Add a mark to your crest on page 1.</p></div>
+  <div class="pg">The Family Scroll · 3</div>
+</section>
+
+<section class="sheet p4" lang="en">
+  <h2><span class="jp">三</span>Act Three — Nagamoto, 1274 to 1285</h2>
+
+  <div class="block"><p class="q"><span class="year">1274</span> For six years, letters have been arriving from Kublai Khan. Who is he, and what do his letters order Japan to do?</p><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1274</span> Your scout reports three ways the Mongol soldiers fight. List all three.</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1274</span> How do the samurai fight at first, the way they have always fought? Why does it fail against the Mongols?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1276</span> The shogun's government orders something built along the whole shore of Hakata Bay. What is it, and who pays for the stone, the workers, and the rice?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1281</span> A typhoon breaks both Mongol fleets. What do the priests call the storm, and what does the name mean?</p><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1285</span> Lord Kuwabara rides home from Kamakura with nothing. In every war before this one, where did the land for rewards come from? Why is there none this time?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="ledger">
+    <div class="t"><span class="jp">誓</span>The oath, Act Three</div>
+    <div class="cols">
+      <div><p>What I gave my lord:</p><div class="line short"></div></div>
+      <div class="arrow">→<br>Did the arrow move?<br><span class="yn">yes / no</span></div>
+      <div><p>What my lord gave me:</p><div class="line short"></div></div>
+    </div>
+  </div>
+
+  <div class="box">
+    <p><strong>The whole oath.</strong> Look back at your three ledgers and your rice chart.</p>
+    <p>Did your lord keep his side of the oath in Act One? <span class="yn">yes / no</span> &nbsp; In Act Three? <span class="yn">yes / no</span> &nbsp; Could any of your ten choices have changed that? <span class="yn">yes / no</span></p>
+    <p>Circle every place on your rice chart where the rice went <em>up</em>. Who gave it to you each time?</p><div class="line short"></div>
+    <p>Finish the sentence: The deal between a lord and his vassal only worked as long as</p><div class="line short"></div>
+    <p>The shogun's government could not pay its warriors after 1281. What happened to it within fifty years?</p><div class="line short"></div>
+  </div>
+
+  <div class="block"><p class="q"><strong>650 years later.</strong> In the 1940s, Japan's government used two words from this story, <em>bushido</em> and <em>kamikaze</em>. Write one way it changed what the old idea meant.</p><div class="line"></div>
+  <p class="mark">Add the last mark to your crest. Then open the reasoning practice.</p></div>
+  <div class="pg">The Family Scroll · 4</div>
+</section>
+
+<!-- ======================= ESPAÑOL ======================= -->
+
+<section class="sheet p1" lang="es">
+  <h1>Juramento del Samurái — El Pergamino de la Familia</h1>
+  <div class="name"><span class="n">Nombre: <i></i></span><span class="p">Período: <i></i></span></div>
+  <p class="how">Ten este pergamino a tu lado mientras juegas. Todas las respuestas están en la pantalla. Llena cada parte cuando la historia llegue a ese punto. Después usarás este pergamino para la práctica de razonamiento.</p>
+
+  <div class="sec">
+    <h2>1. El escudo de mi familia</h2>
+    <div class="cols">
+      <div>
+        <p>Una familia samurái tenía un escudo llamado <em>mon</em>: una sola forma sencilla dentro de un círculo, como una flor, una ola, un pájaro o dos flechas cruzadas. Los guerreros lo pintaban en sus banderas, para que amigos y enemigos supieran a qué familia tenían enfrente.</p>
+        <p>Dibuja el escudo de la familia Yamabe dentro del círculo. Hazlo tan sencillo que se pueda pintar en una bandera.</p>
+        <p class="mark">Al final de cada acto, agrega una pequeña marca dentro del círculo por lo más importante que hizo tu familia en ese acto.</p>
+      </div>
+      <div class="crest" aria-hidden="true">紋</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>2. ¿En qué parte de Japón?</h2>
+    <div class="cols">
+      <div class="mapwrap">
+        <img src="images/japan-map.svg" alt="Mapa de Japón con cuatro puntos numerados">
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+          <text class="isl" x="27" y="73">Kyushu</text>
+          <text class="isl" x="52" y="41">Honshu</text>
+          <text class="isl" x="17" y="46">Korea</text>
+          <text class="isl" x="13" y="24">China</text>
+          <path class="lead" d="M27.5 57 L19.5 61"/><path class="lead" d="M30.5 55.5 L33 49.5"/>
+          <path class="lead" d="M44 54.8 L41 49.5"/><path class="lead" d="M57.5 55.5 L61.5 61"/>
+          <circle class="pt" cx="27.5" cy="57" r="1.2"/><circle class="pt" cx="30.5" cy="55.5" r="1.2"/>
+          <circle class="pt" cx="44" cy="54.8" r="1.2"/><circle class="pt" cx="57.5" cy="55.5" r="1.2"/>
+          <g class="lab"><circle cx="18" cy="62" r="3"/><text x="18" y="62">1</text></g>
+          <g class="lab"><circle cx="33.5" cy="47" r="3"/><text x="33.5" y="47">2</text></g>
+          <g class="lab"><circle cx="40" cy="47" r="3"/><text x="40" y="47">3</text></g>
+          <g class="lab"><circle cx="63" cy="63" r="3"/><text x="63" y="63">4</text></g>
+        </svg>
+      </div>
+      <div class="places">
+        <p>Cuatro lugares importan en esta historia. Cada uno es un punto con número en el mapa. Cuando la historia nombre un lugar, usa las pistas de la pantalla para decidir qué número es, y escribe el nombre en esa línea.</p>
+        <div class="bank"><strong>Los cuatro lugares:</strong> Kyoto, la capital · Kamakura, el pueblo del shogun · Dan-no-ura, el mar estrecho entre Honshu y Kyushu · la bahía de Hakata, donde vive tu familia</div>
+        <div class="row"><span class="num">1</span><i></i></div>
+        <div class="row"><span class="num">2</span><i></i></div>
+        <div class="row"><span class="num">3</span><i></i></div>
+        <div class="row"><span class="num">4</span><i></i></div>
+        <p class="credit">Mapa: Maximilian Dörrbecker (Chumwa), Wikimedia Commons, CC BY-SA 3.0, con colores cambiados.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2>3. Vigila el arroz</h2>
+    <p>El arroz es la tierra de tu familia, contada en koku. Un koku es suficiente arroz para alimentar a una persona durante un año. Tu arroz empieza en 2. Después de cada escena, mira el número de arroz en la parte de arriba de la pantalla y pon un punto en la gráfica. Une los puntos conforme avanzas.</p>
+    <table class="rice">
+      <tr class="act"><th></th><th></th><th colspan="4"><span>Acto 一 · Tadayoshi</span></th><th colspan="3"><span>Acto 二 · Yoshisuke</span></th><th colspan="3"><span>Acto 三 · Nagamoto</span></th><th></th></tr>
+      <tr><th class="r">10</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">9</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">8</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">7</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">6</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">5</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">4</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">3</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">2</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">1</th><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+      <tr><th class="r">0</th><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td><td class="z"></td></tr>
+      <tr class="lab"><th></th><th>Inicio</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>Final</th></tr>
+    </table>
+  </div>
+  <div class="pg">El Pergamino de la Familia · 1</div>
+</section>
+
+<section class="sheet" lang="es">
+  <h2><span class="jp">一</span>Acto Uno — Tadayoshi, de 1180 a 1192</h2>
+  <p class="sub">Escribe las respuestas conforme las encuentres en la pantalla. El año te dice en qué escena buscar.</p>
+
+  <div class="block"><p class="q"><span class="year">1180</span> Unos bandidos queman el almacén de arroz de la granja vecina, y tu padre le escribe al gobernador del emperador. ¿Qué llega de vuelta, y qué no llega?</p><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1180</span> El señor Kuwabara le hace una oferta a tu familia. Escribe el trato con tus propias palabras.</p>
+    <p>El señor Kuwabara recibe: <span class="inl" style="min-width:3.9in"></span></p>
+    <p>Tu familia recibe: <span class="inl" style="min-width:4.3in"></span></p></div>
+
+  <div class="block"><p class="q"><span class="year">1180</span> Dos clanes están en guerra por el control de Japón. ¿Qué clan parece más fuerte ese otoño, y qué dos cosas tiene en su poder?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1185</span> La última batalla de la guerra se pelea en barcos. ¿Dónde es, y qué cambia al mediodía que decide quién gana?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1192</span> El emperador le da a Minamoto Yoritomo un título nuevo. ¿Cuál es el título, y qué significa?</p><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1192</span> El emperador sigue viviendo en Kyoto. ¿Qué hace allí ahora, y de dónde vienen las órdenes de verdad?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1192</span> En la sala de Kamakura, a cada guerrero le entregan un papel. ¿Qué es un <strong>vasallo</strong>, y qué demuestra el papel?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="ledger">
+    <div class="t"><span class="jp">誓</span>El juramento, Acto Uno (cópialo de la página del registro)</div>
+    <div class="cols">
+      <div><p>Lo que le di a mi señor:</p><div class="line short"></div></div>
+      <div class="arrow">→<br>¿Se movió la flecha?<br><span class="yn">sí / no</span></div>
+      <div><p>Lo que mi señor me dio:</p><div class="line short"></div></div>
+    </div>
+  </div>
+
+  <div class="block"><p class="q">La decisión más difícil de Tadayoshi fue <span class="inl" style="min-width:3.3in"></span></p>
+  <p class="q">Le costó a la familia <span class="inl" style="min-width:4.6in"></span></p>
+  <p class="mark">Agrega una marca a tu escudo en la página 1.</p></div>
+  <div class="pg">El Pergamino de la Familia · 2</div>
+</section>
+
+<section class="sheet" lang="es">
+  <h2><span class="jp">二</span>Acto Dos — Yoshisuke, de 1232 a 1240</h2>
+
+  <div class="block"><p class="q"><span class="year">1232</span> El juramento pasa de padre a hijo. ¿Qué dos cosas pasan completas al hijo? ¿Cuál hay que ganarse de nuevo, y por qué?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1232</span> Un jinete trae una orden del gobierno del shogun en Kamakura. ¿Qué debe cada vasallo, y por cuánto tiempo?</p><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1236</span> Kamakura ha escrito una ley nueva sobre los guerreros que pelean entre ellos por la tierra. ¿Qué deben hacer en lugar de pelear, y qué le pasa a un señor cuyos vasallos empiezan una guerra privada?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block">
+    <p class="q"><strong>El código del guerrero.</strong> Los guerreros llaman <em>bushido</em> a la forma en que se espera que vivan. Escribe el nombre de cada parte, y el año de la historia en que la conociste.</p>
+    <table class="code">
+      <tr><th>Marca</th><th>Nombre de esta parte del código</th><th>Dónde la conociste (año y qué pasó)</th></tr>
+      <tr><td class="k">忠</td><td class="w"></td><td class="w"></td></tr>
+      <tr><td class="k">勇</td><td class="w"></td><td class="w"></td></tr>
+      <tr><td class="k">名</td><td class="w"></td><td class="w"></td></tr>
+      <tr><td class="k">克己</td><td class="w"></td><td class="w"></td></tr>
+    </table>
+  </div>
+
+  <div class="block"><p class="q"><span class="year">1240</span> El monje del templo enseña un tipo de budismo llamado Zen. Dice que el miedo es lo que hace que maten a un samurái. ¿Cómo entrena el Zen a un guerrero para que no tenga miedo?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="ledger">
+    <div class="t"><span class="jp">誓</span>El juramento, Acto Dos</div>
+    <div class="cols">
+      <div><p>Lo que le di a mi señor:</p><div class="line short"></div></div>
+      <div class="arrow">→<br>¿Se movió la flecha?<br><span class="yn">sí / no</span></div>
+      <div><p>Lo que mi señor me dio:</p><div class="line short"></div></div>
+    </div>
+    <p style="margin-top:4pt">El señor Kuwabara dice algo sobre cuánta tierra queda para dar. Escribe sus palabras:</p><div class="line short"></div>
+  </div>
+
+  <div class="block"><p class="q">La decisión más difícil de Yoshisuke fue <span class="inl" style="min-width:3.3in"></span></p>
+  <p class="q">Le costó a la familia <span class="inl" style="min-width:4.6in"></span></p>
+  <p class="mark">Agrega una marca a tu escudo en la página 1.</p></div>
+  <div class="pg">El Pergamino de la Familia · 3</div>
+</section>
+
+<section class="sheet p4" lang="es">
+  <h2><span class="jp">三</span>Acto Tres — Nagamoto, de 1274 a 1285</h2>
+
+  <div class="block"><p class="q"><span class="year">1274</span> Durante seis años han llegado cartas de Kublai Khan. ¿Quién es él, y qué le ordenan sus cartas a Japón?</p><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1274</span> Tu explorador informa de tres maneras en que pelean los soldados mongoles. Escribe las tres.</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1274</span> ¿Cómo pelean los samuráis al principio, como siempre han peleado? ¿Por qué eso falla contra los mongoles?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1276</span> El gobierno del shogun ordena construir algo a lo largo de toda la orilla de la bahía de Hakata. ¿Qué es, y quién paga la piedra, los trabajadores y el arroz?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1281</span> Un tifón destroza las dos flotas mongolas. ¿Cómo llaman los sacerdotes a la tormenta, y qué significa ese nombre?</p><div class="line"></div></div>
+
+  <div class="block"><p class="q"><span class="year">1285</span> El señor Kuwabara vuelve de Kamakura sin nada. En todas las guerras anteriores, ¿de dónde salía la tierra para las recompensas? ¿Por qué esta vez no hay?</p><div class="line"></div><div class="line"></div></div>
+
+  <div class="ledger">
+    <div class="t"><span class="jp">誓</span>El juramento, Acto Tres</div>
+    <div class="cols">
+      <div><p>Lo que le di a mi señor:</p><div class="line short"></div></div>
+      <div class="arrow">→<br>¿Se movió la flecha?<br><span class="yn">sí / no</span></div>
+      <div><p>Lo que mi señor me dio:</p><div class="line short"></div></div>
+    </div>
+  </div>
+
+  <div class="box">
+    <p><strong>El juramento completo.</strong> Mira de nuevo tus tres registros y tu gráfica del arroz.</p>
+    <p>¿Tu señor cumplió su parte del juramento en el Acto Uno? <span class="yn">sí / no</span> &nbsp; ¿En el Acto Tres? <span class="yn">sí / no</span> &nbsp; ¿Alguna de tus diez decisiones pudo haber cambiado eso? <span class="yn">sí / no</span></p>
+    <p>Encierra en un círculo cada lugar de tu gráfica donde el arroz <em>subió</em>. ¿Quién te lo dio cada vez?</p><div class="line short"></div>
+    <p>Completa la oración: El trato entre un señor y su vasallo solo funcionaba mientras</p><div class="line short"></div>
+    <p>El gobierno del shogun no pudo pagarles a sus guerreros después de 1281. ¿Qué le pasó en los siguientes cincuenta años?</p><div class="line short"></div>
+  </div>
+
+  <div class="block"><p class="q"><strong>650 años después.</strong> En los años 1940, el gobierno de Japón usó dos palabras de esta historia, <em>bushido</em> y <em>kamikaze</em>. Escribe una manera en que cambió lo que significaba la idea antigua.</p><div class="line"></div>
+  <p class="mark">Agrega la última marca a tu escudo. Luego abre la práctica de razonamiento.</p></div>
+  <div class="pg">El Pergamino de la Familia · 4</div>
+</section>
+
+</body>
+</html>

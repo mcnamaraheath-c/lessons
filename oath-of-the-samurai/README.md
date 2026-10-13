@@ -5,10 +5,54 @@ Interactive story for the 7th-grade Feudal Japan unit (CA 7.5.3, 7.5.6). The stu
 | File | What it is |
 |---|---|
 | `index.html` | The whole game. No build step; open it in a browser. |
+| `family-scroll.html` | Printable Family Scroll that students fill in while they play: four English pages, then the same four in Spanish. Print front and back. |
 | `writing-task.html` | Printable reasoning practice: English page, then Spanish page. |
 | `images/` | Pictures for the story pages (see "Images" below). |
 | `scripts/optimize-images.sh` | Shrinks and recompresses the pictures. |
 | `CLAUDE.md` | The full design the game was built from. |
+
+## The Family Scroll (during play)
+
+`family-scroll.html` is the paper companion students keep beside the Chromebook. Print it two-sided: pages 1–4 are English, 5–8 are the same in Spanish, so each student gets two sheets. It is meant to be fun first and a study guide second:
+
+- **Page 1.** Draw a family crest (*mon*), match four numbered points on a map of Japan to the places in the story, and plot the family's rice after every scene on a chart. The crest gets one new mark at the end of each act.
+- **Pages 2–4.** One page per act. Short "find it on the screen" questions keyed to the year, the act's oath ledger copied from the game, and a last box that walks straight into the debrief questions.
+
+The writing task comes after the story and the scroll. Every answer on the scroll is on the screen; the key below is for grading.
+
+### Answer key
+
+**Map.** 1 = Hakata Bay (where the family lives) · 2 = Dan-no-ura (the strait between Honshu and Kyushu) · 3 = Kyoto (the capital) · 4 = Kamakura (the shogun's town).
+
+**Rice chart.** Starts at 2. Every path drops in Scenes 3, 8, 9 and 10 and rises only at grants (Scene 1 A, Scene 2 B, Scene 4, Scene 6 B, Scene 7 B, the Act 2 close if Trust is 4 or more). The last column, after the petition, never rises.
+
+| Act | Question | Expected answer |
+|---|---|---|
+| 1 | 1180 letter | A letter comes back; no soldiers come. |
+| 1 | The deal | Kuwabara gets Tadayoshi's sword whenever he calls; the family gets protection for its fields (plus rice now, or a promise of land). |
+| 1 | Stronger clan | The Taira clan: it holds the capital and the emperor (and most of Kyushu). |
+| 1 | Last battle | Dan-no-ura, in boats; the tide turns at midday and pushes the Taira boats toward the rocks. |
+| 1 | New title | Shogun, the top general of all of Japan's warriors. |
+| 1 | The emperor | Poems and ceremonies in Kyoto; the real orders come from Kamakura. |
+| 1 | Vassal | A warrior who holds land from a lord; the paper proves the land is his and his sword is his lord's. |
+| 1 | Ledger | Gave: my sword whenever my lord calls / five years of war. Got: rice or a promise of land / land in writing. Arrow moved: yes. |
+| 2 | Inheritance | Honor and rice pass in full; trust must be earned again because it belongs to the lord's opinion of you. |
+| 2 | 1232 order | Six months of guard duty in Kyoto. |
+| 2 | 1236 law | Take the fight to a court; a lord whose vassals start a private war pays a fine to Kamakura. |
+| 2 | Code | 忠 Loyalty (1180, the messenger) · 勇 Courage (1185, Dan-no-ura) · 名 Honor (every choice) · 克己 Self-discipline (1236, the boundary stones). |
+| 2 | Zen | Train the mind every day with discipline until it does what you tell it; make peace with dying so the hand is not slow. |
+| 2 | Ledger | Gave: guard duty, obedience to the law. Got: one small field (Trust ≥ 4) or nothing. Kuwabara's words: "There is still a little land to give" / "There is very little left to give." |
+| 3 | Kublai Khan | The Mongol ruler of China; his letters order Japan to submit. |
+| 3 | Mongol tactics | Tight groups; arrows all at once in a cloud; exploding iron balls that kill horses. |
+| 3 | Samurai tactics | Each rides out alone, shouts his name, challenges one enemy; the Mongols shoot the man who is shouting. |
+| 3 | 1276 | A stone wall along the whole shore of Hakata Bay; each vassal pays for his own section. |
+| 3 | 1281 | Kamikaze, the divine wind. |
+| 3 | 1285 | Winners used to take the losers' land; the Mongols had no land in Japan to take. |
+| 3 | Ledger | Gave: two invasions, seven years of stone, the night boats. Got: nothing. Arrow moved: no. |
+| 3 | Whole oath | Act 1 yes; Act 3 no; no choice could change it. Rice rose only when a lord (or the court) gave it. The deal worked only as long as there was land to give. The shogun's government fell within fifty years. |
+| 3 | 650 years later | The 1940s government taught that surrender was the worst dishonor and named suicide pilots kamikaze; the old oath asked for loyalty, not dying on purpose, and the lord owed land in return. |
+
+**Map attribution.** `images/japan-map.svg` is [File:Japan location map.svg](https://commons.wikimedia.org/wiki/File:Japan_location_map.svg) by Maximilian Dörrbecker (Chumwa), Wikimedia Commons, CC BY-SA 3.0, with the prefecture borders removed and the colors changed for print. The credit is printed on the sheet.
 
 ## Changing the text
 
@@ -140,7 +184,7 @@ How it was checked: a script played all 1,024 combinations of the ten choices th
 
 **Launch (3 min).** Project the title page. Say: "You are going to play one family for a hundred years. Every choice you make is a choice a real samurai could have made. Watch the rice." Open `?teacher=1` on the projector so you can jump to any page a student asks about.
 
-**Play (about 30 min).** Students play individually on Chromebooks with headphones for Read aloud. The Spanish toggle is theirs to use. If a student loses progress, the jump menu gets them back.
+**Play (about 30 min).** Hand out the Family Scroll first. Students play individually on Chromebooks with headphones for Read aloud and fill in the scroll as they go. The Spanish toggle is theirs to use. If a student loses progress, the jump menu gets them back.
 
 **Debrief (7 min).** Three questions, one at a time, thumbs up/down then discuss:
 1. "Did your lord keep his side of the oath in Act 1?" (Everyone: yes.)
