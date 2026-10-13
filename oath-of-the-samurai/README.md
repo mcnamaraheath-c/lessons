@@ -28,6 +28,8 @@ Change the words inside the quotation marks and save. Leave the keys (`situation
 
 ## Images
 
+Students can click any picture (or press Enter on it) to see it large; Esc or Close puts it away.
+
 The game looks for these filenames in `images/`. If a file is missing, the page shows a plain panel with the act's number (一 二 三), so the game works with no pictures at all.
 
 To add or replace a picture, save it into `images/` under the exact filename below. Any size works; then run the optimizer.

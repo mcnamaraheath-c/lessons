@@ -121,7 +121,9 @@ select { padding: 5px 8px; max-width: 170px; }
 .frame { position: relative; padding: var(--frame-pad); box-shadow: var(--frame); aspect-ratio: 16 / 9; width: 100%; }
 .frame .ph { width: 100%; height: 100%; background: var(--paper-dark); display: grid; place-items: center; overflow: hidden; }
 .frame .ph span { font-family: var(--jp); font-size: clamp(60px, 9vw, 150px); color: var(--muted); opacity: .2; line-height: 1; }
-.frame img { position: absolute; inset: var(--frame-pad); width: calc(100% - 2 * var(--frame-pad)); height: calc(100% - 2 * var(--frame-pad)); object-fit: cover; display: block; }
+.frame .zoom { position: absolute; inset: var(--frame-pad); padding: 0; border: 0; background: none; display: block; cursor: zoom-in; }
+.frame .zoom:hover, .frame .zoom:focus-visible { background: none; }
+.frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* story / inherit / petition / title: illustration left, text right */
 .split { display: grid; grid-template-columns: 44% minmax(0, 1fr); gap: 40px; align-items: center; }
@@ -238,6 +240,9 @@ table.ev th { font-weight: 600; background: color-mix(in srgb, var(--paper-dark)
 #overlay { position: fixed; inset: 0; background: rgba(28, 26, 23, .55); display: grid; place-items: center; z-index: 10; }
 #overlay .sheet { background: var(--paper); border: 1px solid var(--ink); padding: 24px 32px; width: min(920px, 92vw); max-height: 88vh; overflow: auto; }
 #overlay .closeRow { text-align: center; margin-top: 18px; }
+/* enlarged picture */
+#overlay .lightbox { display: grid; justify-items: center; gap: 14px; }
+#overlay .lightbox img { max-width: 94vw; max-height: 82vh; padding: var(--frame-pad); background: var(--paper); box-shadow: var(--frame); cursor: zoom-out; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
@@ -305,7 +310,8 @@ const CONTENT = {
     gen1:       { en: "Tadayoshi, 1180–1192", es: "Tadayoshi, 1180–1192" },
     gen2:       { en: "Yoshisuke, 1232–1240", es: "Yoshisuke, 1232–1240" },
     gen3:       { en: "Nagamoto, 1274–1285", es: "Nagamoto, 1274–1285" },
-    imageAlt:   { en: "Illustration for this page", es: "Ilustración de esta página" }
+    imageAlt:   { en: "Illustration for this page", es: "Ilustración de esta página" },
+    enlarge:    { en: "Enlarge the picture", es: "Agrandar la imagen" }
   },
 
   /* Rows of the oath ledger (誓) */
@@ -1103,7 +1109,8 @@ function frame(p, S) {
   const c = C[p.id] || {};
   const alt = c.title ? L(c.title) : L(C.ui.imageAlt);
   return `<div class="frame"><div class="ph"><span>${ACT_MARK[p.act]}</span></div>` +
-         `<img loading="lazy" src="images/${file}" alt="${esc(alt)}"></div>`;
+         `<button type="button" class="zoom" aria-label="${esc(L(C.ui.enlarge))}" title="${esc(L(C.ui.enlarge))}">` +
+         `<img loading="lazy" src="images/${file}" alt="${esc(alt)}"></button></div>`;
 }
 const parasOf = (p, S) => (p.paras ? p.paras(S) : (C[p.id].paras || []));
 const parasHtml = list => list.map(x => `<p>${T(x)}</p>`).join('');
@@ -1353,7 +1360,7 @@ function render(animate) {
   stage.innerHTML = RENDER[p.type](p, V.S);
   stage.scrollTop = 0;
   stage.querySelectorAll('.frame img').forEach(img => {
-    img.addEventListener('error', () => img.remove());   // missing file: the placeholder behind it shows
+    img.addEventListener('error', () => (img.closest('.zoom') || img).remove());   // missing file: the placeholder behind it shows
   });
 
   chunks = null;
@@ -1453,13 +1460,27 @@ function openLedger() {
     ${groups ? `<div class="lgrid">${ledgerHead()}${groups}</div>` : `<p class="intro">${T(C.ui.ledgerEmpty)}</p>`}
     <div class="closeRow"><button type="button" id="closeBtn">${T(C.ui.close)}</button></div></div>`;
   $('overlay').hidden = false;
+  overlayReturn = $('oathBtn');
+  $('closeBtn').focus();
+}
+/* Enlarged picture: any picture in a frame opens big in the same overlay */
+let overlayReturn = null;
+function openImage(btn) {
+  const img = btn.querySelector('img');
+  if (!img) return;
+  $('overlay').innerHTML = `<div class="lightbox"><img src="${img.getAttribute('src')}" alt="${esc(img.alt)}">` +
+    `<button type="button" id="closeBtn">${T(C.ui.close)}</button></div>`;
+  $('overlay').hidden = false;
+  overlayReturn = btn;
   $('closeBtn').focus();
 }
 function closeLedger() {
   if ($('overlay').hidden) return;
   $('overlay').hidden = true;
   $('overlay').innerHTML = '';
-  $('oathBtn').focus();
+  const back = overlayReturn && document.contains(overlayReturn) ? overlayReturn : $('oathBtn');
+  overlayReturn = null;
+  back.focus();
 }
 
 /* ---------- Evidence: copy the three rows as plain text ---------- */
@@ -1485,8 +1506,12 @@ $('ttsBtn').addEventListener('click', readAloud);
 $('oathBtn').addEventListener('click', openLedger);
 $('langBtn').addEventListener('click', () => { state.lang = state.lang === 'en' ? 'es' : 'en'; render(false); });
 $('jumpSel').addEventListener('change', e => jump(e.target.value));
-$('overlay').addEventListener('click', e => { if (e.target.id === 'overlay' || e.target.id === 'closeBtn') closeLedger(); });
+$('overlay').addEventListener('click', e => {
+  if (e.target.id === 'overlay' || e.target.id === 'closeBtn' || e.target.closest('.lightbox img')) closeLedger();
+});
 stage.addEventListener('click', e => {
+  const zoom = e.target.closest('.zoom');
+  if (zoom) { openImage(zoom); return; }
   const card = e.target.closest('.card');
   if (card && !card.disabled) { choose(card.dataset.choice); return; }
   if (e.target.id === 'beginBtn') next();

@@ -186,6 +186,7 @@ Page order (ids): p00 title · p01 intro · p02 stats · s1 story/decision/conse
 ## 8. Image handling
 
 - Every story page, the title, the intro, both inheritance pages, and the storm pages have one image slot with a fixed filename (§9). Load with `<img loading="lazy">` inside the `--frame`.
+- Every picture is inside a real `<button>` so it can be enlarged (added Oct 12). Clicking it, or pressing Enter on it, opens the picture large in the same overlay the ledger uses, with a Close button. Esc, Close, or a click anywhere dismisses it and focus returns to the picture. A missing file removes the button with the image, so a placeholder is never clickable.
 - If a file is missing or fails to load, show a placeholder: the `--paper` tone darkened 6%, with the act's kanji (一 二 三) centered in `--muted` at 20% opacity. The page must look finished with no images at all.
 - Act 3 images are public-domain scroll panels. Fetch the largest available versions from Wikimedia Commons, crop to the described panel, save as JPEG ≤ 400 KB, and record the source URL and panel description in `README.md` for attribution on the end page.
 - Teacher-supplied Midjourney images: accept any size; on first build, write a small `scripts/optimize-images.sh` (ImageMagick) that resizes to max 1600px wide and recompresses. Document it in README.
@@ -654,6 +655,7 @@ Interface
 - [ ] Every image slot shows a finished-looking placeholder when its file is absent.
 - [ ] `body[data-act="3"]` swaps the paper, frame, and secondary tokens; Acts 1–2 are unaffected.
 - [ ] Keyboard-only play works end to end; focus is visible on every control.
+- [ ] Every picture enlarges on click and on Enter; Esc and Close dismiss it; a placeholder does not enlarge.
 - [ ] Reduced-motion disables stat animations and fades.
 
 ---
