@@ -78,7 +78,7 @@ The look is Japanese ink-wash for Acts 1–2 and shifts into the painted-scroll 
 - **Story page**: illustration left 44% width in a `--frame`, text right in a single column. At ≤1100px wide, stack illustration above text with the image capped at 38vh.
 - **Decision page**: one line of situation text at top (max 25 words), then two option cards side by side, each labeled A and B in a small vermilion square. Nothing else.
 - **Consequence page**: one short illustration-free text block, then the stat deltas, then Continue. If a ledger update happens on this page, it is a *separate* page after it.
-- **Ledger page**: two columns under 誓, left "What I gave my lord" / right "What my lord gave me," one row per entry, plus an arrow between columns that is vermilion when a grant moved and grey (`--muted`, dashed) when it did not.
+- **Ledger page**: two columns under 誓, left "What I gave my lord" / right "What my lord gave me," one row per entry, plus an arrow between columns that is vermilion when a grant moved and grey (`--muted`, dashed) when it did not. Each "got" cell also shows a simple line drawing in a small circle (added Oct 12): a rope-tied rice bale, a sealed paper for land, a dashed paper for a promise, a small field, a dashed field for "promised," an empty circle for nothing. Students copy it into the matching act circle on the Family Scroll; a one-line hint under the grid says so. The end page's three-generation ledger shows the same icons smaller. These circles are the one deliberate exception to "nothing rounded," because the scroll's crest circles are round.
 
 ### Chrome
 
@@ -619,7 +619,7 @@ Spanish page: same structure. "Práctica de razonamiento." Claim: "Los samuráis
 Printable companion students fill in *while* they play; the writing task comes after. Four letter pages in English, then the same four in Spanish, print-styled like the writing task. Same clarity rules and glossary as the game.
 
 - **Page 1:** the Yamabe crest (three mountains over waves, inline SVG in gray for tracing inside a bold ring) to trace and color, with three small circles 一 二 三 beneath it where the student draws what the lord gave in that act, or leaves it empty; a map of Japan (`images/japan-map.svg`, Commons CC BY-SA 3.0, credited on the sheet) with four numbered points the student matches to Hakata Bay, Dan-no-ura, Kyoto and Kamakura from clues in the story; a rice chart (0–10 by Start, Scenes 1–10, End) to plot after each scene.
-- **Pages 2–4:** one per act. Short find-it-on-screen questions keyed by year, the act's ledger (gave / got / did the arrow move), and a closing box on page 4 that leads into the three debrief questions.
+- **Pages 2–4:** one per act. Short find-it-on-screen questions, each labeled with the same season and year the game shows under the scene title ("Spring 1180", "November 1274"), the act's ledger (gave / got / did the arrow move), and a closing box on page 4 that leads into the three debrief questions.
 - Answer key lives in README. Verified with Chrome print-to-PDF: exactly 8 pages.
 
 ## 13. Build order

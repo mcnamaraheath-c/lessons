@@ -212,6 +212,16 @@ body[data-act="3"] .split .frame img, .end .frame img { object-fit: contain; }
 .lines p.off { visibility: hidden; }
 .ledger .deltas { justify-content: center; }
 .got.promised { font-style: italic; }
+/* picture of what the lord gave: students copy it into the circle on their Family Scroll */
+.lrow .got { display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+.goticon { flex: 0 0 60px; width: 60px; height: 60px; border: 1.5px solid var(--ink); border-radius: 50%; display: grid; place-items: center; background: var(--paper); }
+.goticon svg { width: 46px; height: 46px; fill: none; stroke: var(--ink); stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; }
+.goticon .seal { fill: var(--accent); stroke: none; }
+.goticon .dash { stroke-dasharray: 7 6; }
+.scrollhint { margin: 14px 0 0; font-size: .9em; color: var(--muted); text-align: center; }
+.end .goticon { flex-basis: 30px; width: 30px; height: 30px; }
+.end .goticon svg { width: 22px; height: 22px; stroke-width: 6; }
+.end .lrow .got { gap: 8px; }
 
 /* warrior's code */
 .codes { display: grid; gap: 10px; margin: .6em 0 .9em; }
@@ -311,7 +321,8 @@ const CONTENT = {
     gen2:       { en: "Yoshisuke, 1232–1240", es: "Yoshisuke, 1232–1240" },
     gen3:       { en: "Nagamoto, 1274–1285", es: "Nagamoto, 1274–1285" },
     imageAlt:   { en: "Illustration for this page", es: "Ilustración de esta página" },
-    enlarge:    { en: "Enlarge the picture", es: "Agrandar la imagen" }
+    enlarge:    { en: "Enlarge the picture", es: "Agrandar la imagen" },
+    scrollHint: { en: "Copy the picture of what your lord gave into this act's circle on your Family Scroll.", es: "Copia el dibujo de lo que tu señor te dio en el círculo de este acto en tu Pergamino de la Familia." }
   },
 
   /* Rows of the oath ledger (誓) */
@@ -1131,9 +1142,24 @@ function arrowHtml(e) {
 function ledgerHead() {
   return `<div class="lhead"><span>${T(C.ui.gaveHead)}</span><span></span><span>${T(C.ui.gotHead)}</span></div>`;
 }
+/* Simple line drawings of what the lord gave, easy for a student to copy by hand */
+const GOT_ICONS = {
+  gotRice:     '<rect x="12" y="30" width="76" height="40" rx="20"/><path d="M36 30 v40 M64 30 v40"/><ellipse cx="80" cy="50" rx="7" ry="18"/>',
+  gotPromise:  '<rect class="dash" x="22" y="14" width="56" height="72"/><path d="M34 34 h32 M34 48 h32 M34 62 h20"/><rect class="seal" x="58" y="68" width="12" height="12"/>',
+  gotLand:     '<rect x="22" y="14" width="56" height="72"/><path d="M34 34 h32 M34 48 h32 M34 62 h20"/><rect class="seal" x="58" y="68" width="12" height="12"/>',
+  gotField:    '<path d="M30 30 H70 L84 76 H16 Z"/><path d="M38 50 l6 -8 l6 8 M62 50 l-6 -8 l-6 8 M28 66 l6 -8 l6 8 M50 66 l6 -8 l6 8 M72 66 l-6 -8 l-6 8"/>',
+  gotPromised: '<path class="dash" d="M30 30 H70 L84 76 H16 Z"/><path class="dash" d="M38 50 l6 -8 l6 8 M62 50 l-6 -8 l-6 8 M28 66 l6 -8 l6 8 M50 66 l6 -8 l6 8 M72 66 l-6 -8 l-6 8"/>',
+  gotNothing:  '',
+  gotDash:     ''
+};
+function gotIcon(key) {
+  const inner = GOT_ICONS[key];
+  if (inner === undefined) return '';
+  return `<span class="goticon" aria-hidden="true"><svg viewBox="0 0 100 100">${inner}</svg></span>`;
+}
 function ledgerRow(e) {
   return `<div class="lrow"><span class="gave">${T(C.ledger[e.gave])}</span>${arrowHtml(e)}` +
-         `<span class="got${e.promised ? ' promised' : ''}">${T(C.ledger[e.got])}</span></div>`;
+         `<span class="got${e.promised ? ' promised' : ''}">${gotIcon(e.got)}<span>${T(C.ledger[e.got])}</span></span></div>`;
 }
 
 /* ---------- Page renderers, one per page type ---------- */
@@ -1196,7 +1222,8 @@ const RENDER = {
       ? `<div class="lines">${c.lines.map((x, i) => `<p${i >= state.step ? ' class="off"' : ''}>${T(x)}</p>`).join('')}</div>` : '';
     return `<div class="page ledger"><div class="seal jp" aria-hidden="true">${OATH_MARK}</div>
       <h1>${T(C.ui.ledgerTitle)}</h1>${top}
-      <div class="lgrid">${ledgerHead()}${rows}</div>${chipsHtml(V.deltas)}${lines}</div>`;
+      <div class="lgrid">${ledgerHead()}${rows}</div>${chipsHtml(V.deltas)}${lines}
+      <p class="scrollhint">${T(C.ui.scrollHint)}</p></div>`;
   },
   code() {
     const c = C.code;
@@ -1226,8 +1253,9 @@ const RENDER = {
     const gen2 = S.ledger.find(e => e.gen === 2) || {};
     const got = [c.rows[0].got, gen2.moved ? c.rows[1].gotField : c.rows[1].gotNothing, c.rows[2].got];
     const moved = [true, !!gen2.moved, false];
+    const keys = ['gotLand', gen2.moved ? 'gotField' : 'gotNothing', 'gotNothing'];
     const rows = c.rows.map((r, i) => `<div class="lgen">${T(C.ui['gen' + (i + 1)])}</div>
-      <div class="lrow"><span class="gave">${T(r.gave)}</span>${arrowHtml({ moved: moved[i], small: i === 1 })}<span class="got">${T(got[i])}</span></div>`).join('');
+      <div class="lrow"><span class="gave">${T(r.gave)}</span>${arrowHtml({ moved: moved[i], small: i === 1 })}<span class="got">${gotIcon(keys[i])}<span>${T(got[i])}</span></span></div>`).join('');
     return `<div class="page end ledger">${frame(p, S)}
       <div class="lgrid">${ledgerHead()}${rows}</div>
       <p class="thanks">${T(c.thanks)}</p>

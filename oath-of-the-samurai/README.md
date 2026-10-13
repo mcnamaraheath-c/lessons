@@ -15,8 +15,8 @@ Interactive story for the 7th-grade Feudal Japan unit (CA 7.5.3, 7.5.6). The stu
 
 `family-scroll.html` is the paper companion students keep beside the Chromebook. Print it two-sided: pages 1–4 are English, 5–8 are the same in Spanish, so each student gets two sheets. It is meant to be fun first and a study guide second:
 
-- **Page 1.** Trace and color the Yamabe family crest (*mon*): three mountains above the waves of Hakata Bay, since *Yamabe* means "mountainside." Under it are three small circles marked 一, 二, 三. At the end of each act the student draws in that act's circle the one thing the family got from its lord (rice sacks, a paper, a small field) or leaves it empty, so Act 3's empty circle shows the lesson at a glance. Then a map of Japan with four numbered points to match to the places in the story, and a rice chart to plot after every scene.
-- **Pages 2–4.** One page per act. Short "find it on the screen" questions keyed to the year, the act's oath ledger copied from the game, and a last box that walks straight into the debrief questions.
+- **Page 1.** Trace and color the Yamabe family crest (*mon*): three mountains above the waves of Hakata Bay, since *Yamabe* means "mountainside." Under it are three small circles marked 一, 二, 三. Each ledger page in the game shows a small picture of what the lord gave (a rice bale, a paper, a small field, or nothing); at the end of each act the student copies it into that act's circle or leaves it empty, so Act 3's empty circle shows the lesson at a glance. Then a map of Japan with four numbered points to match to the places in the story, and a rice chart to plot after every scene.
+- **Pages 2–4.** One page per act. Short "find it on the screen" questions, each labeled with the season and year shown under the scene's title in the game, the act's oath ledger copied from the game, and a last box that walks straight into the debrief questions.
 
 The writing task comes after the story and the scroll. Every answer on the scroll is on the screen; the key below is for grading.
 
